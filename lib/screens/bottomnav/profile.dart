@@ -1,0 +1,316 @@
+import 'package:flutter/material.dart';
+import 'package:frontend/constants.dart';
+import 'package:frontend/screens/address/address.dart';
+import 'package:frontend/screens/authenticate/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class Profile extends StatefulWidget {
+  @override
+  _ProfileState createState() => _ProfileState();
+}
+
+//shift alt arrow
+class _ProfileState extends State<Profile> {
+  Future<void> removeSharedPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString(PrefConstants.email, "");
+    await prefs.setString(PrefConstants.name, "");
+    await prefs.setString(PrefConstants.phone, "");
+    await prefs.setInt(PrefConstants.id, -1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      body: Stack(
+        children: [
+          Container(
+            height: 25 + (MediaQuery.of(context).size.width * 0.28),
+            color: Colors.white,
+          ),
+          Center(
+            child: ListView(
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    SizedBox(
+                      height: 25,
+                    ),
+                    ClipOval(
+                      child: Image(
+                        image: AssetImage('assets/images/profile.png'),
+                        width: MediaQuery.of(context).size.width * 0.28,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    Text(
+                      'Jessica Simpson',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      'gfx.partner@gmail.com',
+                      style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15),
+                    ),
+                    SizedBox(height: 50),
+                  ],
+                ),
+                Column(
+                  children: <Widget>[
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.person_outline_outlined,
+                                  color: MyColors.PrimaryColor,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('About Me'),
+                              ],
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 15,
+                              color: Colors.grey,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.shopping_bag_outlined,
+                                  color: MyColors.PrimaryColor,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('My Orders'),
+                              ],
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 15,
+                              color: Colors.grey,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.favorite_border_outlined,
+                                  color: MyColors.PrimaryColor,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('My Favorites'),
+                              ],
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 15,
+                              color: Colors.grey,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Address()));
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.pin_drop_outlined,
+                                  color: MyColors.PrimaryColor,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('My Address'),
+                              ],
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 15,
+                              color: Colors.grey,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.credit_card,
+                                  color: MyColors.PrimaryColor,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Credit Cards'),
+                              ],
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 15,
+                              color: Colors.grey,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.money_outlined,
+                                  color: MyColors.PrimaryColor,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Transactions'),
+                              ],
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 15,
+                              color: Colors.grey,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.category_outlined,
+                                  color: MyColors.PrimaryColor,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Categories'),
+                              ],
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 15,
+                              color: Colors.grey,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        removeSharedPrefs();
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Login()));
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.power_settings_new,
+                                  color: MyColors.PrimaryColor,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Sign Out'),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
