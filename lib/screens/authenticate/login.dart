@@ -94,7 +94,7 @@ class _LoginState extends State<Login> {
     if(val.isEmpty)
       return 'Enter your Email or Phone number';
     else if(double.tryParse(val) != null){
-      if(val.length < 10)
+      if(val.length != 10)
         return 'Enter a valid Phone number';  
     }
     else if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(val))

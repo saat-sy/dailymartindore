@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
-import 'package:frontend/screens/authenticate/forgot_password.dart';
-import 'package:frontend/screens/bottomnav/bottomnav.dart';
-import 'package:frontend/screens/products/allScreen.dart';
 import 'package:frontend/wrapper.dart';
 
 void main() {
@@ -16,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: createMaterialColor(MyColors.PrimaryColor),
       ),
-      home: BottomNav(),
+      home: Wrapper(),
     );
   }
 }

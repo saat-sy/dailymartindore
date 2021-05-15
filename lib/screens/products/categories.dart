@@ -29,49 +29,49 @@ class _CategoriesState extends State<Categories> {
         title: 'Fresh Apricots',
         description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ',
         isVeg: true,
-        rating: 4.5,
-        old_price: 160,
-        new_price: 130),
+        rating: "4.5",
+        old_price: "160",
+        new_price: "130"),
     AllProducts(
         imagePath: 'assets/images/veg1.png',
         title: 'Organic Lemons',
         description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ',
         isVeg: true,
-        rating: 2.8,
-        old_price: 160,
-        new_price: 130),
+        rating: "2.8",
+        old_price: "160",
+        new_price: "130"),
     AllProducts(
         imagePath: 'assets/images/veg2.png',
         title: 'Pomogrenate',
         description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ',
         isVeg: true,
-        rating: 4.8,
-        old_price: 160,
-        new_price: 130),
+        rating: "4.8",
+        old_price: "160",
+        new_price: "130"),
     AllProducts(
         imagePath: 'assets/images/veg3.png',
         title: 'Pomogrenate',
         description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ',
         isVeg: true,
-        rating: 5.0,
-        old_price: 160,
-        new_price: 130),
+        rating: "5.0",
+        old_price: "160",
+        new_price: "130"),
     AllProducts(
         imagePath: 'assets/images/veg1.png',
         title: 'Organic Lemons',
         description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ',
         isVeg: true,
-        rating: 4.2,
-        old_price: 160,
-        new_price: 130),
+        rating: "4.2",
+        old_price: "160",
+        new_price: "130"),
     AllProducts(
         imagePath: 'assets/images/veg2.png',
         title: 'Fresh Apricots',
         description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. ',
         isVeg: true,
-        rating: 3.8,
-        old_price: 160,
-        new_price: 130),
+        rating: "3.8",
+        old_price: "160",
+        new_price: "130"),
   ];
 
   @override
@@ -91,46 +91,6 @@ class _CategoriesState extends State<Categories> {
       body: ProductCard(
 
         items: allProducts,
-
-        onFavPress: () {
-          return showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: Text("Add to Favorite"),
-              content: Text("This will be implemented when I do the functionality"),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                  child: Text("Ok"),
-                ),
-              ],
-            ),
-          );
-        },
-
-        onAddToCartPress: () {
-          return showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: Text("Add to Cart"),
-              content: Text("This will be implemented when I do the functionality"),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                  child: Text("Ok"),
-                ),
-              ],
-            ),
-          );
-        },
-
-        onCardPress: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage()));
-        },
 
       )
     );

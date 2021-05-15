@@ -1,17 +1,21 @@
 class TopProducts {
+  String id;
   String imagePath;
   String title;
   String description;
   bool isVeg;
-  double rating;
-  double old_price;
-  double new_price;
+  String discount;
+  String rating;
+  String old_price;
+  String new_price;
 
   TopProducts(
-      {this.imagePath,
+      {this.id,
+      this.imagePath,
       this.title,
       this.description,
       this.isVeg,
+      this.discount,
       this.rating,
       this.old_price,
       this.new_price});

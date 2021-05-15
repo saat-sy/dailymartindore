@@ -2,6 +2,10 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:frontend/models/api_response.dart';
+import 'package:frontend/screens/products/productpage.dart';
+import 'package:frontend/services/favorites_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
 
 class SubmitButton extends StatelessWidget {
@@ -33,13 +37,60 @@ class SubmitButton extends StatelessWidget {
   }
 }
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final List items;
-  final Function onCardPress;
   final Function onAddToCartPress;
-  final Function onFavPress;
 
-  const ProductCard({this.items, this.onCardPress, this.onAddToCartPress, this.onFavPress});
+  const ProductCard({this.items, this.onAddToCartPress});
+
+  @override
+  _ProductCardState createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+  FavoriteService service = FavoriteService();
+
+  APIResponse<bool> _apiResponse;
+
+  bool isLoading = true;
+
+  String error;
+
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(height: 55, width: 55, child: CircularProgressIndicator()),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  addToFavorites(String itemID) async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString();
+
+    _apiResponse = await service.addToFavorites(id, itemID);
+
+    if (_apiResponse.error) {
+      setState(() {
+        error = _apiResponse.errorMessage;
+      });
+    }
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +103,17 @@ class ProductCard extends StatelessWidget {
           mainAxisSpacing: 20,
           childAspectRatio: 0.56,
         ),
-        itemCount: items.length,
+        itemCount: widget.items.length,
         itemBuilder: (BuildContext context, int index) {
           return InkWell(
-            onTap: onCardPress,
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ProductPage(
+                            id: widget.items[index].id,
+                          )));
+            },
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -73,23 +131,28 @@ class ProductCard extends StatelessWidget {
                     child: Stack(
                       children: [
                         Center(
-                          child: Image(
-                            image: AssetImage(items[index].imagePath),
+                          child: Image.network(
+                            widget.items[index].imagePath,
                             height: MediaQuery.of(context).size.height * 0.145,
                           ),
                         ),
-                        Container(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: 7, vertical: 10),
-                            decoration: BoxDecoration(
-                                color: MyColors.PrimaryColor,
-                                borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(10),
-                                    bottomLeft: Radius.circular(10))),
-                            child: Text('10%',
-                                style: TextStyle(color: Colors.white))),
+                        widget.items[index].discount != null &&
+                                widget.items[index].discount != "0"
+                            ? Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 7, vertical: 10),
+                                decoration: BoxDecoration(
+                                    color: MyColors.PrimaryColor,
+                                    borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10))),
+                                child: Text('${widget.items[index].discount}%',
+                                    style: TextStyle(color: Colors.white)))
+                            : Container(),
                         GestureDetector(
-                          onTap: onFavPress,
+                          onTap: () {
+                            addToFavorites(widget.items[index].id);
+                          },
                           child: Align(
                             alignment: Alignment.bottomRight,
                             child: Container(
@@ -113,7 +176,7 @@ class ProductCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Text(
-                          items[index].title.toUpperCase(),
+                          widget.items[index].title.toUpperCase(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -125,10 +188,11 @@ class ProductCard extends StatelessWidget {
                       SizedBox(
                         height: 15,
                       ),
-                      Padding(
+                      Container(
+                        height: 30,
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Text(
-                          items[index].description,
+                          widget.items[index].description,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -146,7 +210,9 @@ class ProductCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             RatingBarIndicator(
-                              rating: items[index].rating,
+                              rating: widget.items[index].rating != null
+                                  ? double.parse(widget.items[index].rating)
+                                  : 0,
                               itemBuilder: (context, index) => Icon(
                                 Icons.star,
                                 color: Colors.amber,
@@ -159,14 +225,14 @@ class ProductCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(50),
                                   border: Border.all(
-                                      color: items[index].isVeg
+                                      color: widget.items[index].isVeg
                                           ? Colors.green
                                           : Colors.red,
                                       width: 2)),
                               child: Icon(
                                 Icons.circle,
                                 size: 10,
-                                color: items[index].isVeg
+                                color: widget.items[index].isVeg
                                     ? Colors.green
                                     : Colors.red,
                               ),
@@ -183,7 +249,7 @@ class ProductCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              '₹' + items[index].old_price.toString(),
+                              '₹' + widget.items[index].old_price.toString(),
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 17,
@@ -193,11 +259,11 @@ class ProductCard extends StatelessWidget {
                               width: 5,
                             ),
                             Text(
-                              '₹' + items[index].new_price.toString(),
+                              '₹' + widget.items[index].new_price.toString(),
                               style: TextStyle(
                                 decoration: TextDecoration.underline,
                                 color: MyColors.SecondaryColor,
-                                fontSize: 20,
+                                fontSize: 21,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -208,7 +274,7 @@ class ProductCard extends StatelessWidget {
                         height: 15,
                       ),
                       InkWell(
-                        onTap: onAddToCartPress,
+                        onTap: widget.onAddToCartPress,
                         child: Container(
                           padding: EdgeInsets.all(8.0),
                           decoration: BoxDecoration(
@@ -236,29 +302,84 @@ class ProductCard extends StatelessWidget {
   }
 }
 
-class HomeProductCard extends StatelessWidget {
-
+class HomeProductCard extends StatefulWidget {
   final List items;
-  final Function onCardPress;
   final Function onAddToCartPress;
-  final Function onFavPress;
 
-  const HomeProductCard({this.items, this.onCardPress, this.onAddToCartPress, this.onFavPress});
+  const HomeProductCard({this.items, this.onAddToCartPress});
+
+  @override
+  _HomeProductCardState createState() => _HomeProductCardState();
+}
+
+class _HomeProductCardState extends State<HomeProductCard> {
+
+  FavoriteService service = FavoriteService();
+
+  APIResponse<bool> _apiResponse;
+
+  bool isLoading = true;
+
+  String error;
+
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(height: 55, width: 55, child: CircularProgressIndicator()),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  addToFavorites(String itemID) async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString();
+
+    _apiResponse = await service.addToFavorites(id, itemID);
+
+    if (_apiResponse.error) {
+      setState(() {
+        error = _apiResponse.errorMessage;
+      });
+    }
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 286.3,
+      height: 308.3,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: items.length,
+        itemCount: widget.items.length > 6 ? 6 : widget.items.length,
         itemBuilder: (context, index) {
           return InkWell(
-            onTap: onCardPress,
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ProductPage(
+                            id: widget.items[index].id != null
+                                ? widget.items[index].id
+                                : "33",
+                          )));
+            },
             child: Container(
               width: 175,
-              margin: EdgeInsets.only(
-                  top: 8, bottom: 8, right: 10),
+              margin: EdgeInsets.only(top: 8, bottom: 8, right: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -278,28 +399,38 @@ class HomeProductCard extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Center(
-                            child: Image(
-                              image: AssetImage(items[index].imagePath),
-                              height: MediaQuery.of(context).size.height * 0.122,
+                            child: Image.network(
+                              widget.items[index].imagePath,
+                              height:
+                                  MediaQuery.of(context).size.height * 0.145,
                             ),
                           ),
                         ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 7, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: MyColors.PrimaryColor,
-                            borderRadius: BorderRadius.only(topRight: Radius.circular(10), bottomLeft: Radius.circular(10))
-                          ),
-                          child: Text('10%', style: TextStyle(color: Colors.white))
-                        ),
+                        widget.items[index].discount != null &&
+                                widget.items[index].discount != "0"
+                            ? Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 7, vertical: 10),
+                                decoration: BoxDecoration(
+                                    color: MyColors.PrimaryColor,
+                                    borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10))),
+                                child: Text('${widget.items[index].discount}%',
+                                    style: TextStyle(color: Colors.white)))
+                            : Container(),
                         GestureDetector(
-                          onTap: onFavPress,
+                          onTap: () {
+                            addToFavorites(widget.items[index].id);
+                          },
                           child: Align(
                             alignment: Alignment.bottomRight,
                             child: Container(
-                              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.1),
-                              child: Icon(Icons.favorite_outline, color: MyColors.PrimaryColor)
-                            ),
+                                margin: EdgeInsets.only(
+                                    top: MediaQuery.of(context).size.height *
+                                        0.13),
+                                child: Icon(Icons.favorite_outline,
+                                    color: MyColors.PrimaryColor)),
                           ),
                         ),
                       ],
@@ -312,11 +443,10 @@ class HomeProductCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
-                          items[index].title.toUpperCase(),
+                          widget.items[index].title.toUpperCase(),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -325,31 +455,34 @@ class HomeProductCard extends StatelessWidget {
                               fontWeight: FontWeight.bold),
                         ),
                       ),
-
-                      SizedBox(height: 5,),
-
-                      Padding(
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        height: 30,
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Text(
-                          items[index].description,
+                          widget.items[index].description,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-
-                      SizedBox(height: 7,),
-
+                      SizedBox(
+                        height: 10,
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             RatingBarIndicator(
-                              rating: items[index].rating,
+                              rating: widget.items[index].rating != null
+                                  ? double.parse(widget.items[index].rating)
+                                  : 0,
                               itemBuilder: (context, index) => Icon(
                                 Icons.star,
                                 color: Colors.amber,
@@ -357,60 +490,61 @@ class HomeProductCard extends StatelessWidget {
                               itemCount: 5,
                               itemSize: 16.0,
                             ),
-
                             Container(
                               padding: EdgeInsets.all(2),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                border: Border.all(color: items[index].isVeg ? Colors.green : Colors.red, width: 2)
+                                  borderRadius: BorderRadius.circular(50),
+                                  border: Border.all(
+                                      color: widget.items[index].isVeg
+                                          ? Colors.green
+                                          : Colors.red,
+                                      width: 2)),
+                              child: Icon(
+                                Icons.circle,
+                                size: 8,
+                                color: widget.items[index].isVeg
+                                    ? Colors.green
+                                    : Colors.red,
                               ),
-                              child: Icon(Icons.circle, size: 10, color: items[index].isVeg ? Colors.green : Colors.red,),
                             )
                           ],
                         ),
                       ),
-
-                      SizedBox(height: 7,),
-
+                      SizedBox(
+                        height: 7,
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              '₹' +
-                                  items[index]
-                                      .old_price
-                                      .toString(),
+                              '₹' + widget.items[index].old_price.toString(),
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 15,
-                                  decoration:
-                                      TextDecoration.lineThrough),
+                                  decoration: TextDecoration.lineThrough),
                             ),
                             SizedBox(
                               width: 5,
                             ),
                             Text(
-                              '₹' +
-                                  items[index]
-                                      .new_price
-                                      .toString(),
+                              '₹' + widget.items[index].new_price.toString(),
                               style: TextStyle(
                                 decoration: TextDecoration.underline,
                                 color: MyColors.SecondaryColor,
-                                fontSize: 18,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
                         ),
                       ),
-
-                      SizedBox(height: 6,),
-
+                      SizedBox(
+                        height: 6,
+                      ),
                       InkWell(
-                        onTap: onAddToCartPress,
+                        onTap: widget.onAddToCartPress,
                         child: Container(
                           padding: EdgeInsets.all(8.0),
                           decoration: BoxDecoration(
@@ -419,12 +553,13 @@ class HomeProductCard extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'ADD TO CART',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500),
                             ),
                           ),
                         ),
                       )
-
                     ],
                   )
                 ],

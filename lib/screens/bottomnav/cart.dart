@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/products/shopping_cart_model.dart';
 import 'package:frontend/screens/order/placeOrder.dart';
@@ -17,39 +18,57 @@ class _CartState extends State<Cart> {
   List<ShoppingCartModel> items = [
     ShoppingCartModel(
       imagePath: 'assets/images/veg1.png',
-      name: 'Organic Lemons',
-      price:'\$1.22 x 5',
-      bottomText: '1.50 lbs',
+      title: 'Organic Lemons',
+      price:'90',
+      oldPrice: '100',
+      rating: '5',
+      discount: '10',
+      description: '1.50 lbs',
     ),
     ShoppingCartModel(
       imagePath: 'assets/images/veg2.png',
-      name: 'Fresh Apricots',
-      price:'\$1.22 x 5',
-      bottomText: 'dozen',
+      title: 'Fresh Apricots',
+      price:'90',
+      oldPrice: '100',
+      rating: '5',
+      discount: '10',
+      description: 'dozen',
     ),
     ShoppingCartModel(
       imagePath: 'assets/images/veg3.png',
-      name: 'Pomogrenate',
-      price:'\$1.22 x 5',
-      bottomText: 'each',
+      title: 'Pomogrenate',
+      price:'90',
+      oldPrice: '100',
+      rating: '5',
+      discount: '10',
+      description: 'each',
     ),
     ShoppingCartModel(
       imagePath: 'assets/images/veg1.png',
-      name: 'Organic Lemons',
-      price:'\$1.22 x 5',
-      bottomText: '1.50 lbs',
+      title: 'Organic Lemons',
+      price:'90',
+      oldPrice: '100',
+      rating: '5',
+      discount: '10',
+      description: '1.50 lbs',
     ),
     ShoppingCartModel(
       imagePath: 'assets/images/veg2.png',
-      name: 'dozen',
-      price:'\$1.22 x 5',
-      bottomText: 'dozen',
+      title: 'dozen',
+      price:'90',
+      oldPrice: '100',
+      rating: '5',
+      discount: null,
+      description: 'dozen',
     ),
     ShoppingCartModel(
       imagePath: 'assets/images/veg3.png',
-      name: 'Pomogrenate',
-      price:'\$1.22 x 5',
-      bottomText: 'each',
+      title: 'Pomogrenate',
+      price:'90',
+      oldPrice: '100',
+      rating: null,
+      discount: '10',
+      description: 'each',
     ),
   ];
 
@@ -137,28 +156,78 @@ class _CartState extends State<Cart> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Text(items[index].price,
-                                      style: TextStyle(
+
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        '₹' + items[index].oldPrice,
+                                        style: TextStyle(
+                                            color: Colors.grey.shade400,
+                                            fontSize: 14,
+                                            decoration: TextDecoration.lineThrough),
+                                      ),
+                                      SizedBox(
+                                        width: 7,
+                                      ),
+                                      Text(
+                                        '₹' + items[index].price,
+                                        style: TextStyle(
                                           color: MyColors.PrimaryColor,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500)),
-                                  SizedBox(
-                                    height: 4,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      items[index].discount != null ?  
+                                        Container(
+                                          padding: EdgeInsets.all(3),
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(8),
+                                              color: MyColors.PrimaryColor.withOpacity(0.15)),
+                                          child: Center(
+                                            child: Text(
+                                              items[index].discount + '% OFF',
+                                              style: TextStyle(
+                                                  color: MyColors.PrimaryColor,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ) : Container()
+                                    ],
                                   ),
+
+                                  SizedBox(height: 4,),
+
                                   Text(
-                                    items[index].name,
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w500),
+                                    items[index].title,
+                                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
                                   ),
-                                  SizedBox(
-                                    height: 4,
-                                  ),
+
+                                  SizedBox(height: 4,),
+
                                   Text(
-                                    items[index].bottomText,
-                                    style: TextStyle(
-                                        color: Colors.grey, fontSize: 13),
+                                    items[index].description,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: Colors.grey, fontSize: 13),
                                   ),
+
+                                  SizedBox(height: 4,),
+
+                                  RatingBarIndicator(
+                                    rating: items[index].rating != null ? double.parse(items[index].rating) : 0,
+                                    itemBuilder: (context, index) => Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                    ),
+                                    itemCount: 5,
+                                    itemSize: 13.0,
+                                  ),
+
                                 ],
                               )
                             ],

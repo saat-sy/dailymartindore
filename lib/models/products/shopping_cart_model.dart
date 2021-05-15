@@ -1,14 +1,20 @@
 
 class ShoppingCartModel {
   String imagePath;
-  String name;
+  String title;
   String price;
-  String bottomText;
+  String oldPrice;
+  String rating;
+  String discount;
+  String description;
   
   ShoppingCartModel(
       {this.imagePath,
-      this.name,
+      this.title,
       this.price,
-      this.bottomText});
+      this.oldPrice,
+      this.discount,
+      this.rating,
+      this.description});
 }
 

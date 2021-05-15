@@ -98,7 +98,7 @@ class _SignupState extends State<Signup> {
   String verifyPhoneNo(String val) {
     if (val.isEmpty)
       return 'Enter your Phone number';
-    else if (val.length < 10)
+    else if (val.length != 10)
       return 'Enter a valid Phone number';
     else
       return null;

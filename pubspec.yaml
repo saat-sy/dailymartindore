@@ -68,6 +68,8 @@ flutter:
     - assets/dashboard/categories/fruits-vegetables.png
     - assets/dashboard/categories/household.png
     - assets/dashboard/categories/snacks.png
+    - assets/images/empty_favorites.png
+    - assets/images/empty_cart.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
