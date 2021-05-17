@@ -9,12 +9,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants.dart';
 
-class AddAddress extends StatefulWidget {
+class UpdateAddress extends StatefulWidget {
+  AddressModel addressModel;
+
+  UpdateAddress({this.addressModel});
+
   @override
-  _AddAddressState createState() => _AddAddressState();
+  _UpdateAddressState createState() => _UpdateAddressState();
 }
 
-class _AddAddressState extends State<AddAddress> {
+class _UpdateAddressState extends State<UpdateAddress> {
   AddressService service = AddressService();
 
   APIResponse<bool> _apiResponse;
@@ -43,21 +47,21 @@ class _AddAddressState extends State<AddAddress> {
     );
   }
 
-  addAddress() async {
+  update() async {
     showLoaderDialog(context);
 
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getInt(PrefConstants.id).toString();
 
     final addressModel = AddressModel(
-      username: name,
-      address: address,
-      state: state,
-      pincode: pincode,
-      city: city
-    );
+        username: name ?? widget.addressModel.username,
+        address: address ?? widget.addressModel.address,
+        state: state ?? widget.addressModel.state,
+        pincode: pincode ?? widget.addressModel.pincode,
+        id: widget.addressModel.id,
+        city: city ?? widget.addressModel.city);
 
-    _apiResponse = await service.addAddress(addressModel, id);
+    _apiResponse = await service.updateAddress(addressModel, id);
 
     if (_apiResponse.error) {
       setState(() {
@@ -71,6 +75,16 @@ class _AddAddressState extends State<AddAddress> {
     }
   }
 
+  @override
+  initState() {
+    nameController.text = widget.addressModel.username;
+    addressController.text = widget.addressModel.address;
+    cityController.text = widget.addressModel.city;
+    stateController.text = widget.addressModel.state;
+    pincodeController.text = widget.addressModel.pincode;
+    super.initState();
+  }
+
   bool _makedefault = true;
 
   String name;
@@ -79,6 +93,12 @@ class _AddAddressState extends State<AddAddress> {
   String state;
   String pincode;
 
+  var nameController = TextEditingController();
+  var addressController = TextEditingController();
+  var cityController = TextEditingController();
+  var stateController = TextEditingController();
+  var pincodeController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,7 +106,7 @@ class _AddAddressState extends State<AddAddress> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
-          'Add Address',
+          'Update Address',
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -101,6 +121,7 @@ class _AddAddressState extends State<AddAddress> {
                   name = value;
                 });
               },
+              controller: nameController,
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
                   contentPadding:
@@ -126,6 +147,7 @@ class _AddAddressState extends State<AddAddress> {
               height: 10,
             ),
             TextFormField(
+              controller: addressController,
               onChanged: (value) {
                 setState(() {
                   address = value;
@@ -156,6 +178,7 @@ class _AddAddressState extends State<AddAddress> {
               height: 10,
             ),
             TextFormField(
+              controller: cityController,
               onChanged: (value) {
                 setState(() {
                   city = value;
@@ -191,6 +214,7 @@ class _AddAddressState extends State<AddAddress> {
                   state = value;
                 });
               },
+              controller: stateController,
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
                   contentPadding:
@@ -221,6 +245,7 @@ class _AddAddressState extends State<AddAddress> {
                   pincode = value;
                 });
               },
+              controller: pincodeController,
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
                   contentPadding:
@@ -266,9 +291,9 @@ class _AddAddressState extends State<AddAddress> {
             ),
             SizedBox(height: 30),
             SubmitButton(
-              text: 'Save address',
+              text: 'Update address',
               onPress: () {
-                addAddress();
+                update();
               },
             )
           ],

@@ -25,12 +25,13 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.2
-  convex_bottom_bar:
   flutter_rating_bar:
   pinput: ^1.2.0
   carousel_slider: ^3.0.0
   http: ^0.13.3
   shared_preferences: ^2.0.5
+  google_fonts: ^2.1.0
+  
 
 dev_dependencies:
   flutter_test:
@@ -54,9 +55,11 @@ flutter:
     - assets/images/onboard2.jpg
     - assets/images/onboard3.jpg
     - assets/images/onboard4.jpg
+    - assets/images/logo.png
     - assets/images/veg1.png
     - assets/images/veg2.png
     - assets/images/veg3.png
+    - assets/images/login_bottom.png
     - assets/images/otp.png
     - assets/images/forgot_password.png
     - assets/dashboard/bannerImages/1.jpg
@@ -70,6 +73,7 @@ flutter:
     - assets/dashboard/categories/snacks.png
     - assets/images/empty_favorites.png
     - assets/images/empty_cart.png
+    - assets/images/empty_address.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -82,17 +86,16 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: fonts/Poppins-Regular.ttf
+        - asset: fonts/Poppins-Black.ttf
+        - asset: fonts/Poppins-Bold.ttf
+        - asset: fonts/Poppins-ExtraBold.ttf
+        - asset: fonts/Poppins-SemiBold.ttf
+        - asset: fonts/Poppins-Light.ttf
+        - asset: fonts/Poppins-Medium.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

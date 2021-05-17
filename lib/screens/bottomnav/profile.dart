@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/screens/address/address.dart';
 import 'package:frontend/screens/authenticate/login.dart';
+import 'package:frontend/screens/profile/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
@@ -9,8 +10,25 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-//shift alt arrow
 class _ProfileState extends State<Profile> {
+
+  String currentName = '';
+  String currentEmail = '';
+
+  getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      currentName = prefs.getString(PrefConstants.name).toString() ?? 'NAme?';
+      currentEmail = prefs.getString(PrefConstants.email).toString() ?? 'EMail?';
+    });
+  }
+
+  @override
+  initState() {
+    getData();
+    super.initState();
+  }
+
   Future<void> removeSharedPrefs() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -48,7 +66,7 @@ class _ProfileState extends State<Profile> {
                       height: 25,
                     ),
                     Text(
-                      'Jessica Simpson',
+                      currentName,
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -59,7 +77,7 @@ class _ProfileState extends State<Profile> {
                       height: 5,
                     ),
                     Text(
-                      'gfx.partner@gmail.com',
+                      currentEmail,
                       style: TextStyle(
                           color: Colors.grey.shade500,
                           fontWeight: FontWeight.w500,
@@ -71,7 +89,10 @@ class _ProfileState extends State<Profile> {
                 Column(
                   children: <Widget>[
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => ProfilePage()));
+                      },
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 20),
                         height: 40,
@@ -185,36 +206,7 @@ class _ProfileState extends State<Profile> {
                               size: 15,
                               color: Colors.grey,
                             )
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        height: 40,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.credit_card,
-                                  color: MyColors.PrimaryColor,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text('Credit Cards'),
-                              ],
-                            ),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              size: 15,
-                              color: Colors.grey,
-                            )
-                          ],
+                          ], 
                         ),
                       ),
                     ),

@@ -86,4 +86,34 @@ class FavoriteService {
           data: false, error: true, errorMessage: 'An error occured');
     });
   }
+
+  Future<APIResponse<bool>> removeFavorites(String userId, String itemID) {
+    final body = {'user_id': userId, 'article_id': itemID};
+
+    return http
+        .post(Uri.parse(API + '/removeToWishList'), headers: headers, body: body)
+        .then((value) {
+      if (value.statusCode == 200) {
+        final jsonData = json.decode(value.body);
+        print(jsonData);
+        if (jsonData['responseCode'] == 1) {
+          return APIResponse<bool>(
+            data: true,
+            error: false,
+          );
+        }
+        return APIResponse<bool>(
+            data: false,
+            error: true,
+            errorMessage: jsonData['responseMessage']);
+      }
+      return APIResponse<bool>(
+          data: false,
+          error: true,
+          errorMessage: json.decode(value.body)['responseMessage']);
+    }).catchError((error) {
+      return APIResponse<bool>(
+          data: false, error: true, errorMessage: 'An error occured');
+    });
+  }
 }

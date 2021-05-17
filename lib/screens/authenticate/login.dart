@@ -107,217 +107,228 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 40),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'Welcome back!',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25,
-                ),
-              ),
-
-              SizedBox(
-                height: 5,
-              ),
-
-              Text(
-                'Sign in to your account.',
-                style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 15),
-              ),
-
-              SizedBox(
-                height: 25,
-              ),
-
-              TextFormField(
-                validator: (val) => verifyEmail(val),
-                onChanged: (value) {
-                  setState(() {
-                    email = value;
-                  });
-                },
-                cursorColor: MyColors.PrimaryColor,
-                decoration: InputDecoration(
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
-                  hintText: 'Email Address / Phone Number',
-                  fillColor: Colors.white,
-                  filled: true,
-                  prefixIcon: Visibility(
-                      visible: true,
-                      child: Icon(
-                        Icons.email_outlined,
-                        color: Colors.grey,
-                        size: 17,
-                      )),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: Colors.white, width: 1.0)),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: Colors.white, width: 1.0)),
-                  errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: Colors.red, width: 1.0)),
-                  focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: Colors.red, width: 1.0)),
-                ),
-              ),
-
-              SizedBox(height: 10),
-
-              TextFormField(
-                validator: (val) => val.isEmpty ? 'Enter a Password' : null,
-                onChanged: (value) {
-                  setState(() {
-                    password = value;
-                  });
-                },
-                cursorColor: MyColors.PrimaryColor,
-                obscureText: _obscureText,
-                decoration: InputDecoration(
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
-                  hintText: 'Password',
-                  fillColor: Colors.white,
-                  filled: true,
-                  prefixIcon: Visibility(
-                    visible: true,
-                    child: Icon(
-                      Icons.lock_outlined,
-                      color: Colors.grey,
-                      size: 17,
-                    ),
-                  ),
-                  suffixIcon: Visibility(
-                    visible: true,
-                    child: IconButton(
-                      icon: Icon(
-                        _obscureText
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        size: 17,
-                      ),
-                      color: Colors.grey,
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: Colors.white, width: 1.0)),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: Colors.white, width: 1.0)),
-                  errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: Colors.red, width: 1.0)),
-                  focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                        borderSide: BorderSide(color: Colors.red, width: 1.0)),    
-                ),
-              ),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Image.asset(
+              'assets/images/login_bottom.png',
+              width: MediaQuery.of(context).size.width * 0.9,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Transform.scale(
-                        scale: 0.6,
-                        child: CupertinoSwitch(
-                          value: _rememberme,
-                          onChanged: (value) {
-                            setState(() {
-                              _rememberme = value;
-                            });
-                          },
-                          activeColor: MyColors.SecondaryColor,
+                  Text(
+                    'Welcome back!',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: 5,
+                  ),
+
+                  Text(
+                    'Sign in to your account.',
+                    style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15),
+                  ),
+
+                  SizedBox(
+                    height: 25,
+                  ),
+
+                  TextFormField(
+                    validator: (val) => verifyEmail(val),
+                    onChanged: (value) {
+                      setState(() {
+                        email = value;
+                      });
+                    },
+                    cursorColor: MyColors.PrimaryColor,
+                    decoration: InputDecoration(
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
+                      hintText: 'Email / Phone Number',
+                      fillColor: Colors.white,
+                      filled: true,
+                      prefixIcon: Visibility(
+                          visible: true,
+                          child: Icon(
+                            Icons.email_outlined,
+                            color: Colors.grey,
+                            size: 17,
+                          )),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: BorderSide(color: Colors.white, width: 1.0)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: BorderSide(color: Colors.white, width: 1.0)),
+                      errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: BorderSide(color: Colors.red, width: 1.0)),
+                      focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: BorderSide(color: Colors.red, width: 1.0)),
+                    ),
+                  ),
+
+                  SizedBox(height: 10),
+
+                  TextFormField(
+                    validator: (val) => val.isEmpty ? 'Enter a Password' : null,
+                    onChanged: (value) {
+                      setState(() {
+                        password = value;
+                      });
+                    },
+                    cursorColor: MyColors.PrimaryColor,
+                    obscureText: _obscureText,
+                    decoration: InputDecoration(
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
+                      hintText: 'Password',
+                      fillColor: Colors.white,
+                      filled: true,
+                      prefixIcon: Visibility(
+                        visible: true,
+                        child: Icon(
+                          Icons.lock_outlined,
+                          color: Colors.grey,
+                          size: 17,
                         ),
                       ),
-                      Text(
-                        'Remember me',
-                        style: TextStyle(
-                            color: Colors.grey.shade500, fontSize: 12),
+                      suffixIcon: Visibility(
+                        visible: true,
+                        child: IconButton(
+                          icon: Icon(
+                            _obscureText
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            size: 17,
+                          ),
+                          color: Colors.grey,
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: BorderSide(color: Colors.white, width: 1.0)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: BorderSide(color: Colors.white, width: 1.0)),
+                      errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: BorderSide(color: Colors.red, width: 1.0)),
+                      focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: BorderSide(color: Colors.red, width: 1.0)),    
+                    ),
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Transform.scale(
+                            scale: 0.6,
+                            child: CupertinoSwitch(
+                              value: _rememberme,
+                              onChanged: (value) {
+                                setState(() {
+                                  _rememberme = value;
+                                });
+                              },
+                              activeColor: MyColors.SecondaryColor,
+                            ),
+                          ),
+                          Text(
+                            'Remember me',
+                            style: TextStyle(
+                                color: Colors.grey.shade500, fontSize: 12),
+                          )
+                        ],
+                      ),
+                      TextButton(
+                        child: Text(
+                          'Forgot Password?',
+                          style: TextStyle(color: MyColors.SecondaryColor),
+                        ),
+                        onPressed: () {
+                          Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => ForgotPassword()));
+                        },
                       )
                     ],
                   ),
-                  TextButton(
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: MyColors.SecondaryColor),
-                    ),
-                    onPressed: () {
-                      Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => ForgotPassword()));
-                    },
-                  )
-                ],
-              ),
 
-              SizedBox(
-                height: 10,
-              ),
+                  SizedBox(
+                    height: 10,
+                  ),
 
-              Text(
-                error,
-                style: TextStyle(color: Colors.red),
-              ),
-
-              SizedBox(
-                height: 10,
-              ),
-
-              SubmitButton(
-                text: 'Login',
-                onPress: () {
-                  if (_formKey.currentState.validate())
-                    login();
-                },
-              ),
-
-              //SizedBox(height: 10,),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
                   Text(
-                    'Don\'t have an account?',
-                    style: TextStyle(color: Colors.grey.shade600),
+                    error,
+                    style: TextStyle(color: Colors.red),
                   ),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 2.0),
-                    ),
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => Signup()));
+
+                  SizedBox(
+                    height: 10,
+                  ),
+
+                  SubmitButton(
+                    text: 'Login',
+                    onPress: () {
+                      if (_formKey.currentState.validate())
+                        login();
                     },
-                    child: Text(
-                      'Signup',
-                      style: TextStyle(color: Colors.black),
-                    ),
+                  ),
+
+                  //SizedBox(height: 10,),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Don\'t have an account?',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 2.0),
+                        ),
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => Signup()));
+                        },
+                        child: Text(
+                          'Signup',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

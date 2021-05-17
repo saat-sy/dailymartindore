@@ -101,7 +101,7 @@ class _ProductCardState extends State<ProductCard> {
           crossAxisCount: 2,
           crossAxisSpacing: 10,
           mainAxisSpacing: 20,
-          childAspectRatio: 0.56,
+          childAspectRatio: 0.5,
         ),
         itemCount: widget.items.length,
         itemBuilder: (BuildContext context, int index) {
@@ -125,146 +125,44 @@ class _ProductCardState extends State<ProductCard> {
                   ),
                 ],
               ),
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: Image.network(
-                            widget.items[index].imagePath,
-                            height: MediaQuery.of(context).size.height * 0.145,
-                          ),
-                        ),
-                        widget.items[index].discount != null &&
-                                widget.items[index].discount != "0"
-                            ? Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 7, vertical: 10),
-                                decoration: BoxDecoration(
-                                    color: MyColors.PrimaryColor,
-                                    borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(10),
-                                        bottomLeft: Radius.circular(10))),
-                                child: Text('${widget.items[index].discount}%',
-                                    style: TextStyle(color: Colors.white)))
-                            : Container(),
-                        GestureDetector(
-                          onTap: () {
-                            addToFavorites(widget.items[index].id);
-                          },
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: Container(
-                                margin: EdgeInsets.only(
-                                    top: MediaQuery.of(context).size.height *
-                                        0.13),
-                                child: Icon(Icons.favorite_outline,
-                                    color: MyColors.PrimaryColor)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
+              child: Stack(
+                children: [
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text(
-                          widget.items[index].title.toUpperCase(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
                       Container(
-                        height: 30,
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text(
-                          widget.items[index].description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Stack(
                           children: [
-                            RatingBarIndicator(
-                              rating: widget.items[index].rating != null
-                                  ? double.parse(widget.items[index].rating)
-                                  : 0,
-                              itemBuilder: (context, index) => Icon(
-                                Icons.star,
-                                color: Colors.amber,
+                            Center(
+                              child: Image.network(
+                                widget.items[index].imagePath,
+                                height: MediaQuery.of(context).size.height * 0.145,
                               ),
-                              itemCount: 5,
-                              itemSize: 16.0,
                             ),
-                            Container(
-                              padding: EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50),
-                                  border: Border.all(
-                                      color: widget.items[index].isVeg
-                                          ? Colors.green
-                                          : Colors.red,
-                                      width: 2)),
-                              child: Icon(
-                                Icons.circle,
-                                size: 10,
-                                color: widget.items[index].isVeg
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              '₹' + widget.items[index].old_price.toString(),
-                              style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 17,
-                                  decoration: TextDecoration.lineThrough),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              '₹' + widget.items[index].new_price.toString(),
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: MyColors.SecondaryColor,
-                                fontSize: 21,
-                                fontWeight: FontWeight.bold,
+                            widget.items[index].discount != null &&
+                                    widget.items[index].discount != "0"
+                                ? Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 7, vertical: 10),
+                                    decoration: BoxDecoration(
+                                        color: MyColors.PrimaryColor,
+                                        borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10))),
+                                    child: Text('${widget.items[index].discount}%',
+                                        style: TextStyle(color: Colors.white)))
+                                : Container(),
+                            GestureDetector(
+                              onTap: () {
+                                addToFavorites(widget.items[index].id);
+                              },
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
+                                    margin: EdgeInsets.only(
+                                        top: MediaQuery.of(context).size.height *
+                                            0.13),
+                                    child: Icon(Icons.favorite_outline,
+                                        color: MyColors.PrimaryColor)),
                               ),
                             ),
                           ],
@@ -273,24 +171,132 @@ class _ProductCardState extends State<ProductCard> {
                       SizedBox(
                         height: 15,
                       ),
-                      InkWell(
-                        onTap: widget.onAddToCartPress,
-                        child: Container(
-                          padding: EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: MyColors.PrimaryColor,
-                          ),
-                          child: Center(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Text(
-                              'ADD TO CART',
+                              widget.items[index].title.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500),
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700),
                             ),
                           ),
-                        ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            height: 50,
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              widget.items[index].description,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                RatingBarIndicator(
+                                  rating: widget.items[index].rating != null
+                                      ? double.parse(widget.items[index].rating)
+                                      : 0,
+                                  itemBuilder: (context, index) => Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                  ),
+                                  itemCount: 5,
+                                  itemSize: 16.0,
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      border: Border.all(
+                                          color: widget.items[index].isVeg
+                                              ? Colors.green
+                                              : Colors.red,
+                                          width: 2)),
+                                  child: Icon(
+                                    Icons.circle,
+                                    size: 10,
+                                    color: widget.items[index].isVeg
+                                        ? Colors.green
+                                        : Colors.red,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  '₹' + widget.items[index].old_price.toString(),
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 17,
+                                      decoration: TextDecoration.lineThrough),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  '₹' + widget.items[index].new_price.toString(),
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: MyColors.SecondaryColor,
+                                    fontSize: 21,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          
+                        ],
                       )
                     ],
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: InkWell(
+                      onTap: widget.onAddToCartPress,
+                      child: Container(
+                        height: 40,
+                        padding: EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: MyColors.PrimaryColor,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'ADD TO CART',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ),
+                    ),
                   )
                 ],
               ),
@@ -361,7 +367,7 @@ class _HomeProductCardState extends State<HomeProductCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 308.3,
+      height: 325.3,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: widget.items.length > 6 ? 6 : widget.items.length,

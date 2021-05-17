@@ -86,8 +86,8 @@ class AuthenticateService {
 
   Future<APIResponse<User>> login(String email, String password) {
     var body = {
-      'email': 'user@user.com',
-      'password': 'password',
+      'email': email,
+      'password': password,
     };
 
     return http

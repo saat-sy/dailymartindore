@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/user.dart';
@@ -23,6 +25,7 @@ class VerifyOTP extends StatefulWidget {
 class _VerifyOTPState extends State<VerifyOTP> {
   AuthenticateService service = AuthenticateService();
   APIResponse<User> _apiResponse;
+  APIResponse<User> _apiResponseResend;
   bool isLoading = false;
 
   String error = "";
@@ -88,23 +91,73 @@ class _VerifyOTPState extends State<VerifyOTP> {
     await prefs.setInt(PrefConstants.id, userID);
   }
 
+  int time = 120;
+
   resendOTP() async {
     setState(() {
       otp_send_status = 'Sending new OTP';
     });
 
-    _apiResponse = await service.resendOTP(widget.phone);
+    _apiResponseResend = await service.resendOTP(widget.phone);
 
-    if (_apiResponse.error)
+    if (_apiResponseResend.error)
       setState(() {
-        error = _apiResponse.errorMessage;
-        otp_send_status = 'Failed to resend OTP';
+        error = _apiResponseResend.errorMessage;
+        otp_send_status = 'Resend OTP';
+        Scaffold.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to send new OTP'))
+        );
       });
     else {
       setState(() {
-        otp_send_status = 'New OTP sent';
+        time = time * 2;
+        _timerRunning = true;
+        startTimer();
+        Scaffold.of(context).showSnackBar(
+          SnackBar(content: Text('New OTP sent!'))
+        );
       });
     }
+  }
+
+  bool _timerRunning = true;
+  Timer _timer;
+  int _start;
+  String timerData = "";
+
+  void startTimer() {
+    _start = time;
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_start == 0) {
+          setState(() {
+            _timerRunning = false;
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            _start--;
+            int mins = (_start / 60).truncate();
+            int seconds = _start - mins * 60;
+            String minsString = (_start / 60).truncate().toString();
+            String secondsString = (_start - mins * 60).toString();
+            if(mins < 10)
+              minsString = "0" + minsString;
+            if(seconds < 10)
+              secondsString = "0" + secondsString;  
+            timerData = "$minsString : $secondsString";
+          });
+        }
+      },
+    );
+  }
+
+  @override
+  initState() {
+    startTimer();
+    super.initState();
   }
 
   final _pinPutController = TextEditingController();
@@ -199,15 +252,27 @@ class _VerifyOTPState extends State<VerifyOTP> {
             height: 10,
           ),
           Text(
-            'Didn\'t recieve the code?',
+            'Didn\'t recieve the code? Resend OTP in:',
             style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey),
           ),
           SizedBox(
             height: 5,
           ),
+          _timerRunning ?
+          Text(timerData,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: MyColors.SecondaryColor),
+          ) 
+          :
           InkWell(
             onTap: () {
-              resendOTP();
+              //resendOTP();
+              setState(() {
+                time = time * 2;
+                _timerRunning = true;
+                startTimer();
+              });
             },
             child: Container(
               child: Text(

@@ -40,8 +40,8 @@ List<OnBoardModel> getSlides() {
   //1
 
   onBoardModel.setImageAssetPath('assets/images/onboard1.jpg');
-  onBoardModel.setTitle("Welcome to \nCarter Grocery Application!");
-  onBoardModel.setDescription("Carter online grocery store is the No.1 grocery application in the world");
+  onBoardModel.setTitle("Welcome to \nDailyMart \nIndore!");
+  onBoardModel.setDescription("Carter online grocery store is the \nNo.1 grocery application in the world");
   slides.add(onBoardModel);
 
   //2
@@ -49,23 +49,23 @@ List<OnBoardModel> getSlides() {
 
   onBoardModel.setImageAssetPath('assets/images/onboard2.jpg');
   onBoardModel.setTitle("Best quality \ngrocery at your \ndoorstep!");
-  onBoardModel.setDescription("Carter online grocery store where we deliver everything on time.");
+  onBoardModel.setDescription("Carter online grocery store where \nwe deliver everything on time.");
   slides.add(onBoardModel);
 
   //3
   onBoardModel = new OnBoardModel();
 
   onBoardModel.setImageAssetPath('assets/images/onboard3.jpg');
-  onBoardModel.setTitle("Peace of mind same day delivery guaranteed!");
-  onBoardModel.setDescription("We dispatch all the orders within two hours of the order being placed");
+  onBoardModel.setTitle("Peace of mind \nsame day delivery \nguaranteed!");
+  onBoardModel.setDescription("We dispatch all the orders within \ntwo hours of the order being placed");
   slides.add(onBoardModel);
 
   //4
   onBoardModel = new OnBoardModel();
 
   onBoardModel.setImageAssetPath('assets/images/onboard4.jpg');
-  onBoardModel.setTitle("Big savings with seasonal discounts on all products.");
-  onBoardModel.setDescription("We belive in providing best competitive prices to all our customers.");
+  onBoardModel.setTitle("Big savings with \nseasonal discounts \non all products.");
+  onBoardModel.setDescription("We belive in providing best \ncompetitive prices to all our customers.");
   slides.add(onBoardModel);
 
   return slides;

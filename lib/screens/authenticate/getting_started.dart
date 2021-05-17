@@ -3,6 +3,7 @@ import 'package:frontend/constants.dart';
 import 'package:frontend/models/getting_started/onboard.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/stylesheet/styles.dart';
+import 'dart:ui' as ui show Image;
 
 class GettingStarted extends StatefulWidget {
   @override
@@ -26,6 +27,8 @@ class _GettingStartedState extends State<GettingStarted> {
           borderRadius: BorderRadius.circular(12)),
     );
   }
+
+  
 
   @override
   void initState() {
@@ -132,6 +135,20 @@ class SliderTile extends StatelessWidget {
           Stack(
             alignment: Alignment.center,
             children: [
+              Positioned(
+                left: MediaQuery.of(context).size.width / 30,
+                top: MediaQuery.of(context).size.height * 0.01, 
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: MyColors.PrimaryColor, width: 5.5),
+                    borderRadius: BorderRadius.circular(100)
+                  ),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    width: 60,
+                  ),
+                ),
+              ),
               ClipOval(
                   child: Image.asset(
                 imageAssetPath,
@@ -150,7 +167,6 @@ class SliderTile extends StatelessWidget {
             height: 30,
           ),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.69,
             child: Text(
               title,
               textAlign: TextAlign.center,
@@ -164,7 +180,6 @@ class SliderTile extends StatelessWidget {
             height: 20,
           ),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.7,
             child: Text(
               description,
               textAlign: TextAlign.center,
@@ -181,7 +196,6 @@ class SliderTile extends StatelessWidget {
 class CirclePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final circle1 = Offset(size.width / 6.5, size.height * 0.2);
 
     final circle2 = Offset((3 * size.width) / 3.6, size.height * 0.1);
 
@@ -189,18 +203,21 @@ class CirclePainter extends CustomPainter {
 
     final circle4 = Offset((3 * size.width) / 3.7, size.height * 0.85);
 
-    final paint = Paint()
+    final paintOne = Paint()
       ..color = MyColors.SecondaryColor
       ..strokeWidth = 6
       ..style = PaintingStyle.stroke;
 
-    canvas.drawCircle(circle1, 15, paint);
+    final paintTwo = Paint()
+      ..color = MyColors.PrimaryColor
+      ..strokeWidth = 6
+      ..style = PaintingStyle.stroke;  
 
-    canvas.drawCircle(circle2, 23, paint);
+    canvas.drawCircle(circle2, 20, paintOne);
 
-    canvas.drawCircle(circle3, 10, paint);
+    canvas.drawCircle(circle3, 10, paintOne);
 
-    canvas.drawCircle(circle4, 3, paint);
+    canvas.drawCircle(circle4, 3, paintTwo);
   }
 
   @override

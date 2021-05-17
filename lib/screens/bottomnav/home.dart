@@ -2,13 +2,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/all.dart';
+import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/models/products/featured.dart';
 import 'package:frontend/models/products/top.dart';
-import 'package:frontend/models/user.dart';
 import 'package:frontend/screens/products/allScreen.dart';
 import 'package:frontend/screens/products/categories.dart';
 import 'package:frontend/screens/products/featuredScreen.dart';
-import 'package:frontend/screens/products/productpage.dart';
 import 'package:frontend/screens/products/topScreen.dart';
 import 'package:frontend/services/products_service.dart';
 import 'package:frontend/stylesheet/styles.dart';
@@ -34,15 +33,21 @@ class _HomeState extends State<Home> {
   APIResponse<List<FeaturedProducts>> _apiResponseFeat;
   APIResponse<List<TopProducts>> _apiResponseTop;
   APIResponse<List<AllProducts>> _apiResponseAll;
+  APIResponse<List<CategoriesModel>> _apiResponseCategory;
 
   bool isFeatLoading = true;
   bool isTopLoading = true;
   bool isAllLoading = true;
-  String error = '';
+  bool isCatLoading = true;
+  String errorFeat = '';
+  String errorTop = '';
+  String errorAll = '';
+  String errorCat = '';
 
   List<FeaturedProducts> featuredProducts;
   List<TopProducts> topProducts;
   List<AllProducts> allProducts;
+  List<CategoriesModel> categories;
 
   getProducts() async {
 
@@ -50,39 +55,56 @@ class _HomeState extends State<Home> {
     _apiResponseFeat = await service.getFeaturedProducts();
     if (_apiResponseFeat.error) {
       setState(() {
-        error = _apiResponseFeat.errorMessage;
+        errorFeat = _apiResponseFeat.errorMessage;
       });
     } else {
       featuredProducts = _apiResponseFeat.data;
-      setState(() {
-        isFeatLoading = false;
-      });
+      if(mounted)
+        setState(() {
+          isFeatLoading = false;
+        });
     }
 
     //GET TOP PRODUCTS
     _apiResponseTop = await service.getTopProducts();
     if (_apiResponseTop.error) {
       setState(() {
-        error = _apiResponseTop.errorMessage;
+        errorTop = _apiResponseTop.errorMessage;
       });
     } else {
       topProducts = _apiResponseTop.data;
-      setState(() {
-        isTopLoading = false;
-      });
+      if(mounted)
+        setState(() {
+          isTopLoading = false;
+        });
     }
 
     //GET ALL PRODUCTS
     _apiResponseAll = await service.getAllProducts();
     if (_apiResponseAll.error) {
       setState(() {
-        error = _apiResponseAll.errorMessage;
+        errorAll = _apiResponseAll.errorMessage;
       });
     } else {
       allProducts = _apiResponseAll.data;
+      if(mounted)
+        setState(() {
+          isAllLoading = false;
+        });
+    }
+
+    //GET CATEGORIES
+    _apiResponseCategory = await service.getCategories();
+    if (_apiResponseCategory.error) {
       setState(() {
-        isAllLoading = false;
+        errorCat = _apiResponseCategory.errorMessage;
       });
+    } else {
+      categories = _apiResponseCategory.data;
+      if(mounted)
+        setState(() {
+          isCatLoading = false;
+        });
     }
   }
 
@@ -113,21 +135,6 @@ class _HomeState extends State<Home> {
     'assets/dashboard/sliderImages/1.png',
     'assets/dashboard/sliderImages/1.png',
     'assets/dashboard/sliderImages/2.png',
-  ];
-
-  List<String> categoryImagePath = [
-    'assets/dashboard/categories/dairy.png',
-    'assets/dashboard/categories/foodgrains.png',
-    'assets/dashboard/categories/fruits-vegetables.png',
-    'assets/dashboard/categories/household.png',
-    'assets/dashboard/categories/snacks.png',
-  ];
-  List<String> categoryTitle = [
-    'Bakery, Cakes & Dairy',
-    'Foodgrains, Oil & Masala',
-    'Fruits & Vegetables',
-    'House Hold Care',
-    'Snacks & Packaged Foods'
   ];
 
   @override
@@ -271,11 +278,19 @@ class _HomeState extends State<Home> {
                           ],
                         ),
                       ),
+                      errorCat != "" ? Text(
+                        errorCat,
+                        style: TextStyle(color: Colors.red),
+                      ) : Container(),
+                      isCatLoading ? Container(
+                        height: 200,
+                        child: Center(child: CircularProgressIndicator(),),
+                      ) :
                       Container(
                         height: 150,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: categoryImagePath.length,
+                          itemCount: categories.length,
                           itemBuilder: (context, index) {
                             return InkWell(
                               onTap: () {
@@ -283,7 +298,7 @@ class _HomeState extends State<Home> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          Categories(category: index),
+                                          Categories(category: categories[index].id, categoryName: categories[index].name,),
                                     ));
                               },
                               child: Container(
@@ -302,17 +317,18 @@ class _HomeState extends State<Home> {
                                 ),
                                 child: Stack(
                                   children: [
-                                    Center(
-                                      child: Image(
-                                        image:
-                                            AssetImage(categoryImagePath[index]),
-                                      ),
+                                    Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Image.network(
+                                        categories[index].image,
+                                        width: MediaQuery.of(context).size.width * 0.36,
+                                      )
                                     ),
                                     Container(
                                       alignment: Alignment.topCenter,
                                       padding: EdgeInsets.all(10),
                                       child: Text(
-                                        categoryTitle[index],
+                                        categories[index].name,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             color: MyColors.SecondaryColor,
@@ -355,8 +371,8 @@ class _HomeState extends State<Home> {
                           )
                         ],
                       ),
-                      error != "" ? Text(
-                        error,
+                      errorFeat != "" ? Text(
+                        errorFeat,
                         style: TextStyle(color: Colors.red),
                       ) : Container(),
                       isFeatLoading ? Container(
@@ -395,8 +411,8 @@ class _HomeState extends State<Home> {
                           )
                         ],
                       ),
-                      error != "" ? Text(
-                        error,
+                      errorTop != "" ? Text(
+                        errorTop,
                         style: TextStyle(color: Colors.red),
                       ) : Container(),
                       isTopLoading ? Container(
@@ -435,8 +451,8 @@ class _HomeState extends State<Home> {
                           )
                         ],
                       ),
-                      error != "" ? Text(
-                        error,
+                      errorAll != "" ? Text(
+                        errorAll,
                         style: TextStyle(color: Colors.red),
                       ) : Container(),
                       isAllLoading ? Container(

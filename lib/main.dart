@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: createMaterialColor(MyColors.PrimaryColor),
+        fontFamily: 'Poppins'
       ),
       home: Wrapper(),
     );

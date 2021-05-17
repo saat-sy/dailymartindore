@@ -47,7 +47,6 @@ class _SignupState extends State<Signup> {
 
   signup() async {
     showLoaderDialog(context);
-    // await Future.delayed(Duration(seconds: 3));
     _apiResponse = await service.signup(
       SignUpInputModel(
         name: name,

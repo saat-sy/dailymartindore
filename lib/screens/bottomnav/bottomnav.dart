@@ -1,9 +1,10 @@
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/screens/bottomnav/fav.dart';
 import 'package:frontend/screens/bottomnav/home.dart';
 import 'package:frontend/screens/bottomnav/profile.dart';
+import 'package:frontend/screens/bottomnav/search.dart';
 
 import 'cart.dart';
 
@@ -14,7 +15,7 @@ class BottomNav extends StatefulWidget {
 
 class _BottomNavState extends State<BottomNav> {
   int selectedPage = 0;
-  final _pageOption = [Home(), Favorite(), Profile(), Cart()];
+  final _pageOption = [Home(), Search(), Cart(), Profile(), Favorite()];
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +31,21 @@ class _BottomNavState extends State<BottomNav> {
               backgroundColor: MyColors.PrimaryColor
             ),
             BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.search),
+              label: 'Search',
+              backgroundColor: MyColors.PrimaryColor
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.bag),
+              label: 'My Cart',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.person),
+              label: 'Account',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.favorite_outline), 
-              label: 'Favorite',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline_outlined),
-              label: 'Profile',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_bag_outlined),
-              label: 'Shopping Cart',
+              label: 'Wish List',
             ),
           ],
           onTap: (index) {
@@ -52,8 +58,3 @@ class _BottomNavState extends State<BottomNav> {
     );
   }
 }
-
-// TabItem(icon: Icons.home_outlined),
-//           TabItem(icon: Icons.favorite_outline),
-//           TabItem(icon: Icons.person_outline_outlined),
-//           TabItem(icon: Icons.shopping_bag_outlined),
