@@ -1,4 +1,3 @@
-
 class ShoppingCartModel {
   String imagePath;
   String title;
@@ -7,7 +6,10 @@ class ShoppingCartModel {
   String rating;
   String discount;
   String description;
-  
+  String productID;
+  String numAdded;
+  String sumPrice;
+
   ShoppingCartModel(
       {this.imagePath,
       this.title,
@@ -15,6 +17,8 @@ class ShoppingCartModel {
       this.oldPrice,
       this.discount,
       this.rating,
+      this.productID,
+      this.numAdded,
+      this.sumPrice,
       this.description});
 }
-

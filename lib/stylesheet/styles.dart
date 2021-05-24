@@ -3,7 +3,9 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:frontend/models/api_response.dart';
+import 'package:frontend/models/products/shopping_cart_model.dart';
 import 'package:frontend/screens/products/productpage.dart';
+import 'package:frontend/services/cart_service.dart';
 import 'package:frontend/services/favorites_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
@@ -90,6 +92,38 @@ class _ProductCardState extends State<ProductCard> {
       });
     }
     Navigator.pop(context);
+  }
+
+  CartService serviceCart = CartService();
+  APIResponse<bool> _apiResponseCart;
+
+  Future<void> addToCart({String productId, String price}) async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString();
+
+    ShoppingCartModel s = ShoppingCartModel(
+        productID: productId,
+        price: price,
+        numAdded: '1',
+        sumPrice: price
+    );
+
+        _apiResponseCart = await serviceCart.addToCart(id, s);
+    if (_apiResponseCart.error) {
+      setState(() {
+        error = _apiResponseCart.errorMessage;
+        Navigator.pop(context);
+        print(error);
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      Navigator.pop(context);
+      print('Added to cart');
+    }
   }
 
   @override
@@ -280,7 +314,12 @@ class _ProductCardState extends State<ProductCard> {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: InkWell(
-                      onTap: widget.onAddToCartPress,
+                      onTap: () {
+                        addToCart(
+                          productId: widget.items[index].id,
+                          price: widget.items[index].new_price.toString()
+                        );
+                      },
                       child: Container(
                         height: 40,
                         padding: EdgeInsets.all(8.0),
@@ -362,6 +401,38 @@ class _HomeProductCardState extends State<HomeProductCard> {
       });
     }
     Navigator.pop(context);
+  }
+
+  CartService serviceCart = CartService();
+  APIResponse<bool> _apiResponseCart;
+
+  Future<void> addToCart({String productId, String price}) async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString();
+
+    ShoppingCartModel s = ShoppingCartModel(
+        productID: productId,
+        price: price,
+        numAdded: '1',
+        sumPrice: price
+    );
+
+        _apiResponseCart = await serviceCart.addToCart(id, s);
+    if (_apiResponseCart.error) {
+      setState(() {
+        error = _apiResponseCart.errorMessage;
+        Navigator.pop(context);
+        print(error);
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      Navigator.pop(context);
+      print('Added to cart');
+    }
   }
 
   @override
@@ -469,7 +540,7 @@ class _HomeProductCardState extends State<HomeProductCard> {
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Text(
                           widget.items[index].description,
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: Colors.grey,
@@ -550,7 +621,12 @@ class _HomeProductCardState extends State<HomeProductCard> {
                         height: 6,
                       ),
                       InkWell(
-                        onTap: widget.onAddToCartPress,
+                        onTap: () {
+                          addToCart(
+                            productId: widget.items[index].id,
+                            price: widget.items[index].new_price.toString()
+                            );
+                          },
                         child: Container(
                           padding: EdgeInsets.all(8.0),
                           decoration: BoxDecoration(

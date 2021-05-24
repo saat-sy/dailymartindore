@@ -53,10 +53,12 @@ class _TopScreenState extends State<TopScreen> {
       backgroundColor: Colors.grey.shade200,
 
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Top Deals', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.white,
+        title: Text('Top Deals'),
         centerTitle: true,
       ),
 

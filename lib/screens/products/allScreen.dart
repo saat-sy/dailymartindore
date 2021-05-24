@@ -53,10 +53,12 @@ class _AllScreenState extends State<AllScreen> {
       backgroundColor: Colors.grey.shade200,
 
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('More Deals', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.white,
+        title: Text('More Deals'),
         centerTitle: true,
       ),
 

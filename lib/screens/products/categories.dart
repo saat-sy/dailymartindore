@@ -109,10 +109,12 @@ class _CategoriesState extends State<Categories> {
       backgroundColor:Colors.white,
 
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(widget.categoryName, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.white,
+        title: Text(widget.categoryName),
         centerTitle: true,
       ),
 

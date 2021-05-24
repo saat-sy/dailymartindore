@@ -30,12 +30,23 @@ dependencies:
   carousel_slider: ^3.0.0
   http: ^0.13.3
   shared_preferences: ^2.0.5
-  google_fonts: ^2.1.0
+  material_design_icons_flutter: ^4.0.5955
+  grouped_buttons: ^1.0.4
+  flutter_launcher_icons:
+  flutter_launcher_name: 
   
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  image_path: "assets/images/icon.jpg"
+  android: true
+  ios: true 
+
+flutter_launcher_name:
+  name: "Daily Mart Indore"  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -74,6 +85,10 @@ flutter:
     - assets/images/empty_favorites.png
     - assets/images/empty_cart.png
     - assets/images/empty_address.png
+    - assets/images/empty_search.png
+    - assets/images/order_confirmed.png
+    - assets/images/icon.jpg
+    - assets/images/icon2.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

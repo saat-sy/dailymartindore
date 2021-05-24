@@ -2,12 +2,17 @@ class CategoriesModel {
   String id;
   String name;
   String image;
+  List<SubCategoriesModel> subCategories;
 
-  CategoriesModel({
-    this.id,
-    this.name,
-    this.image
-  });
+  CategoriesModel({this.id, this.name, this.image, this.subCategories});
+}
+
+class SubCategoriesModel {
+  String id;
+  String name;
+  String image;
+
+  SubCategoriesModel({this.id, this.name, this.image});
 }
 
 class CategoriesProduct {

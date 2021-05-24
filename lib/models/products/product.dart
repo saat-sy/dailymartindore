@@ -1,8 +1,9 @@
 class ProductModel {
   String title;
+  String id;
   bool isVeg;
   String rating;
-  String image;
+  List<String> image;
   String discount;
   String description;
   String shortDescription;
@@ -11,19 +12,25 @@ class ProductModel {
   String price;
   String oldPrice;
   String category;
+  String sku;
+  String quantity;
+  String categoryID;
 
-  ProductModel({
-    this.title,
-    this.isVeg,
-    this.category,
-    this.rating,
-    this.image,
-    this.discount,
-    this.description,
-    this.shortDescription,
-    this.brandName,
-    this.vendorName,
-    this.price,
-    this.oldPrice
-  });
+  ProductModel(
+      {this.id,
+      this.title,
+      this.isVeg,
+      this.category,
+      this.rating,
+      this.sku,
+      this.quantity,
+      this.categoryID,
+      this.image,
+      this.discount,
+      this.description,
+      this.shortDescription,
+      this.brandName,
+      this.vendorName,
+      this.price,
+      this.oldPrice});
 }

@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/screens/address/address.dart';
 import 'package:frontend/screens/authenticate/login.dart';
+import 'package:frontend/screens/bottomnav/bottomnav.dart';
+import 'package:frontend/screens/order/myOrders.dart';
+import 'package:frontend/screens/products/all_categories.dart';
+import 'package:frontend/screens/profile/notifications.dart';
 import 'package:frontend/screens/profile/profile_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,12 +18,14 @@ class _ProfileState extends State<Profile> {
 
   String currentName = '';
   String currentEmail = '';
+  String currentPhone = '';
 
   getData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       currentName = prefs.getString(PrefConstants.name).toString() ?? 'NAme?';
       currentEmail = prefs.getString(PrefConstants.email).toString() ?? 'EMail?';
+      currentPhone = prefs.getString(PrefConstants.phone).toString() ?? 'PHone?';
     });
   }
 
@@ -83,7 +89,17 @@ class _ProfileState extends State<Profile> {
                           fontWeight: FontWeight.w500,
                           fontSize: 15),
                     ),
-                    SizedBox(height: 50),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      currentPhone,
+                      style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15),
+                    ),
+                    SizedBox(height: 30),
                   ],
                 ),
                 Column(
@@ -121,7 +137,12 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MyOrders()));
+                      },
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 20),
                         height: 40,
@@ -150,7 +171,12 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => BottomNav(index: 4,)));
+                      },
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 20),
                         height: 40,
@@ -166,7 +192,41 @@ class _ProfileState extends State<Profile> {
                                 SizedBox(
                                   width: 10,
                                 ),
-                                Text('My Favorites'),
+                                Text('My Wish List'),
+                              ],
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 15,
+                              color: Colors.grey,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Notifications()));
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        height: 40,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.notifications_outlined,
+                                  color: MyColors.PrimaryColor,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Notifications'),
                               ],
                             ),
                             Icon(
@@ -211,36 +271,10 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        height: 40,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.money_outlined,
-                                  color: MyColors.PrimaryColor,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text('Transactions'),
-                              ],
-                            ),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              size: 15,
-                              color: Colors.grey,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => AllCategories()));
+                      },
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 20),
                         height: 40,

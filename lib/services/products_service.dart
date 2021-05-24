@@ -4,6 +4,8 @@ import 'package:frontend/models/products/all.dart';
 import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/models/products/featured.dart';
 import 'package:frontend/models/products/product.dart';
+import 'package:frontend/models/products/shopping_cart_model.dart';
+import 'package:frontend/models/products/store_list_model.dart';
 import 'package:frontend/models/products/top.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,7 +17,7 @@ class ProductService {
     'device_id': '1235',
     'device_version': '1.0',
     'device_type': '1',
-    'store_id': '9'
+    'store_id': '14'
   };
 
   Future<APIResponse<List<FeaturedProducts>>> getFeaturedProducts() {
@@ -148,11 +150,14 @@ class ProductService {
         final jsonData = json.decode(value.body);
         if (jsonData['responseCode'] == 1) {
           final responseData = jsonData['responsedata'];
+          print(responseData['id']);
           final product = ProductModel(
+              id: responseData['id'],
+              categoryID: responseData['shop_categorie'],
               title: responseData['title'],
               isVeg: responseData['is_veg'] == "0" ? true : false,
               rating: responseData['avg_rating'],
-              image: responseData['image'],
+              image: [responseData['image']],
               discount: responseData['discount_name'],
               description: responseData['description'],
               shortDescription: responseData['short_description'],
@@ -160,6 +165,7 @@ class ProductService {
               vendorName: responseData['vendor_name'],
               price: responseData['price'],
               oldPrice: responseData['old_price'],
+              sku: responseData['sku'],
               category: responseData['categorie_name']);
           return APIResponse<ProductModel>(error: false, data: product);
         }
@@ -169,6 +175,7 @@ class ProductService {
       return APIResponse<ProductModel>(
           error: true, errorMessage: 'An error occured');
     }).catchError((error) {
+      print(error);
       return APIResponse<ProductModel>(
           error: true, errorMessage: 'An error occured');
     });
@@ -184,10 +191,22 @@ class ProductService {
           final responseData = jsonData['responsedata'];
           final categories = <CategoriesModel>[];
           for (var data in responseData) {
+            final subCategories = <SubCategoriesModel>[];
+            if (subCategories != []) {
+              for (var sub in data['subcategory']) {
+                final s = SubCategoriesModel(
+                  id: sub['id'],
+                  name: sub['name'],
+                  image: sub['image'],
+                );
+                subCategories.add(s);
+              }
+            }
             final f = CategoriesModel(
               id: data['id'],
               name: data['name'],
               image: data['image'],
+              subCategories: subCategories ?? [],
             );
             categories.add(f);
           }
@@ -203,6 +222,7 @@ class ProductService {
           error: true,
           errorMessage: json.decode(value.body)['responseMessage']);
     }).catchError((error) {
+      print(error);
       return APIResponse<List<CategoriesModel>>(
           error: true, errorMessage: 'An error occured');
     });
@@ -249,6 +269,41 @@ class ProductService {
           errorMessage: json.decode(value.body)['responseMessage']);
     }).catchError((error) {
       return APIResponse<List<CategoriesProduct>>(
+          error: true, errorMessage: 'An error occured');
+    });
+  }
+
+  Future<APIResponse<List<StoreListModel>>> getStoreList() {
+    return http
+        .get(Uri.parse(API + '/storeList'), headers: headers)
+        .then((value) {
+      if (value.statusCode == 200) {
+        final jsonData = json.decode(value.body);
+        if (jsonData['responseCode'] == 1) {
+          final responseData = jsonData['storeList'];
+          final stores = <StoreListModel>[];
+          for (var data in responseData) {
+            final f = StoreListModel(
+              id: data['id'],
+              address: data['address'],
+              pinCode: data['pincode'],
+            );
+            stores.add(f);
+          }
+          return APIResponse<List<StoreListModel>>(
+            data: stores,
+            error: false,
+          );
+        }
+        return APIResponse<List<StoreListModel>>(
+            error: true, errorMessage: jsonData['responseMessage']);
+      }
+      return APIResponse<List<StoreListModel>>(
+          error: true,
+          errorMessage: json.decode(value.body)['responseMessage']);
+    }).catchError((error) {
+      print(error.toString());
+      return APIResponse<List<StoreListModel>>(
           error: true, errorMessage: 'An error occured');
     });
   }

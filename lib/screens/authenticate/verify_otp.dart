@@ -267,12 +267,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
           :
           InkWell(
             onTap: () {
-              //resendOTP();
-              setState(() {
-                time = time * 2;
-                _timerRunning = true;
-                startTimer();
-              });
+              resendOTP();
             },
             child: Container(
               child: Text(

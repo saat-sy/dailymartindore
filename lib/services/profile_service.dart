@@ -12,7 +12,7 @@ class ProfileService {
     'device_id': '1235',
     'device_version': '1.0',
     'device_type': '1',
-    'store_id': '9'
+    'store_id': '14'
   };
 
   Future<APIResponse<bool>> updateProfile(String phoneNo, String name, String userID) {
