@@ -161,7 +161,7 @@ class _AddressState extends State<Address> {
                     onDismissed: (_) {
                       setState(() {
                         removeAddress(address[index].id);
-                        if(address.length == 1){
+                        if(address.length == 0){
                           _recordFound = false;
                         }
                         address.removeAt(index);

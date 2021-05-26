@@ -97,15 +97,17 @@ class _ProductPageState extends State<ProductPage>
       });
     } else {
       product = _apiResponse.data;
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted)
+        setState(() {
+          isLoading = false;
+        });
       getCategories();
     }
   }
 
   Future<void> refresh() async {
-    getProduct();
+    print('ha');
+    await getProduct();
   }
 
   String textCart = 'Add to Cart';
@@ -161,7 +163,8 @@ class _ProductPageState extends State<ProductPage>
   List<CategoriesProduct> categories;
 
   Future<void> getCategories() async {
-    _apiResponseCat = await serviceCat.getCategoryProducts(product.categoryID);
+    _apiResponseCat =
+        await serviceCat.getCategoryProducts(category: product.categoryID);
     if (_apiResponse.error) {
       setState(() {
         errorCat = _apiResponseCat.errorMessage;
@@ -814,7 +817,9 @@ class _ProductPageState extends State<ProductPage>
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
-                                                            Reviews(id: product.id)));
+                                                            Reviews(
+                                                                id: product
+                                                                    .id)));
                                               },
                                               child: Text(
                                                 'View All Reviews',

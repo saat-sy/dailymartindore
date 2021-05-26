@@ -6,6 +6,7 @@ class AllProducts {
   bool isVeg;
   String discount;
   String rating;
+  String quantity;
   String old_price;
   String new_price;
 
@@ -15,6 +16,7 @@ class AllProducts {
       this.title,
       this.description,
       this.isVeg,
+      this.quantity,
       this.discount,
       this.rating,
       this.old_price,

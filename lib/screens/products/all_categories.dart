@@ -94,29 +94,85 @@ class CategoryExpandableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
+    return category.subCategories.length == 0 ?
+    InkWell(
+      onTap: () {
+        Navigator.push(
+          context, MaterialPageRoute(
+            builder: (context) => Categories(
+              category: category.id,
+              categoryName:
+                  category.name,
+            ),
+          )
+        );
+      },
+      child: ListTile(
+        title: new Text(
+          category.name,
+          style: new TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ),
+    ):
+    ExpansionTile(
       key: PageStorageKey<CategoriesModel>(category),
       title: Text(category.name,
           style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
-      children: category.subCategories.length != null
-          ? category.subCategories.map<Widget>((club) => showSub(club)).toList()
-          : Container(),
+              fontSize: 18, fontWeight: FontWeight.bold)),
+      children: category.subCategories.map<Widget>((sub) => showSub(sub)).toList(),
     );
   }
 
   showSub(SubCategoriesModel subCategory) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Categories()));
-      },
-      child: Padding(
-        padding: const EdgeInsets.only(left: 15.0),
-        child: new ListTile(
-          title: new Text(
+    return Padding(
+      padding: const EdgeInsets.only(left: 15.0),
+      child: subCategory.subSubCategoriesModel.length == 0 ?
+      InkWell(
+        onTap: () {
+          Navigator.push(
+            context, MaterialPageRoute(
+              builder: (context) => Categories(
+                subcategory: subCategory.id,
+                subcategoryName:
+                    subCategory.name,
+              ),
+            )
+          );
+        },
+        child: ListTile(
+          title: Text(
             subCategory.name,
-            style: new TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 17),
+          ),
+        ),
+      ):
+      ExpansionTile(
+        key: PageStorageKey<SubCategoriesModel>(subCategory),
+        title: Text(subCategory.name, style: TextStyle(fontSize: 17)),
+        children: subCategory.subSubCategoriesModel.map<Widget>((subsub) => showSubSub(subsub, subCategory.name, subCategory.id)).toList(),
+      )
+    );
+  }
+
+  showSubSub(SubSubCategoriesModel subsubCategory, String name, String id) {
+    return Padding(
+      padding: EdgeInsets.only(left: 15),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context, MaterialPageRoute(
+              builder: (context) => Categories(
+                subcategory: id,
+                subcategoryName:
+                    name,
+              ),
+            )
+          );
+        },
+        child: ListTile(
+          title: Text(
+            subsubCategory.name,
+            style: TextStyle(fontSize: 16),
           ),
         ),
       ),

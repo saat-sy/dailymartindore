@@ -201,6 +201,9 @@ class _CartState extends State<Cart> {
                     onDismissed: (_) async {
                       await deleteFromCart(items[index].productID);
                       setState(() {
+                        if(items.length == 0){
+                          _recordFound = false;
+                        }
                         items.removeAt(index);
                       });
                     },

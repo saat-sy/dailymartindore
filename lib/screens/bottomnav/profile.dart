@@ -3,7 +3,7 @@ import 'package:frontend/constants.dart';
 import 'package:frontend/screens/address/address.dart';
 import 'package:frontend/screens/authenticate/login.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
-import 'package:frontend/screens/order/myOrders.dart';
+import 'package:frontend/screens/order/myOrder.dart';
 import 'package:frontend/screens/products/all_categories.dart';
 import 'package:frontend/screens/profile/notifications.dart';
 import 'package:frontend/screens/profile/profile_page.dart';
@@ -141,7 +141,7 @@ class _ProfileState extends State<Profile> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => MyOrders()));
+                              builder: (context) => MyOrder()));
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 20),

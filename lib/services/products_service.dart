@@ -4,7 +4,6 @@ import 'package:frontend/models/products/all.dart';
 import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/models/products/featured.dart';
 import 'package:frontend/models/products/product.dart';
-import 'package:frontend/models/products/shopping_cart_model.dart';
 import 'package:frontend/models/products/store_list_model.dart';
 import 'package:frontend/models/products/top.dart';
 import 'package:http/http.dart' as http;
@@ -40,6 +39,7 @@ class ProductService {
               old_price: data['old_price'],
               discount: data['discount_name'],
               new_price: data['price'],
+              quantity: data['quantity']
             );
             featuredProducts.add(f);
           }
@@ -80,6 +80,7 @@ class ProductService {
               old_price: data['old_price'],
               discount: data['discount_name'],
               new_price: data['price'],
+              quantity: data['quantity']
             );
             topProducts.add(f);
           }
@@ -120,6 +121,7 @@ class ProductService {
               old_price: data['old_price'],
               discount: data['discount_name'],
               new_price: data['price'],
+              quantity: data['quantity']
             );
             allProducts.add(f);
           }
@@ -190,18 +192,32 @@ class ProductService {
         if (jsonData['responseCode'] == 1) {
           final responseData = jsonData['responsedata'];
           final categories = <CategoriesModel>[];
+
           for (var data in responseData) {
+
             final subCategories = <SubCategoriesModel>[];
-            if (subCategories != []) {
-              for (var sub in data['subcategory']) {
-                final s = SubCategoriesModel(
-                  id: sub['id'],
-                  name: sub['name'],
-                  image: sub['image'],
+            for (var sub in data['subcategory']) {
+
+              final subSubCat = <SubSubCategoriesModel>[];
+              for(var subsub in sub['subsubcategory']) {
+                final ss = SubSubCategoriesModel(
+                  id: subsub['id'],
+                  name: subsub['name'],
+                  image: subsub['image'],
                 );
-                subCategories.add(s);
+                subSubCat.add(ss);
+
               }
+
+              final s = SubCategoriesModel(
+                id: sub['id'],
+                name: sub['name'],
+                image: sub['image'],
+                subSubCategoriesModel: subSubCat ?? [],
+              );
+              subCategories.add(s);
             }
+
             final f = CategoriesModel(
               id: data['id'],
               name: data['name'],
@@ -210,6 +226,7 @@ class ProductService {
             );
             categories.add(f);
           }
+
           return APIResponse<List<CategoriesModel>>(
             data: categories,
             error: false,
@@ -229,9 +246,10 @@ class ProductService {
   }
 
   Future<APIResponse<List<CategoriesProduct>>> getCategoryProducts(
-      String category) {
+      {String category, String subCategory}) {
     final body = {
-      'authorization': category,
+      'category': category ?? '',
+      'subcategory': subCategory ?? ''
     };
 
     return http
@@ -239,6 +257,7 @@ class ProductService {
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
+        print(jsonData);
         if (jsonData['responseCode'] == 1) {
           final responseData = jsonData['responsedata'];
           final categoryProducts = <CategoriesProduct>[];
@@ -253,6 +272,7 @@ class ProductService {
               old_price: data['old_price'],
               discount: data['discount_name'],
               new_price: data['price'],
+              quantity: data['quantity']
             );
             categoryProducts.add(f);
           }
@@ -268,6 +288,7 @@ class ProductService {
           error: true,
           errorMessage: json.decode(value.body)['responseMessage']);
     }).catchError((error) {
+      print(error);
       return APIResponse<List<CategoriesProduct>>(
           error: true, errorMessage: 'An error occured');
     });

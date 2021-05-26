@@ -78,7 +78,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
-  addToFavorites(String itemID) async {
+  addToFavorites(String itemID, BuildContext context) async {
     showLoaderDialog(context);
 
     final prefs = await SharedPreferences.getInstance();
@@ -91,13 +91,17 @@ class _ProductCardState extends State<ProductCard> {
         error = _apiResponse.errorMessage;
       });
     }
+    else {
+      final snackBar = SnackBar(content: Text('Added to Wish List!'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
     Navigator.pop(context);
   }
 
   CartService serviceCart = CartService();
   APIResponse<bool> _apiResponseCart;
 
-  Future<void> addToCart({String productId, String price}) async {
+  Future<void> addToCart({String productId, String price, BuildContext context}) async {
     showLoaderDialog(context);
 
     final prefs = await SharedPreferences.getInstance();
@@ -122,6 +126,8 @@ class _ProductCardState extends State<ProductCard> {
         isLoading = false;
       });
       Navigator.pop(context);
+      final snackBar = SnackBar(content: Text('Added to Cart!'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       print('Added to cart');
     }
   }
@@ -135,7 +141,7 @@ class _ProductCardState extends State<ProductCard> {
           crossAxisCount: 2,
           crossAxisSpacing: 10,
           mainAxisSpacing: 20,
-          childAspectRatio: 0.5,
+          childAspectRatio: 0.55,
         ),
         itemCount: widget.items.length,
         itemBuilder: (BuildContext context, int index) {
@@ -187,7 +193,7 @@ class _ProductCardState extends State<ProductCard> {
                                 : Container(),
                             GestureDetector(
                               onTap: () {
-                                addToFavorites(widget.items[index].id);
+                                addToFavorites(widget.items[index].id, context);
                               },
                               child: Align(
                                 alignment: Alignment.bottomRight,
@@ -222,7 +228,23 @@ class _ProductCardState extends State<ProductCard> {
                             ),
                           ),
                           SizedBox(
-                            height: 10,
+                            height: 5,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              widget.items[index].quantity + 'g',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
                           ),
                           Container(
                             height: 50,
@@ -317,7 +339,8 @@ class _ProductCardState extends State<ProductCard> {
                       onTap: () {
                         addToCart(
                           productId: widget.items[index].id,
-                          price: widget.items[index].new_price.toString()
+                          price: widget.items[index].new_price.toString(),
+                          context: context
                         );
                       },
                       child: Container(
@@ -400,6 +423,10 @@ class _HomeProductCardState extends State<HomeProductCard> {
         error = _apiResponse.errorMessage;
       });
     }
+    else{
+      final snackBar = SnackBar(content: Text('Added to Wish List!'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
     Navigator.pop(context);
   }
 
@@ -431,6 +458,8 @@ class _HomeProductCardState extends State<HomeProductCard> {
         isLoading = false;
       });
       Navigator.pop(context);
+      final snackBar = SnackBar(content: Text('Added to Cart!'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       print('Added to cart');
     }
   }
@@ -438,7 +467,7 @@ class _HomeProductCardState extends State<HomeProductCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 325.3,
+      height: 335.3,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: widget.items.length > 6 ? 6 : widget.items.length,
@@ -467,182 +496,206 @@ class _HomeProductCardState extends State<HomeProductCard> {
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    child: Stack(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                            child: Image.network(
-                              widget.items[index].imagePath,
-                              height:
-                                  MediaQuery.of(context).size.height * 0.145,
-                            ),
-                          ),
-                        ),
-                        widget.items[index].discount != null &&
-                                widget.items[index].discount != "0"
-                            ? Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 7, vertical: 10),
-                                decoration: BoxDecoration(
-                                    color: MyColors.PrimaryColor,
-                                    borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(10),
-                                        bottomLeft: Radius.circular(10))),
-                                child: Text('${widget.items[index].discount}%',
-                                    style: TextStyle(color: Colors.white)))
-                            : Container(),
-                        GestureDetector(
-                          onTap: () {
-                            addToFavorites(widget.items[index].id);
-                          },
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: Container(
-                                margin: EdgeInsets.only(
-                                    top: MediaQuery.of(context).size.height *
-                                        0.13),
-                                child: Icon(Icons.favorite_outline,
-                                    color: MyColors.PrimaryColor)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
+              child: Stack(
+                children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          widget.items[index].title.toUpperCase(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
                       Container(
-                        height: 30,
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text(
-                          widget.items[index].description,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                          ),
+                        child: Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Center(
+                                child: Image.network(
+                                  widget.items[index].imagePath,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.145,
+                                ),
+                              ),
+                            ),
+                            widget.items[index].discount != null &&
+                                    widget.items[index].discount != "0"
+                                ? Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 7, vertical: 10),
+                                    decoration: BoxDecoration(
+                                        color: MyColors.PrimaryColor,
+                                        borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10))),
+                                    child: Text('${widget.items[index].discount}%',
+                                        style: TextStyle(color: Colors.white)))
+                                : Container(),
+                            GestureDetector(
+                              onTap: () {
+                                addToFavorites(widget.items[index].id);
+                              },
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
+                                    margin: EdgeInsets.only(
+                                        top: MediaQuery.of(context).size.height *
+                                            0.13),
+                                    child: Icon(Icons.favorite_outline,
+                                        color: MyColors.PrimaryColor)),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       SizedBox(
                         height: 10,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            RatingBarIndicator(
-                              rating: widget.items[index].rating != null
-                                  ? double.parse(widget.items[index].rating)
-                                  : 0,
-                              itemBuilder: (context, index) => Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                              ),
-                              itemCount: 5,
-                              itemSize: 16.0,
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50),
-                                  border: Border.all(
-                                      color: widget.items[index].isVeg
-                                          ? Colors.green
-                                          : Colors.red,
-                                      width: 2)),
-                              child: Icon(
-                                Icons.circle,
-                                size: 8,
-                                color: widget.items[index].isVeg
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 7,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              '₹' + widget.items[index].old_price.toString(),
-                              style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 15,
-                                  decoration: TextDecoration.lineThrough),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              '₹' + widget.items[index].new_price.toString(),
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: MyColors.SecondaryColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 6,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          addToCart(
-                            productId: widget.items[index].id,
-                            price: widget.items[index].new_price.toString()
-                            );
-                          },
-                        child: Container(
-                          padding: EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: MyColors.PrimaryColor,
-                          ),
-                          child: Center(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
-                              'ADD TO CART',
+                              widget.items[index].title.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500),
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
-                        ),
-                      )
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              widget.items[index].quantity + 'g',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            height: 30,
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              widget.items[index].description,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                RatingBarIndicator(
+                                  rating: widget.items[index].rating != null
+                                      ? double.parse(widget.items[index].rating)
+                                      : 0,
+                                  itemBuilder: (context, index) => Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                  ),
+                                  itemCount: 5,
+                                  itemSize: 16.0,
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      border: Border.all(
+                                          color: widget.items[index].isVeg
+                                              ? Colors.green
+                                              : Colors.red,
+                                          width: 2)),
+                                  child: Icon(
+                                    Icons.circle,
+                                    size: 8,
+                                    color: widget.items[index].isVeg
+                                        ? Colors.green
+                                        : Colors.red,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 7,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  '₹' + widget.items[index].old_price.toString(),
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 15,
+                                      decoration: TextDecoration.lineThrough),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  '₹' + widget.items[index].new_price.toString(),
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: MyColors.SecondaryColor,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 6,
+                          ),
+                        ],
+                      ),
                     ],
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: InkWell(
+                      onTap: () {
+                        addToCart(
+                          productId: widget.items[index].id,
+                          price: widget.items[index].new_price.toString()
+                          );
+                        },
+                      child: Container(
+                        height: 35,
+                        padding: EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: MyColors.PrimaryColor,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'ADD TO CART',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ),
+                    ),
                   )
                 ],
               ),

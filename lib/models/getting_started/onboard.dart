@@ -1,5 +1,3 @@
-import 'package:flutter/widgets.dart';
-
 class OnBoardModel {
   String imagePath;
   String title;

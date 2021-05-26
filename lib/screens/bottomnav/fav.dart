@@ -106,27 +106,27 @@ class _FavoriteState extends State<Favorite> {
         ),
         centerTitle: true,
       ),
-      body: RefreshIndicator(
-        onRefresh: refresh,
-        child: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : !_recordFound
-                ? Center(
-                    child: Container(
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              "assets/images/empty_favorites.png",
-                              width: MediaQuery.of(context).size.width * 0.5,
-                            ),
-                            Text('You have no favorites yet',
-                                style: TextStyle(fontSize: 23))
-                          ]),
-                    ),
-                  )
-                : Container(
-                    padding: EdgeInsets.all(10),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : !_recordFound
+              ? Center(
+                  child: Container(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "assets/images/empty_favorites.png",
+                            width: MediaQuery.of(context).size.width * 0.5,
+                          ),
+                          Text('You have no favorites yet',
+                              style: TextStyle(fontSize: 23))
+                        ]),
+                  ),
+                )
+              : Container(
+                  padding: EdgeInsets.all(10),
+                  child: RefreshIndicator(
+                    onRefresh: refresh,
                     child: ListView.builder(
                       itemCount: favorites.length,
                       itemBuilder: (BuildContext context, int index) {
@@ -160,6 +160,7 @@ class _FavoriteState extends State<Favorite> {
                             setState(() {
                               removeFavorites(favorites[index].id);
                               favorites.removeAt(index);
+                              if (favorites.length == 0) _recordFound = false;
                             });
                           },
                           child: Container(
@@ -328,7 +329,7 @@ class _FavoriteState extends State<Favorite> {
                       },
                     ),
                   ),
-      ),
+                ),
     );
   }
 }

@@ -5,6 +5,7 @@ class SearchModel {
   String description;
   bool isVeg;
   String discount;
+  String quantity;
   String rating;
   String old_price;
   String new_price;
@@ -13,6 +14,7 @@ class SearchModel {
       {this.id,
       this.imagePath,
       this.title,
+      this.quantity,
       this.description,
       this.isVeg,
       this.discount,

@@ -4,9 +4,11 @@ import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/order/order_model.dart';
 import 'package:frontend/models/order/payment_models.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
-import 'package:frontend/screens/order/myOrders.dart';
+import 'package:frontend/screens/order/myOrder.dart';
 import 'package:frontend/services/address_service.dart';
+import 'package:frontend/services/cart_service.dart';
 import 'package:frontend/services/order_service.dart';
+import 'package:frontend/services/products_service.dart';
 import 'package:frontend/stylesheet/styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -54,11 +56,12 @@ class _PlaceOrderState extends State<PlaceOrder> {
 
   showOrderDialog(BuildContext context) {
     AlertDialog alert = AlertDialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: Colors.white,
         content: Container(
           padding: EdgeInsets.all(10),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 'Order Success',
@@ -68,7 +71,9 @@ class _PlaceOrderState extends State<PlaceOrder> {
                 height: 10,
               ),
               Text(
-                'Your order is being processed by the \nsystem, you can see the progress at',
+                'Your order is being processed by the system, you can see the progress at',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14),
               ),
               SizedBox(
                 height: 10,
@@ -76,11 +81,15 @@ class _PlaceOrderState extends State<PlaceOrder> {
               InkWell(
                 onTap: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MyOrders()));
+                      MaterialPageRoute(builder: (context) => MyOrder()));
                 },
                 child: Text(
                   'My Order',
-                  style: TextStyle(color: MyColors.SecondaryColor),
+                  style: TextStyle(
+                    color: MyColors.SecondaryColor,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
               SizedBox(
@@ -108,12 +117,28 @@ class _PlaceOrderState extends State<PlaceOrder> {
           ),
         ));
     showDialog(
-      barrierDismissible: false,
+      barrierDismissible: true,
       context: context,
       builder: (BuildContext context) {
         return alert;
       },
     );
+  }
+
+  CartService servicecart = CartService();
+  APIResponse<bool> _apiResponseRemove;
+
+  deleteFromCart() async {
+
+    final products = widget.productID.split(',');
+
+    final prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getInt(PrefConstants.id).toString();
+
+    for (var product in products) {
+      _apiResponseRemove =
+          await servicecart.deleteFromCart(userId: userId, productId: product);
+    }
   }
 
   placeOrder() async {
@@ -150,7 +175,10 @@ class _PlaceOrderState extends State<PlaceOrder> {
       print(error);
       Navigator.pop(context);
     } else {
-      showLoaderDialog(context);
+      Navigator.pop(context);
+      showOrderDialog(context);
+
+      deleteFromCart();
     }
   }
 
@@ -445,33 +473,34 @@ class _PlaceOrderState extends State<PlaceOrder> {
                       ),
                       Text(
                         errorPayment,
-                        style: TextStyle(color: Colors.red,),
+                        style: TextStyle(
+                          color: Colors.red,
+                        ),
                       ),
                       SizedBox(
                         height: 4,
                       ),
-                      isPaymentLoading ?
-                      Center(child: CircularProgressIndicator()) :
-                      Container(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: payment.length,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              leading: Radio(
-                                value: payment[index].name,
-                                groupValue: _selectedMethod,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedMethod = value;
-                                  });
-                                },
-                              ),
-                              title: Text(payment[index].value),
-                            );
-                          },
-                        )
-                      ),
+                      isPaymentLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : Container(
+                              child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: payment.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  leading: Radio(
+                                    value: payment[index].name,
+                                    groupValue: _selectedMethod,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedMethod = value;
+                                      });
+                                    },
+                                  ),
+                                  title: Text(payment[index].value),
+                                );
+                              },
+                            )),
                       SizedBox(
                         height: 15,
                       ),
@@ -721,17 +750,16 @@ class _PlaceOrderState extends State<PlaceOrder> {
                     ),
                     SizedBox(height: 20),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center ,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         GestureDetector(
                           onTap: () {
-                            if(currentIndex > 0)
+                            if (currentIndex > 0)
                               animateToNextPage(currentIndex - 1);
                           },
-                          child: Text('Go Back',
-                            style: TextStyle(
-                              color: MyColors.PrimaryColor
-                            ),
+                          child: Text(
+                            'Go Back',
+                            style: TextStyle(color: MyColors.PrimaryColor),
                           ),
                         ),
                       ],

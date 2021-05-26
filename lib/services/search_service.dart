@@ -47,6 +47,7 @@ class SearchService {
               old_price: data['old_price'],
               discount: data['discount_name'],
               new_price: data['price'],
+              quantity: data['quantity']
             );
             searchProducts.add(f);
           }

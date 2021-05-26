@@ -60,36 +60,7 @@ class _HomeState extends State<Home> {
   List<StoreListModel> stores;
 
   getProducts() async {
-    //GET STORES
-    _apiResponseStore = await service.getStoreList();
-    if (_apiResponseStore.error) {
-      if (mounted)
-        setState(() {
-          errorStore = _apiResponseStore.errorMessage;
-        });
-    } else {
-      stores = _apiResponseStore.data;
 
-      final prefs = await SharedPreferences.getInstance();
-      String storeAddress =
-          prefs.getString(PrefConstants.storeDefaultAddress).toString() ?? '';
-
-      if (storeAddress == '')
-        for (final store in stores) {
-          if (store.address == storeAddress) _selectedStore = store.address;
-        }
-      else
-        _selectedStore = stores[0].address;
-
-      if (mounted)
-        setState(() {
-          isStoreLoading = false;
-        });
-      if (stores == null)
-        setState(() {
-          isStorePresent = false;
-        });
-    }
 
     //GET FEATURED PRODUCTS
     _apiResponseFeat = await service.getFeaturedProducts();
@@ -144,6 +115,37 @@ class _HomeState extends State<Home> {
       if (mounted)
         setState(() {
           isCatLoading = false;
+        });
+    }
+
+    //GET STORES
+    _apiResponseStore = await service.getStoreList();
+    if (_apiResponseStore.error) {
+      if (mounted)
+        setState(() {
+          errorStore = _apiResponseStore.errorMessage;
+        });
+    } else {
+      stores = _apiResponseStore.data;
+
+      final prefs = await SharedPreferences.getInstance();
+      String storeAddress =
+          prefs.getString(PrefConstants.storeDefaultAddress).toString() ?? '';
+
+      if (storeAddress == '')
+        for (final store in stores) {
+          if (store.address == storeAddress) _selectedStore = store.address;
+        }
+      else
+        _selectedStore = stores[0].address;
+
+      if (mounted)
+        setState(() {
+          isStoreLoading = false;
+        });
+      if (stores == null)
+        setState(() {
+          isStorePresent = false;
         });
     }
   }

@@ -5,6 +5,7 @@ class FavoritesModel {
   String title;
   String price;
   String oldPrice;
+  String quantity;
   String rating;
   String discount;
   String description;
@@ -15,6 +16,7 @@ class FavoritesModel {
       this.title,
       this.price,
       this.oldPrice,
+      this.quantity,
       this.discount,
       this.rating,
       this.description});
