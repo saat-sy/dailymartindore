@@ -9,6 +9,7 @@ import 'package:frontend/models/user.dart';
 import 'package:frontend/screens/authenticate/forgot_password.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/screens/authenticate/signup.dart';
+import 'package:frontend/screens/bottomnav/bottomnav_anonymous.dart';
 import 'package:frontend/services/authenticate_service.dart';
 import 'package:frontend/services/cart_service.dart';
 import 'package:frontend/services/favorites_service.dart';
@@ -178,6 +179,30 @@ class _LoginState extends State<Login> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.grey.shade100,
+        elevation: 0,
+        actions: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BottomNavAnonymous()));
+            },
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text(
+                  'Skip',
+                  style: TextStyle(color: MyColors.PrimaryColor),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
       body: Stack(
         children: [
           Align(
@@ -194,7 +219,9 @@ class _LoginState extends State<Login> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.175,),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.075,
+                  ),
                   Text(
                     'Welcome back!',
                     style: TextStyle(

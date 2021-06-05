@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/shopping_cart_model.dart';
+import 'package:frontend/screens/authenticate/login.dart';
 import 'package:frontend/screens/products/productpage.dart';
 import 'package:frontend/services/cart_service.dart';
 import 'package:frontend/services/favorites_service.dart';
@@ -54,7 +55,19 @@ class _ProductCardState extends State<ProductCard> {
 
   bool isLoading = true;
 
+  bool isLoggedIn = true;
+
   String error;
+
+  checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    String name = prefs.getString(PrefConstants.name).toString() ?? "";
+    if (name == "") {
+      setState(() {
+        isLoggedIn = false;
+      });
+    }
+  }
 
   showLoaderDialog(BuildContext context) {
     AlertDialog alert = AlertDialog(
@@ -215,6 +228,12 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   @override
+  void initState() {
+    checkLoginStatus();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(10),
@@ -278,11 +297,42 @@ class _ProductCardState extends State<ProductCard> {
                                 : Container(),
                             GestureDetector(
                               onTap: () {
-                                widget.items[index].inFav
-                                    ? removeFavorites(
-                                        widget.items[index].id, index)
-                                    : addToFavorites(
-                                        widget.items[index].id, index);
+                                if (isLoggedIn)
+                                  widget.items[index].inFav
+                                      ? removeFavorites(
+                                          widget.items[index].id, index)
+                                      : addToFavorites(
+                                          widget.items[index].id, index);
+                                else
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) {
+                                        return AlertDialog(
+                                          title: Text('Login/Signup'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                'Please login or Sign up to add to favorites',
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              SizedBox(
+                                                height: 20,
+                                              ),
+                                              SubmitButton(
+                                                text: 'Login',
+                                                onPress: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Login()));
+                                                },
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      });
                               },
                               child: Align(
                                 alignment: Alignment.bottomRight,
@@ -433,12 +483,43 @@ class _ProductCardState extends State<ProductCard> {
                     alignment: Alignment.bottomCenter,
                     child: InkWell(
                       onTap: () {
-                        if(widget.items[index].inStock)
+                        if (widget.items[index].inStock) if (isLoggedIn)
                           widget.items[index].inCart
                               ? deleteFromCart(itemID: widget.items[index].id)
                               : addToCart(
                                   productId: widget.items[index].id,
-                                  price: widget.items[index].newPrice.toString());
+                                  price:
+                                      widget.items[index].newPrice.toString());
+                        else
+                          showDialog(
+                              context: context,
+                              builder: (_) {
+                                return AlertDialog(
+                                  title: Text('Login/Signup'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Please login or Sign up to add to cart',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      SubmitButton(
+                                        text: 'Login',
+                                        onPress: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      Login()));
+                                        },
+                                      )
+                                    ],
+                                  ),
+                                );
+                              });
                       },
                       child: Container(
                         height: 40,
@@ -447,22 +528,21 @@ class _ProductCardState extends State<ProductCard> {
                           color: MyColors.PrimaryColor,
                         ),
                         child: Center(
-                          child: widget.items[index].inStock ? 
-                          Text(
-                            widget.items[index].inCart
-                                ? 'IN CART'
-                                : 'ADD TO CART',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500),
-                          ) : 
-                          Text(
-                            'OUT OF STOCK',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500),
-                          ) 
-                        ),
+                            child: widget.items[index].inStock
+                                ? Text(
+                                    widget.items[index].inCart
+                                        ? 'IN CART'
+                                        : 'ADD TO CART',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500),
+                                  )
+                                : Text(
+                                    'OUT OF STOCK',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500),
+                                  )),
                       ),
                     ),
                   )
@@ -651,6 +731,24 @@ class _HomeProductCardState extends State<HomeProductCard> {
     Navigator.pop(context);
   }
 
+  bool isLoggedIn = true;
+
+  checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    String name = prefs.getString(PrefConstants.name).toString() ?? "";
+    if (name == "") {
+      setState(() {
+        isLoggedIn = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    checkLoginStatus();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -668,7 +766,7 @@ class _HomeProductCardState extends State<HomeProductCard> {
                             id: widget.items[index].id != null
                                 ? widget.items[index].id
                                 : "33",
-                            inStock: widget.items[index].inStock,    
+                            inStock: widget.items[index].inStock,
                           )));
             },
             child: Container(
@@ -718,11 +816,42 @@ class _HomeProductCardState extends State<HomeProductCard> {
                                 : Container(),
                             GestureDetector(
                               onTap: () {
-                                if (widget.items[index].inFav)
-                                  removeFavorites(
-                                      widget.items[index].id, index);
+                                if (isLoggedIn)
+                                  widget.items[index].inFav
+                                      ? removeFavorites(
+                                          widget.items[index].id, index)
+                                      : addToFavorites(
+                                          widget.items[index].id, index);
                                 else
-                                  addToFavorites(widget.items[index].id, index);
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) {
+                                        return AlertDialog(
+                                          title: Text('Login/Signup'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                'Please login or Sign up to add to favorites',
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              SizedBox(
+                                                height: 20,
+                                              ),
+                                              SubmitButton(
+                                                text: 'Login',
+                                                onPress: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Login()));
+                                                },
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      });
                               },
                               child: Align(
                                 alignment: Alignment.bottomRight,
@@ -876,14 +1005,43 @@ class _HomeProductCardState extends State<HomeProductCard> {
                     alignment: Alignment.bottomCenter,
                     child: InkWell(
                       onTap: () {
-                        if(widget.items[index].inStock)
+                        if (widget.items[index].inStock) if (isLoggedIn)
                           widget.items[index].inCart
-                              ? deleteFromCart(
-                                  itemID: widget.items[index].id, index: index)
+                              ? deleteFromCart(itemID: widget.items[index].id)
                               : addToCart(
                                   productId: widget.items[index].id,
-                                  price: widget.items[index].newPrice.toString(),
-                                  index: index);
+                                  price:
+                                      widget.items[index].newPrice.toString());
+                        else
+                          showDialog(
+                              context: context,
+                              builder: (_) {
+                                return AlertDialog(
+                                  title: Text('Login/Signup'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Please login or Sign up to add to cart',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      SubmitButton(
+                                        text: 'Login',
+                                        onPress: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      Login()));
+                                        },
+                                      )
+                                    ],
+                                  ),
+                                );
+                              });
                       },
                       child: Container(
                         height: 35,
@@ -892,22 +1050,21 @@ class _HomeProductCardState extends State<HomeProductCard> {
                           color: MyColors.PrimaryColor,
                         ),
                         child: Center(
-                          child: widget.items[index].inStock ? 
-                          Text(
-                            widget.items[index].inCart
-                                ? 'IN CART'
-                                : 'ADD TO CART',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500),
-                          ) : 
-                          Text(
-                            'OUT OF STOCK',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500),
-                          ) 
-                        ),
+                            child: widget.items[index].inStock
+                                ? Text(
+                                    widget.items[index].inCart
+                                        ? 'IN CART'
+                                        : 'ADD TO CART',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500),
+                                  )
+                                : Text(
+                                    'OUT OF STOCK',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500),
+                                  )),
                       ),
                     ),
                   )

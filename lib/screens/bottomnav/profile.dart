@@ -50,6 +50,8 @@ class _ProfileState extends State<Profile> {
     await prefs.setString(PrefConstants.email, "");
     await prefs.setString(PrefConstants.name, "");
     await prefs.setString(PrefConstants.phone, "");
+    await prefs.setString(PrefConstants.inCart, "");
+    await prefs.setString(PrefConstants.inFav, "");
     await prefs.setInt(PrefConstants.id, -1);
   }
 

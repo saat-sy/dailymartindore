@@ -5,6 +5,7 @@ import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/models/products/product.dart';
 import 'package:frontend/models/products/shopping_cart_model.dart';
+import 'package:frontend/screens/authenticate/login.dart';
 import 'package:frontend/screens/reviews/rateapp.dart';
 import 'package:frontend/screens/reviews/reviews.dart';
 import 'package:frontend/services/cart_service.dart';
@@ -248,9 +249,22 @@ class _ProductPageState extends State<ProductPage>
 
   String textCart;
 
+  bool isLoggedIn = true;
+
+  checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    String name = prefs.getString(PrefConstants.name).toString() ?? "";
+    if (name == "") {
+      setState(() {
+        isLoggedIn = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     getProduct();
+    checkLoginStatus();
     textCart = widget.inStock ? 'Add to Cart' : 'Out of Stock';
 
     _animationController =
@@ -680,31 +694,94 @@ class _ProductPageState extends State<ProductPage>
                                 ),
                                 onPressed: () {
                                   if (widget.inStock) {
-                                    if (mounted)
-                                      setState(() {
-                                        if (textCart == 'Added to Cart')
-                                          textCart = 'Add to Cart';
-                                        else
-                                          textCart = 'Added to Cart';
-                                      });
-                                    if (_animationController.status ==
-                                        AnimationStatus.completed) {
-                                      _animationController.reverse();
-                                    } else {
-                                      _animationController.forward();
-                                    }
-                                    addToCart();
+                                    if (isLoggedIn) {
+                                      if (mounted)
+                                        setState(() {
+                                          if (textCart == 'Added to Cart')
+                                            textCart = 'Add to Cart';
+                                          else
+                                            textCart = 'Added to Cart';
+                                        });
+                                      if (_animationController.status ==
+                                          AnimationStatus.completed) {
+                                        _animationController.reverse();
+                                      } else {
+                                        _animationController.forward();
+                                      }
+                                      addToCart();
+                                    } else
+                                      showDialog(
+                                          context: context,
+                                          builder: (_) {
+                                            return AlertDialog(
+                                              title: Text('Login/Signup'),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    'Please login or Sign up to add to cart',
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20,
+                                                  ),
+                                                  SubmitButton(
+                                                    text: 'Login',
+                                                    onPress: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder:
+                                                                  (context) =>
+                                                                      Login()));
+                                                    },
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          });
                                   }
                                 },
                               ),
                             ),
                           ),
+                          SizedBox(width: 10),
                           GestureDetector(
                             onTap: () {
-                              if (product.inFav)
-                                removeFavorites(product.id);
+                              if (isLoggedIn)
+                                product.inFav
+                                    ? removeFavorites(product.id)
+                                    : addToFavorites(product.id);
                               else
-                                addToFavorites(product.id);
+                                showDialog(
+                                    context: context,
+                                    builder: (_) {
+                                      return AlertDialog(
+                                        title: Text('Login/Signup'),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              'Please login or Sign up to add to favorites',
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            SizedBox(
+                                              height: 20,
+                                            ),
+                                            SubmitButton(
+                                              text: 'Login',
+                                              onPress: () {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            Login()));
+                                              },
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    });
                             },
                             child: product.inFav
                                 ? Icon(Icons.favorite,

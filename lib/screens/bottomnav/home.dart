@@ -8,6 +8,7 @@ import 'package:frontend/models/products/featured.dart';
 import 'package:frontend/models/products/product.dart';
 import 'package:frontend/models/products/store_list_model.dart';
 import 'package:frontend/models/products/top.dart';
+import 'package:frontend/screens/authenticate/login.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/screens/products/allScreen.dart';
 import 'package:frontend/screens/products/all_categories.dart';
@@ -309,8 +310,21 @@ class _HomeState extends State<Home> {
     await getProducts();
   }
 
+  bool isLoggedIn = true;
+
+  checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    String name = prefs.getString(PrefConstants.name).toString() ?? "";
+    if (name == "") {
+      setState(() {
+        isLoggedIn = false;
+      });
+    }
+  }
+
   @override
-  initState() {
+  void initState() {
+    checkLoginStatus();
     getProducts();
     super.initState();
   }
@@ -357,6 +371,7 @@ class _HomeState extends State<Home> {
                             width: MediaQuery.of(context).size.width * 0.3,
                           ),
                         ),
+                        isLoggedIn ?
                         Row(
                           children: [
                             isStorePresent
@@ -378,7 +393,17 @@ class _HomeState extends State<Home> {
                                               Notifications()));
                                 })
                           ],
-                        )
+                        ) :
+                        IconButton(
+                          icon: Icon(CupertinoIcons.person,
+                              color: Colors.grey.shade700),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        Login()));
+                          })
                       ],
                     ),
                     InkWell(

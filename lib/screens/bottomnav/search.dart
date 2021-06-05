@@ -270,602 +270,547 @@ class _SearchState extends State<Search> {
                         InkWell(
                           onTap: () {
                             showModalBottomSheet<void>(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(30),
-                                    topLeft: Radius.circular(30),
-                                  ),
-                                ),
+                                isScrollControlled: true,
                                 context: context,
                                 builder: (BuildContext context) {
                                   return StatefulBuilder(
                                       builder: (context, setState) {
                                     return Container(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.7,
                                         child: Stack(
-                                          children: [
-                                            Container(
-                                              margin: EdgeInsets.only(top: 30),
-                                              child: SingleChildScrollView(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              10.0),
-                                                      child: Text(
-                                                        'Shop by Price',
-                                                        style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white,
-                                                        boxShadow: [
-                                                          BoxShadow(
-                                                            color: Colors
-                                                                .grey.shade300,
-                                                            offset: Offset(
-                                                                0.0, 0.0),
-                                                            blurRadius: 4.0,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              vertical: 20),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
-                                                        children: [
-                                                          Container(
-                                                            width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.45,
-                                                            child:
-                                                                TextFormField(
-                                                              keyboardType: TextInputType
-                                                                  .numberWithOptions(
-                                                                      decimal:
-                                                                          true),
-                                                              cursorColor: MyColors
-                                                                  .PrimaryColor,
-                                                              onChanged: (val) =>
-                                                                  minPriceFinal =
-                                                                      val,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                contentPadding:
-                                                                    EdgeInsets.symmetric(
-                                                                        vertical:
-                                                                            0.0,
-                                                                        horizontal:
-                                                                            10.0),
-                                                                hintText: 'Min',
-                                                                fillColor:
-                                                                    Colors
-                                                                        .white,
-                                                                filled: true,
-                                                                enabledBorder: OutlineInputBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                6),
-                                                                    borderSide: BorderSide(
-                                                                        color: Colors
-                                                                            .grey
-                                                                            .shade500,
-                                                                        width:
-                                                                            1.0)),
-                                                                focusedBorder: OutlineInputBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                6),
-                                                                    borderSide: BorderSide(
-                                                                        color: Colors
-                                                                            .grey
-                                                                            .shade500,
-                                                                        width:
-                                                                            1.0)),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.45,
-                                                            child:
-                                                                TextFormField(
-                                                              keyboardType: TextInputType
-                                                                  .numberWithOptions(
-                                                                      decimal:
-                                                                          true),
-                                                              cursorColor: MyColors
-                                                                  .PrimaryColor,
-                                                              onChanged: (val) =>
-                                                                  maxPriceFinal =
-                                                                      val,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                contentPadding:
-                                                                    EdgeInsets.symmetric(
-                                                                        vertical:
-                                                                            0.0,
-                                                                        horizontal:
-                                                                            10.0),
-                                                                hintText: 'Max',
-                                                                fillColor:
-                                                                    Colors
-                                                                        .white,
-                                                                filled: true,
-                                                                enabledBorder: OutlineInputBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                6),
-                                                                    borderSide: BorderSide(
-                                                                        color: Colors
-                                                                            .grey
-                                                                            .shade500,
-                                                                        width:
-                                                                            1.0)),
-                                                                focusedBorder: OutlineInputBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius
-                                                                            .circular(
-                                                                                6),
-                                                                    borderSide: BorderSide(
-                                                                        color: Colors
-                                                                            .grey
-                                                                            .shade500,
-                                                                        width:
-                                                                            1.0)),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              10.0),
-                                                      child: Text(
-                                                        'Shop by Size',
-                                                        style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.white,
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                              color: Colors.grey
-                                                                  .shade300,
-                                                              offset: Offset(
-                                                                  0.0, 0.0),
-                                                              blurRadius: 4.0,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        child: Container(
-                                                          height: 230,
-                                                          child:
-                                                              ListView.builder(
-                                                            itemCount:
-                                                                size.length,
-                                                            itemBuilder:
-                                                                (context,
-                                                                    index) {
-                                                              return CheckboxListTile(
-                                                                title: Text(
-                                                                    sizeText[
-                                                                        index]),
-                                                                value:
-                                                                    size[index],
-                                                                onChanged:
-                                                                    (newValue) {
-                                                                  if (mounted)
-                                                                    setState(
-                                                                        () {
-                                                                      size[index] =
-                                                                          newValue;
-                                                                    });
-                                                                },
-                                                                controlAffinity:
-                                                                    ListTileControlAffinity
-                                                                        .trailing,
-                                                              );
-                                                            },
-                                                          ),
-                                                        )),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              10.0),
-                                                      child: Text(
-                                                        'Shop by Color',
-                                                        style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                        height: 230,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.white,
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                              color: Colors.grey
-                                                                  .shade300,
-                                                              offset: Offset(
-                                                                  0.0, 0.0),
-                                                              blurRadius: 4.0,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        child: Container(
-                                                          height: 230,
-                                                          child:
-                                                              ListView.builder(
-                                                            itemCount:
-                                                                color.length,
-                                                            itemBuilder:
-                                                                (context,
-                                                                    index) {
-                                                              return CheckboxListTile(
-                                                                title: Text(
-                                                                    colorText[
-                                                                        index]),
-                                                                value: color[
-                                                                    index],
-                                                                onChanged:
-                                                                    (newValue) {
-                                                                  if (mounted)
-                                                                    setState(
-                                                                        () {
-                                                                      color[index] =
-                                                                          newValue;
-                                                                    });
-                                                                },
-                                                                controlAffinity:
-                                                                    ListTileControlAffinity
-                                                                        .trailing,
-                                                              );
-                                                            },
-                                                          ),
-                                                        )),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              10.0),
-                                                      child: Text(
-                                                        'Shop by Discount',
-                                                        style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                        height: 230,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.white,
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                              color: Colors.grey
-                                                                  .shade300,
-                                                              offset: Offset(
-                                                                  0.0, 0.0),
-                                                              blurRadius: 4.0,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        child: Container(
-                                                          child:
-                                                              ListView.builder(
-                                                            itemCount:
-                                                                discount.length,
-                                                            itemBuilder:
-                                                                (context,
-                                                                    index) {
-                                                              return CheckboxListTile(
-                                                                title: Text(
-                                                                    discountText[
-                                                                        index]),
-                                                                value: discount[
-                                                                    index],
-                                                                onChanged:
-                                                                    (newValue) {
-                                                                  if (mounted)
-                                                                    setState(
-                                                                        () {
-                                                                      discount[
-                                                                              index] =
-                                                                          newValue;
-                                                                    });
-                                                                },
-                                                                controlAffinity:
-                                                                    ListTileControlAffinity
-                                                                        .trailing,
-                                                              );
-                                                            },
-                                                          ),
-                                                        )),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              10.0),
-                                                      child: Text(
-                                                        'Customers Ratings',
-                                                        style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.white,
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                              color: Colors.grey
-                                                                  .shade300,
-                                                              offset: Offset(
-                                                                  0.0, 0.0),
-                                                              blurRadius: 4.0,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        child: Container(
-                                                          height: 230,
-                                                          child:
-                                                              ListView.builder(
-                                                            itemCount:
-                                                                ratings.length,
-                                                            itemBuilder:
-                                                                (context,
-                                                                    index) {
-                                                              return CheckboxListTile(
-                                                                title: Text(
-                                                                    ratingsText[
-                                                                        index]),
-                                                                value: ratings[
-                                                                    index],
-                                                                onChanged:
-                                                                    (newValue) {
-                                                                  if (mounted)
-                                                                    setState(
-                                                                        () {
-                                                                      ratings[index] =
-                                                                          newValue;
-                                                                    });
-                                                                },
-                                                                controlAffinity:
-                                                                    ListTileControlAffinity
-                                                                        .trailing,
-                                                              );
-                                                            },
-                                                          ),
-                                                        )),
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        Brand()));
-                                                      },
-                                                      child: Container(
-                                                        margin:
-                                                            EdgeInsets.all(10),
-                                                        padding:
-                                                            EdgeInsets.all(10),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            Text(
-                                                              'Brand',
-                                                              style: TextStyle(
-                                                                  fontSize: 18,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700),
-                                                            ),
-                                                            Icon(
-                                                              Icons
-                                                                  .arrow_forward_ios,
-                                                              size: 18,
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 60,
-                                                    )
-                                                  ],
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.only(top: 30),
+                                          child: SingleChildScrollView(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Text(
+                                                    'Shop by Price',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.bottomCenter,
-                                              child: Container(
-                                                height: 60,
-                                                padding: EdgeInsets.all(10),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color:
-                                                          Colors.grey.shade400,
-                                                      offset: Offset(0.0, -0.5),
-                                                      blurRadius: 3.0,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceEvenly,
-                                                  children: [
-                                                    InkWell(
-                                                      onTap: () {
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Container(
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors
+                                                            .grey.shade300,
+                                                        offset:
+                                                            Offset(0.0, 0.0),
+                                                        blurRadius: 4.0,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 20),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceEvenly,
+                                                    children: [
+                                                      Container(
                                                         width: MediaQuery.of(
                                                                     context)
                                                                 .size
                                                                 .width *
-                                                            0.4,
-                                                        decoration: BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        50),
-                                                            border: Border.all(
-                                                                color:
-                                                                    Colors.grey,
-                                                                width: 1)),
-                                                        child: Center(
-                                                          child: Text(
-                                                            'Discard',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .grey),
+                                                            0.45,
+                                                        child: TextFormField(
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .numberWithOptions(
+                                                                      decimal:
+                                                                          true),
+                                                          cursorColor: MyColors
+                                                              .PrimaryColor,
+                                                          onChanged: (val) =>
+                                                              minPriceFinal =
+                                                                  val,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            contentPadding:
+                                                                EdgeInsets.symmetric(
+                                                                    vertical:
+                                                                        0.0,
+                                                                    horizontal:
+                                                                        10.0),
+                                                            hintText: 'Min',
+                                                            fillColor:
+                                                                Colors.white,
+                                                            filled: true,
+                                                            enabledBorder: OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            6),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade500,
+                                                                    width:
+                                                                        1.0)),
+                                                            focusedBorder: OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            6),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade500,
+                                                                    width:
+                                                                        1.0)),
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    InkWell(
-                                                      onTap: () {
-                                                        size.asMap().forEach(
-                                                            (key, value) {
-                                                          if (value) {
-                                                            if (sizeFinal != '')
-                                                              sizeFinal += ',' +
-                                                                  sizeID[key];
-                                                            else
-                                                              sizeFinal +=
-                                                                  sizeID[key];
-                                                          }
-                                                        });
-
-                                                        color.asMap().forEach(
-                                                            (key, value) {
-                                                          if (value) {
-                                                            if (colorFinal !=
-                                                                '')
-                                                              colorFinal +=
-                                                                  ',' +
-                                                                      colorID[
-                                                                          key];
-                                                            else
-                                                              colorFinal +=
-                                                                  colorID[key];
-                                                          }
-                                                        });
-
-                                                        discount
-                                                            .asMap()
-                                                            .forEach(
-                                                                (key, value) {
-                                                          if (value) {
-                                                            if (discountFinal !=
-                                                                '')
-                                                              discountFinal +=
-                                                                  ',' +
-                                                                      discountID[
-                                                                          key];
-                                                            else
-                                                              discountFinal +=
-                                                                  discountID[
-                                                                      key];
-                                                          }
-                                                        });
-
-                                                        ratings.asMap().forEach(
-                                                            (key, value) {
-                                                          if (value) {
-                                                            if (ratingsFinal !=
-                                                                '')
-                                                              ratingsFinal +=
-                                                                  ',' +
-                                                                      ratingsID[
-                                                                          key];
-                                                            else
-                                                              ratingsFinal +=
-                                                                  ratingsID[
-                                                                      key];
-                                                          }
-                                                        });
-
-                                                        load(searchTerm);
-
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Container(
+                                                      Container(
                                                         width: MediaQuery.of(
                                                                     context)
                                                                 .size
                                                                 .width *
-                                                            0.4,
-                                                        decoration: BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        50),
-                                                            color: MyColors
-                                                                .PrimaryColor),
-                                                        child: Center(
-                                                          child: Text(
-                                                            'Apply',
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w700),
+                                                            0.45,
+                                                        child: TextFormField(
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .numberWithOptions(
+                                                                      decimal:
+                                                                          true),
+                                                          cursorColor: MyColors
+                                                              .PrimaryColor,
+                                                          onChanged: (val) =>
+                                                              maxPriceFinal =
+                                                                  val,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            contentPadding:
+                                                                EdgeInsets.symmetric(
+                                                                    vertical:
+                                                                        0.0,
+                                                                    horizontal:
+                                                                        10.0),
+                                                            hintText: 'Max',
+                                                            fillColor:
+                                                                Colors.white,
+                                                            filled: true,
+                                                            enabledBorder: OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            6),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade500,
+                                                                    width:
+                                                                        1.0)),
+                                                            focusedBorder: OutlineInputBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            6),
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .grey
+                                                                        .shade500,
+                                                                    width:
+                                                                        1.0)),
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Text(
+                                                    'Shop by Size',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
+                                                ),
+                                                Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors
+                                                              .grey.shade300,
+                                                          offset:
+                                                              Offset(0.0, 0.0),
+                                                          blurRadius: 4.0,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Container(
+                                                      height: 230,
+                                                      child: ListView.builder(
+                                                        physics:
+                                                            NeverScrollableScrollPhysics(),
+                                                        itemCount: size.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          return CheckboxListTile(
+                                                            title: Text(
+                                                                sizeText[
+                                                                    index]),
+                                                            value: size[index],
+                                                            onChanged:
+                                                                (newValue) {
+                                                              if (mounted)
+                                                                setState(() {
+                                                                  size[index] =
+                                                                      newValue;
+                                                                });
+                                                            },
+                                                            controlAffinity:
+                                                                ListTileControlAffinity
+                                                                    .trailing,
+                                                          );
+                                                        },
+                                                      ),
+                                                    )),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Text(
+                                                    'Shop by Color',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
+                                                ),
+                                                Container(
+                                                    height: 230,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors
+                                                              .grey.shade300,
+                                                          offset:
+                                                              Offset(0.0, 0.0),
+                                                          blurRadius: 4.0,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Container(
+                                                      height: 230,
+                                                      child: ListView.builder(
+                                                        itemCount: color.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          return CheckboxListTile(
+                                                            title: Text(
+                                                                colorText[
+                                                                    index]),
+                                                            value: color[index],
+                                                            onChanged:
+                                                                (newValue) {
+                                                              if (mounted)
+                                                                setState(() {
+                                                                  color[index] =
+                                                                      newValue;
+                                                                });
+                                                            },
+                                                            controlAffinity:
+                                                                ListTileControlAffinity
+                                                                    .trailing,
+                                                          );
+                                                        },
+                                                      ),
+                                                    )),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Text(
+                                                    'Shop by Discount',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
+                                                ),
+                                                Container(
+                                                    height: 230,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors
+                                                              .grey.shade300,
+                                                          offset:
+                                                              Offset(0.0, 0.0),
+                                                          blurRadius: 4.0,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Container(
+                                                      child: ListView.builder(
+                                                        itemCount:
+                                                            discount.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          return CheckboxListTile(
+                                                            title: Text(
+                                                                discountText[
+                                                                    index]),
+                                                            value:
+                                                                discount[index],
+                                                            onChanged:
+                                                                (newValue) {
+                                                              if (mounted)
+                                                                setState(() {
+                                                                  discount[
+                                                                          index] =
+                                                                      newValue;
+                                                                });
+                                                            },
+                                                            controlAffinity:
+                                                                ListTileControlAffinity
+                                                                    .trailing,
+                                                          );
+                                                        },
+                                                      ),
+                                                    )),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      10.0),
+                                                  child: Text(
+                                                    'Customers Ratings',
+                                                    style: TextStyle(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
+                                                ),
+                                                Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors
+                                                              .grey.shade300,
+                                                          offset:
+                                                              Offset(0.0, 0.0),
+                                                          blurRadius: 4.0,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Container(
+                                                      height: 230,
+                                                      child: ListView.builder(
+                                                        physics:
+                                                            NeverScrollableScrollPhysics(),
+                                                        itemCount:
+                                                            ratings.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          return CheckboxListTile(
+                                                            title: Text(
+                                                                ratingsText[
+                                                                    index]),
+                                                            value:
+                                                                ratings[index],
+                                                            onChanged:
+                                                                (newValue) {
+                                                              if (mounted)
+                                                                setState(() {
+                                                                  ratings[index] =
+                                                                      newValue;
+                                                                });
+                                                            },
+                                                            controlAffinity:
+                                                                ListTileControlAffinity
+                                                                    .trailing,
+                                                          );
+                                                        },
+                                                      ),
+                                                    )),
+                                                InkWell(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    Brand()));
+                                                  },
+                                                  child: Container(
+                                                    margin: EdgeInsets.all(10),
+                                                    padding: EdgeInsets.all(10),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                          'Brand',
+                                                          style: TextStyle(
+                                                              fontSize: 18,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w700),
+                                                        ),
+                                                        Icon(
+                                                          Icons
+                                                              .arrow_forward_ios,
+                                                          size: 18,
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 60,
+                                                )
+                                              ],
                                             ),
-                                          ],
-                                        ));
+                                          ),
+                                        ),
+                                        Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: Container(
+                                            height: 60,
+                                            padding: EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.grey.shade400,
+                                                  offset: Offset(0.0, -0.5),
+                                                  blurRadius: 3.0,
+                                                ),
+                                              ],
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                InkWell(
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.4,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(50),
+                                                        border: Border.all(
+                                                            color: Colors.grey,
+                                                            width: 1)),
+                                                    child: Center(
+                                                      child: Text(
+                                                        'Discard',
+                                                        style: TextStyle(
+                                                            color: Colors.grey),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                InkWell(
+                                                  onTap: () {
+                                                    size
+                                                        .asMap()
+                                                        .forEach((key, value) {
+                                                      if (value) {
+                                                        if (sizeFinal != '')
+                                                          sizeFinal +=
+                                                              ',' + sizeID[key];
+                                                        else
+                                                          sizeFinal +=
+                                                              sizeID[key];
+                                                      }
+                                                    });
+
+                                                    color
+                                                        .asMap()
+                                                        .forEach((key, value) {
+                                                      if (value) {
+                                                        if (colorFinal != '')
+                                                          colorFinal += ',' +
+                                                              colorID[key];
+                                                        else
+                                                          colorFinal +=
+                                                              colorID[key];
+                                                      }
+                                                    });
+
+                                                    discount
+                                                        .asMap()
+                                                        .forEach((key, value) {
+                                                      if (value) {
+                                                        if (discountFinal != '')
+                                                          discountFinal += ',' +
+                                                              discountID[key];
+                                                        else
+                                                          discountFinal +=
+                                                              discountID[key];
+                                                      }
+                                                    });
+
+                                                    ratings
+                                                        .asMap()
+                                                        .forEach((key, value) {
+                                                      if (value) {
+                                                        if (ratingsFinal != '')
+                                                          ratingsFinal += ',' +
+                                                              ratingsID[key];
+                                                        else
+                                                          ratingsFinal +=
+                                                              ratingsID[key];
+                                                      }
+                                                    });
+
+                                                    load(searchTerm);
+
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.4,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(50),
+                                                        color: MyColors
+                                                            .PrimaryColor),
+                                                    child: Center(
+                                                      child: Text(
+                                                        'Apply',
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w700),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ));
                                   });
                                 });
                           },

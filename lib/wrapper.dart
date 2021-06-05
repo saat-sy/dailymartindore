@@ -3,6 +3,7 @@ import 'package:frontend/constants.dart';
 import 'package:frontend/screens/authenticate/getting_started.dart';
 import 'package:frontend/screens/authenticate/login.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
+import 'package:frontend/screens/bottomnav/bottomnav_anonymous.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/favorites_model.dart';
@@ -106,7 +107,7 @@ class Wrapper extends StatelessWidget {
           if (snapshot.data == 'Getting Started')
             return GettingStarted();
           else if (snapshot.data == "" || snapshot.data == null)
-            return Login();
+            return BottomNavAnonymous();
           else
             return BottomNav();
         } else
