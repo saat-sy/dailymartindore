@@ -86,6 +86,7 @@ class CartService {
           error: true,
           errorMessage: json.decode(value.body)['responseMessage']);
     }).catchError((error) {
+      print(error);
       return APIResponse<bool>(
           data: false, error: true, errorMessage: 'An error occured');
     });

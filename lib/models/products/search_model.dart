@@ -7,8 +7,11 @@ class SearchModel {
   String discount;
   String quantity;
   String rating;
-  String old_price;
-  String new_price;
+  bool inFav;
+  bool inStock;
+  bool inCart;
+  String oldPrice;
+  String newPrice;
 
   SearchModel(
       {this.id,
@@ -16,9 +19,12 @@ class SearchModel {
       this.title,
       this.quantity,
       this.description,
+      this.inStock = true,
+      this.inCart = false,
+      this.inFav = false,
       this.isVeg,
       this.discount,
       this.rating,
-      this.old_price,
-      this.new_price});
+      this.oldPrice,
+      this.newPrice});
 }

@@ -50,20 +50,20 @@ class _AddAddressState extends State<AddAddress> {
     String id = prefs.getInt(PrefConstants.id).toString();
 
     final addressModel = AddressModel(
-      username: name,
-      address: address,
-      state: state,
-      pincode: pincode,
-      city: city
-    );
+        username: name,
+        address: address,
+        state: state,
+        pincode: pincode,
+        city: city);
 
     _apiResponse = await service.addAddress(addressModel, id);
 
     if (_apiResponse.error) {
-      setState(() {
-        Navigator.pop(context);
-        error = _apiResponse.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          Navigator.pop(context);
+          error = _apiResponse.errorMessage;
+        });
     } else {
       Navigator.pop(context);
       Navigator.push(
@@ -97,9 +97,10 @@ class _AddAddressState extends State<AddAddress> {
           children: <Widget>[
             TextFormField(
               onChanged: (value) {
-                setState(() {
-                  name = value;
-                });
+                if (mounted)
+                  setState(() {
+                    name = value;
+                  });
               },
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
@@ -127,9 +128,10 @@ class _AddAddressState extends State<AddAddress> {
             ),
             TextFormField(
               onChanged: (value) {
-                setState(() {
-                  address = value;
-                });
+                if (mounted)
+                  setState(() {
+                    address = value;
+                  });
               },
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
@@ -157,9 +159,10 @@ class _AddAddressState extends State<AddAddress> {
             ),
             TextFormField(
               onChanged: (value) {
-                setState(() {
-                  city = value;
-                });
+                if (mounted)
+                  setState(() {
+                    city = value;
+                  });
               },
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
@@ -187,9 +190,10 @@ class _AddAddressState extends State<AddAddress> {
             ),
             TextFormField(
               onChanged: (value) {
-                setState(() {
-                  state = value;
-                });
+                if (mounted)
+                  setState(() {
+                    state = value;
+                  });
               },
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
@@ -217,9 +221,10 @@ class _AddAddressState extends State<AddAddress> {
             ),
             TextFormField(
               onChanged: (value) {
-                setState(() {
-                  pincode = value;
-                });
+                if (mounted)
+                  setState(() {
+                    pincode = value;
+                  });
               },
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
@@ -251,9 +256,10 @@ class _AddAddressState extends State<AddAddress> {
                   child: CupertinoSwitch(
                     value: _makedefault,
                     onChanged: (value) {
-                      setState(() {
-                        _makedefault = value;
-                      });
+                      if (mounted)
+                        setState(() {
+                          _makedefault = value;
+                        });
                     },
                     activeColor: MyColors.PrimaryColor,
                   ),

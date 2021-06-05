@@ -5,10 +5,12 @@ import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/all.dart';
 import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/models/products/featured.dart';
+import 'package:frontend/models/products/product.dart';
 import 'package:frontend/models/products/store_list_model.dart';
 import 'package:frontend/models/products/top.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/screens/products/allScreen.dart';
+import 'package:frontend/screens/products/all_categories.dart';
 import 'package:frontend/screens/products/categories.dart';
 import 'package:frontend/screens/products/featuredScreen.dart';
 import 'package:frontend/screens/products/topScreen.dart';
@@ -45,31 +47,47 @@ class _HomeState extends State<Home> {
   bool isAllLoading = true;
   bool isCatLoading = true;
   bool isStoreLoading = true;
+  bool isRecentLoading = true;
   String errorFeat = '';
   String errorTop = '';
   String errorAll = '';
   String errorCat = '';
   String errorStore = '';
+  String errorRecent = '';
 
   bool isStorePresent = true;
 
   List<FeaturedProducts> featuredProducts;
+  List<FeaturedProducts> recentProducts = [];
   List<TopProducts> topProducts;
   List<AllProducts> allProducts;
   List<CategoriesModel> categories;
   List<StoreListModel> stores;
 
   getProducts() async {
-
+    final prefs = await SharedPreferences.getInstance();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
 
     //GET FEATURED PRODUCTS
     _apiResponseFeat = await service.getFeaturedProducts();
     if (_apiResponseFeat.error) {
-      setState(() {
-        errorFeat = _apiResponseFeat.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          errorFeat = _apiResponseFeat.errorMessage;
+        });
     } else {
       featuredProducts = _apiResponseFeat.data;
+      for (int i = 0; i < featuredProducts.length; i++) {
+        fav.split(',').forEach((element) {
+          if (element == featuredProducts[i].id)
+            featuredProducts[i].inFav = true;
+        });
+        cart.split(',').forEach((element) {
+          if (element == featuredProducts[i].id)
+            featuredProducts[i].inCart = true;
+        });
+      }
       if (mounted)
         setState(() {
           isFeatLoading = false;
@@ -79,11 +97,20 @@ class _HomeState extends State<Home> {
     //GET TOP PRODUCTS
     _apiResponseTop = await service.getTopProducts();
     if (_apiResponseTop.error) {
-      setState(() {
-        errorTop = _apiResponseTop.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          errorTop = _apiResponseTop.errorMessage;
+        });
     } else {
       topProducts = _apiResponseTop.data;
+      for (int i = 0; i < topProducts.length; i++) {
+        fav.split(',').forEach((element) {
+          if (element == topProducts[i].id) topProducts[i].inFav = true;
+        });
+        cart.split(',').forEach((element) {
+          if (element == topProducts[i].id) topProducts[i].inCart = true;
+        });
+      }
       if (mounted)
         setState(() {
           isTopLoading = false;
@@ -93,11 +120,20 @@ class _HomeState extends State<Home> {
     //GET ALL PRODUCTS
     _apiResponseAll = await service.getAllProducts();
     if (_apiResponseAll.error) {
-      setState(() {
-        errorAll = _apiResponseAll.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          errorAll = _apiResponseAll.errorMessage;
+        });
     } else {
       allProducts = _apiResponseAll.data;
+      for (int i = 0; i < allProducts.length; i++) {
+        fav.split(',').forEach((element) {
+          if (element == allProducts[i].id) allProducts[i].inFav = true;
+        });
+        cart.split(',').forEach((element) {
+          if (element == allProducts[i].id) allProducts[i].inCart = true;
+        });
+      }
       if (mounted)
         setState(() {
           isAllLoading = false;
@@ -107,9 +143,10 @@ class _HomeState extends State<Home> {
     //GET CATEGORIES
     _apiResponseCategory = await service.getCategories();
     if (_apiResponseCategory.error) {
-      setState(() {
-        errorCat = _apiResponseCategory.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          errorCat = _apiResponseCategory.errorMessage;
+        });
     } else {
       categories = _apiResponseCategory.data;
       if (mounted)
@@ -118,7 +155,6 @@ class _HomeState extends State<Home> {
         });
     }
 
-    //GET STORES
     _apiResponseStore = await service.getStoreList();
     if (_apiResponseStore.error) {
       if (mounted)
@@ -132,7 +168,7 @@ class _HomeState extends State<Home> {
       String storeAddress =
           prefs.getString(PrefConstants.storeDefaultAddress).toString() ?? '';
 
-      if (storeAddress == '')
+      if (storeAddress != '')
         for (final store in stores) {
           if (store.address == storeAddress) _selectedStore = store.address;
         }
@@ -143,11 +179,50 @@ class _HomeState extends State<Home> {
         setState(() {
           isStoreLoading = false;
         });
-      if (stores == null)
+      if (stores == null) if (mounted)
         setState(() {
           isStorePresent = false;
         });
     }
+
+    //GET RECENT PRODUCTS
+    String recent = prefs.getString(PrefConstants.recentProducts) ?? "";
+    if (recent != "") {
+      for (final r in recent.split(',')) {
+        APIResponse<ProductModel> _apiProduct;
+        _apiProduct = await service.getProductByID(r);
+        if (!_apiProduct.error) {
+          ProductModel p = _apiProduct.data;
+          final rp = FeaturedProducts(
+            id: p.id,
+            imagePath: p.image,
+            title: p.title,
+            description: p.description,
+            isVeg: p.isVeg,
+            discount: p.discount,
+            rating: p.rating,
+            quantity: p.quantity,
+            oldPrice: p.oldPrice,
+            newPrice: p.price,
+            inFav: p.inFav,
+            inCart: p.inCart,
+          );
+          recentProducts.add(rp);
+        }
+      }
+      for (int i = 0; i < recentProducts.length; i++) {
+        fav.split(',').forEach((element) {
+          if (element == recentProducts[i].id) recentProducts[i].inFav = true;
+        });
+        cart.split(',').forEach((element) {
+          if (element == recentProducts[i].id) recentProducts[i].inCart = true;
+        });
+      }
+    }
+    if (mounted)
+      setState(() {
+        isRecentLoading = false;
+      });
   }
 
   String _selectedStore;
@@ -168,16 +243,14 @@ class _HomeState extends State<Home> {
                 child: DropdownButton<String>(
                   value: _selectedStore,
                   onChanged: (String value) {
-                    setState(() {
-                      _selectedStore = value;
-                    });
+                    if (mounted)
+                      setState(() {
+                        _selectedStore = value;
+                      });
                   },
                   items: items.map<DropdownMenuItem<String>>((e) {
                     return DropdownMenuItem<String>(
-                      child: Container(
-                        width: 230,
-                        child: Text(e)
-                      ),
+                      child: Container(width: 230, child: Text(e)),
                       value: e,
                     );
                   }).toList(),
@@ -191,6 +264,7 @@ class _HomeState extends State<Home> {
                 onPress: () async {
                   await changeStore(_selectedStore);
                   Navigator.pop(context);
+                  refresh();
                 },
               )
             ],
@@ -213,7 +287,26 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> refresh() async {
-    getProducts();
+    if (mounted)
+      setState(() {
+        isFeatLoading = true;
+        isTopLoading = true;
+        isAllLoading = true;
+        isCatLoading = true;
+        isStoreLoading = true;
+        errorFeat = '';
+        errorTop = '';
+        errorAll = '';
+        errorCat = '';
+        errorStore = '';
+
+        featuredProducts = [];
+        topProducts = [];
+        allProducts = [];
+        categories = [];
+        stores = [];
+      });
+    await getProducts();
   }
 
   @override
@@ -290,12 +383,15 @@ class _HomeState extends State<Home> {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => BottomNav(
-                                      index: 1,
-                                    )));
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => BottomNav(
+                              index: 1,
+                            ),
+                          ),
+                          (route) => false,
+                        );
                       },
                       child: Container(
                           margin: EdgeInsets.all(10),
@@ -310,7 +406,7 @@ class _HomeState extends State<Home> {
                               Icon(Icons.search),
                               SizedBox(width: 10),
                               Text(
-                                'Search a Product',
+                                'Search products by title',
                                 style: TextStyle(
                                     color: Colors.grey.shade700, fontSize: 16),
                               )
@@ -360,13 +456,22 @@ class _HomeState extends State<Home> {
                                                     color: Colors.white,
                                                     fontSize: 18,
                                                     fontWeight:
-                                                        FontWeight.bold),
+                                                        FontWeight.w400),
                                               ),
                                               SizedBox(
                                                 height: 10,
                                               ),
                                               InkWell(
-                                                onTap: () {},
+                                                onTap: () {
+                                                   Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (BuildContext context) => BottomNav(
+                                                        index: 1,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
                                                 child: Container(
                                                   padding: EdgeInsets.all(5),
                                                   decoration: BoxDecoration(
@@ -397,17 +502,29 @@ class _HomeState extends State<Home> {
                             autoPlay: true,
                           ),
                           items: sliderImagePath
-                              .map((item) => Container(
-                                    child: Center(
-                                        child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: Image.asset(
-                                        item,
-                                        fit: BoxFit.fitWidth,
-                                        height: 200,
+                              .map((item) => GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) => BottomNav(
+                                        index: 1,
                                       ),
-                                    )),
-                                  ))
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                      child: Center(
+                                          child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: Image.asset(
+                                          item,
+                                          fit: BoxFit.fitWidth,
+                                          height: 200,
+                                        ),
+                                      )),
+                                    ),
+                              ))
                               .toList(),
                         )),
                         Padding(
@@ -420,10 +537,26 @@ class _HomeState extends State<Home> {
                                 'Categories',
                                 style: TextStyle(
                                   color: Colors.black,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w400,
                                   fontSize: 20,
                                 ),
                               ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              AllCategories()));
+                                },
+                                child: Text(
+                                  'View all',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         ),
@@ -512,7 +645,7 @@ class _HomeState extends State<Home> {
                               'Featured Products',
                               style: TextStyle(
                                 color: Colors.black,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w400,
                                 fontSize: 20,
                               ),
                             ),
@@ -542,7 +675,7 @@ class _HomeState extends State<Home> {
                             : Container(),
                         isFeatLoading
                             ? Container(
-                                height: 200,
+                                height: 335.3,
                                 child: Center(
                                   child: CircularProgressIndicator(),
                                 ),
@@ -558,7 +691,7 @@ class _HomeState extends State<Home> {
                               'Top Deals',
                               style: TextStyle(
                                 color: Colors.black,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w400,
                                 fontSize: 20,
                               ),
                             ),
@@ -587,7 +720,7 @@ class _HomeState extends State<Home> {
                             : Container(),
                         isTopLoading
                             ? Container(
-                                height: 200,
+                                height: 335.3,
                                 child: Center(
                                   child: CircularProgressIndicator(),
                                 ),
@@ -603,7 +736,7 @@ class _HomeState extends State<Home> {
                               'On Sale Products',
                               style: TextStyle(
                                 color: Colors.black,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w400,
                                 fontSize: 20,
                               ),
                             ),
@@ -632,7 +765,7 @@ class _HomeState extends State<Home> {
                             : Container(),
                         isAllLoading
                             ? Container(
-                                height: 200,
+                                height: 335.3,
                                 child: Center(
                                   child: CircularProgressIndicator(),
                                 ),
@@ -640,9 +773,36 @@ class _HomeState extends State<Home> {
                             : HomeProductCard(
                                 items: allProducts,
                               ),
-                        SizedBox(
-                          height: 25,
-                        )
+                        isRecentLoading
+                            ? Container(
+                                height: 335.3,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                            : recentProducts.length != 0
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0),
+                                        child: Text(
+                                          'Recent Products',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      ),
+                                      HomeProductCard(
+                                        items: recentProducts,
+                                      ),
+                                    ],
+                                  )
+                                : Container(),
                       ],
                     ),
                   ),

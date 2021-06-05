@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/featured.dart';
-import 'package:frontend/screens/products/productpage.dart';
 import 'package:frontend/services/products_service.dart';
+import 'package:frontend/strings.dart';
 import 'package:frontend/stylesheet/styles.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FeaturedScreen extends StatefulWidget {
 
@@ -24,6 +26,10 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
 
   getProducts() async {
 
+    final prefs = await SharedPreferences.getInstance();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
+
     _apiResponseFeat = await service.getFeaturedProducts();
     if (_apiResponseFeat.error) {
       setState(() {
@@ -31,6 +37,17 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
       });
     } else {
       featuredProducts = _apiResponseFeat.data;
+      for (int i = 0; i < featuredProducts.length; i++) {
+        print(featuredProducts[i].id);
+        fav.split(',').forEach((element) {
+          if(element == featuredProducts[i].id)
+            featuredProducts[i].inFav = true;
+        });
+        cart.split(',').forEach((element) {
+          if(element == featuredProducts[i].id)
+            featuredProducts[i].inCart = true;
+        });
+      }
       setState(() {
         isLoading = false;
       });
@@ -58,7 +75,7 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         backgroundColor: Colors.white,
-        title: Text('Featured Products'),
+        title: Text(Strings.FEATURED_PRODUCTS_SCREEN_APPBAR),
         centerTitle: true,
       ),
 

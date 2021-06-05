@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,11 +26,7 @@ class _SignupState extends State<Signup> {
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
-            height: 55,
-            width: 55,
-            child: CircularProgressIndicator()
-          ),
+          SizedBox(height: 55, width: 55, child: CircularProgressIndicator()),
         ],
       ),
     );
@@ -47,28 +41,25 @@ class _SignupState extends State<Signup> {
 
   signup() async {
     showLoaderDialog(context);
-    _apiResponse = await service.signup(
-      SignUpInputModel(
+    _apiResponse = await service.signup(SignUpInputModel(
         name: name,
         email: email,
         password: password,
         cpassword: cpassword,
-        phoneNo: phoneNo
-      )
-    );
-    if (_apiResponse.error){
-      setState(() {
-        error = _apiResponse.errorMessage;
-      });
+        phoneNo: phoneNo));
+    if (_apiResponse.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
       Navigator.pop(context);
-    }
-    else {
+    } else {
       Navigator.pop(context);
       Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  VerifyOTP(email: email, otp: _apiResponse.data.otp, phone: phoneNo)));
+              builder: (context) => VerifyOTP(
+                  email: email, otp: _apiResponse.data.otp, phone: phoneNo)));
     }
   }
 
@@ -135,20 +126,11 @@ class _SignupState extends State<Signup> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      ClipOval(
-                        child: Image(
-                          image: AssetImage('assets/images/profile.png'),
-                          width: MediaQuery.of(context).size.width * 0.28,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30,
-                      ),
                       Text(
                         'Create Account!',
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w400,
                           fontSize: 25,
                         ),
                       ),
@@ -169,9 +151,10 @@ class _SignupState extends State<Signup> {
                         validator: (val) =>
                             val.isEmpty ? 'Enter your name' : null,
                         onChanged: (value) {
-                          setState(() {
-                            name = value;
-                          });
+                          if (mounted)
+                            setState(() {
+                              name = value;
+                            });
                         },
                         cursorColor: MyColors.PrimaryColor,
                         decoration: InputDecoration(
@@ -183,7 +166,7 @@ class _SignupState extends State<Signup> {
                           prefixIcon: Visibility(
                               visible: true,
                               child: Icon(
-                                Icons.email_outlined,
+                                Icons.person,
                                 color: Colors.grey,
                                 size: 17,
                               )),
@@ -209,9 +192,10 @@ class _SignupState extends State<Signup> {
                       TextFormField(
                         validator: (val) => verifyEmail(val),
                         onChanged: (value) {
-                          setState(() {
-                            email = value;
-                          });
+                          if (mounted)
+                            setState(() {
+                              email = value;
+                            });
                         },
                         cursorColor: MyColors.PrimaryColor,
                         decoration: InputDecoration(
@@ -249,9 +233,10 @@ class _SignupState extends State<Signup> {
                       TextFormField(
                         validator: (val) => verifyPhoneNo(val),
                         onChanged: (value) {
-                          setState(() {
-                            phoneNo = value;
-                          });
+                          if (mounted)
+                            setState(() {
+                              phoneNo = value;
+                            });
                         },
                         cursorColor: MyColors.PrimaryColor,
                         keyboardType:
@@ -291,9 +276,10 @@ class _SignupState extends State<Signup> {
                       TextFormField(
                         validator: (val) => verifyPassword(val),
                         onChanged: (value) {
-                          setState(() {
-                            password = value;
-                          });
+                          if (mounted)
+                            setState(() {
+                              password = value;
+                            });
                         },
                         cursorColor: MyColors.PrimaryColor,
                         obscureText: _obscureText,
@@ -322,9 +308,10 @@ class _SignupState extends State<Signup> {
                               ),
                               color: Colors.grey,
                               onPressed: () {
-                                setState(() {
-                                  _obscureText = !_obscureText;
-                                });
+                                if (mounted)
+                                  setState(() {
+                                    _obscureText = !_obscureText;
+                                  });
                               },
                             ),
                           ),
@@ -352,9 +339,10 @@ class _SignupState extends State<Signup> {
                       TextFormField(
                         validator: (val) => verifyConfirmPassword(val),
                         onChanged: (value) {
-                          setState(() {
-                            cpassword = value;
-                          });
+                          if (mounted)
+                            setState(() {
+                              cpassword = value;
+                            });
                         },
                         cursorColor: MyColors.PrimaryColor,
                         obscureText: _obscureTextConfirmPas,
@@ -383,10 +371,11 @@ class _SignupState extends State<Signup> {
                               ),
                               color: Colors.grey,
                               onPressed: () {
-                                setState(() {
-                                  _obscureTextConfirmPas =
-                                      !_obscureTextConfirmPas;
-                                });
+                                if (mounted)
+                                  setState(() {
+                                    _obscureTextConfirmPas =
+                                        !_obscureTextConfirmPas;
+                                  });
                               },
                             ),
                           ),
@@ -421,8 +410,7 @@ class _SignupState extends State<Signup> {
                       SubmitButton(
                         text: 'Signup',
                         onPress: () {
-                          if (_formKey.currentState.validate())
-                          signup();
+                          if (_formKey.currentState.validate()) signup();
                         },
                       ),
                       Row(

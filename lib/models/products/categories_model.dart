@@ -13,7 +13,8 @@ class SubCategoriesModel {
   String image;
   List<SubSubCategoriesModel> subSubCategoriesModel;
 
-  SubCategoriesModel({this.id, this.name, this.image, this.subSubCategoriesModel});
+  SubCategoriesModel(
+      {this.id, this.name, this.image, this.subSubCategoriesModel});
 }
 
 class SubSubCategoriesModel {
@@ -33,19 +34,25 @@ class CategoriesProduct {
   bool isVeg;
   String discount;
   String rating;
-  String old_price;
+  String oldPrice;
   String quantity;
-  String new_price;
+  String newPrice;
+  bool inFav;
+  bool inCart;
+  bool inStock;
 
   CategoriesProduct(
       {this.id,
       this.imagePath,
       this.title,
+      this.inStock = true,
       this.description,
       this.isVeg,
+      this.inCart = false,
+      this.inFav = false,
       this.quantity,
       this.discount,
       this.rating,
-      this.old_price,
-      this.new_price});
+      this.oldPrice,
+      this.newPrice});
 }

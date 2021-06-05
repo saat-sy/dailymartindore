@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
+import 'package:frontend/strings.dart';
 
 class NotifSettings extends StatefulWidget {
   @override
@@ -9,24 +10,24 @@ class NotifSettings extends StatefulWidget {
 class _NotifSettingsState extends State<NotifSettings> {
   List<NotifSettingsModel> notifs = [
     NotifSettingsModel(
-        title: 'Allow Notifications',
-        description: 'Get notifications about what is coming in the cart',
-        accepted: false,
+      title: 'Allow Notifications',
+      description: 'Get notifications about what is coming in the cart',
+      accepted: false,
     ),
     NotifSettingsModel(
-        title: 'Email Notifications',
-        description: 'Get notifications about what is coming in the cart',
-        accepted: false,
+      title: 'Email Notifications',
+      description: 'Get notifications about what is coming in the cart',
+      accepted: false,
     ),
     NotifSettingsModel(
-        title: 'Order Notifications',
-        description: 'Get notifications about what is coming in the cart',
-        accepted: false,
+      title: 'Order Notifications',
+      description: 'Get notifications about what is coming in the cart',
+      accepted: false,
     ),
     NotifSettingsModel(
-        title: 'General Notifications',
-        description: 'Get notifications about what is coming in the cart',
-        accepted: false,
+      title: 'General Notifications',
+      description: 'Get notifications about what is coming in the cart',
+      accepted: false,
     ),
   ];
 
@@ -39,7 +40,7 @@ class _NotifSettingsState extends State<NotifSettings> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         backgroundColor: Colors.white,
-        title: Text('Notifications'),
+        title: Text(Strings.NOTIFICATIONS_SETTINGS_APPBAR),
         centerTitle: true,
       ),
       body: Stack(
@@ -67,13 +68,17 @@ class _NotifSettingsState extends State<NotifSettings> {
                       SizedBox(
                         height: 45,
                         child: CheckboxListTile(
-                          title: Text(notifs[index].title, style: TextStyle(fontWeight: FontWeight.w700),),
+                          title: Text(
+                            notifs[index].title,
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
                           value: notifs[index].accepted,
                           activeColor: MyColors.SecondaryColor,
                           onChanged: (newValue) {
-                            setState(() {
-                              notifs[index].accepted = newValue;
-                            });
+                            if (mounted)
+                              setState(() {
+                                notifs[index].accepted = newValue;
+                              });
                           },
                           controlAffinity: ListTileControlAffinity.trailing,
                         ),
@@ -98,10 +103,15 @@ class _NotifSettingsState extends State<NotifSettings> {
               padding: EdgeInsets.all(10),
               margin: EdgeInsets.all(25),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                color: MyColors.SecondaryColor
+                  borderRadius: BorderRadius.circular(50),
+                  color: MyColors.SecondaryColor),
+              child: Center(
+                child: Text(
+                  Strings.NOTIFICATIONS_SETTINGS_SUBMIT,
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w700),
+                ),
               ),
-              child: Center(child: Text('Save Settings', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),),),
             ),
           )
         ],

@@ -3,6 +3,7 @@ import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/screens/products/categories.dart';
 import 'package:frontend/services/products_service.dart';
+import 'package:frontend/strings.dart';
 
 class MainCategory {
   String category;
@@ -31,13 +32,14 @@ class _AllCategoriesState extends State<AllCategories> {
   getCategories() async {
     _apiResponseCategory = await service.getCategories();
     if (_apiResponseCategory.error) {
-      setState(() {
-        error = _apiResponseCategory.errorMessage;
-        print(error);
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponseCategory.errorMessage;
+          print(error);
+        });
     } else {
       categories = _apiResponseCategory.data;
-      if (mounted)
+      if (mounted) if (mounted)
         setState(() {
           isLoading = false;
         });
@@ -58,7 +60,7 @@ class _AllCategoriesState extends State<AllCategories> {
           icon: Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Categories'),
+        title: Text(Strings.ALL_CATEGORIES_APPBAR),
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -94,64 +96,65 @@ class CategoryExpandableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return category.subCategories.length == 0 ?
-    InkWell(
-      onTap: () {
-        Navigator.push(
-          context, MaterialPageRoute(
-            builder: (context) => Categories(
-              category: category.id,
-              categoryName:
-                  category.name,
+    return category.subCategories.length == 0
+        ? InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Categories(
+                      category: category.id,
+                      categoryName: category.name,
+                    ),
+                  ));
+            },
+            child: ListTile(
+              title: new Text(
+                category.name,
+                style: new TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+              ),
             ),
           )
-        );
-      },
-      child: ListTile(
-        title: new Text(
-          category.name,
-          style: new TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ),
-    ):
-    ExpansionTile(
-      key: PageStorageKey<CategoriesModel>(category),
-      title: Text(category.name,
-          style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold)),
-      children: category.subCategories.map<Widget>((sub) => showSub(sub)).toList(),
-    );
+        : ExpansionTile(
+            key: PageStorageKey<CategoriesModel>(category),
+            title: Text(category.name,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
+            children: category.subCategories
+                .map<Widget>((sub) => showSub(sub))
+                .toList(),
+          );
   }
 
   showSub(SubCategoriesModel subCategory) {
     return Padding(
-      padding: const EdgeInsets.only(left: 15.0),
-      child: subCategory.subSubCategoriesModel.length == 0 ?
-      InkWell(
-        onTap: () {
-          Navigator.push(
-            context, MaterialPageRoute(
-              builder: (context) => Categories(
-                subcategory: subCategory.id,
-                subcategoryName:
+        padding: const EdgeInsets.only(left: 15.0),
+        child: subCategory.subSubCategoriesModel.length == 0
+            ? InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Categories(
+                          subcategory: subCategory.id,
+                          subcategoryName: subCategory.name,
+                        ),
+                      ));
+                },
+                child: ListTile(
+                  title: Text(
                     subCategory.name,
-              ),
-            )
-          );
-        },
-        child: ListTile(
-          title: Text(
-            subCategory.name,
-            style: TextStyle(fontSize: 17),
-          ),
-        ),
-      ):
-      ExpansionTile(
-        key: PageStorageKey<SubCategoriesModel>(subCategory),
-        title: Text(subCategory.name, style: TextStyle(fontSize: 17)),
-        children: subCategory.subSubCategoriesModel.map<Widget>((subsub) => showSubSub(subsub, subCategory.name, subCategory.id)).toList(),
-      )
-    );
+                    style: TextStyle(fontSize: 17),
+                  ),
+                ),
+              )
+            : ExpansionTile(
+                key: PageStorageKey<SubCategoriesModel>(subCategory),
+                title: Text(subCategory.name, style: TextStyle(fontSize: 17)),
+                children: subCategory.subSubCategoriesModel
+                    .map<Widget>((subsub) =>
+                        showSubSub(subsub, subCategory.name, subCategory.id))
+                    .toList(),
+              ));
   }
 
   showSubSub(SubSubCategoriesModel subsubCategory, String name, String id) {
@@ -160,14 +163,13 @@ class CategoryExpandableWidget extends StatelessWidget {
       child: InkWell(
         onTap: () {
           Navigator.push(
-            context, MaterialPageRoute(
-              builder: (context) => Categories(
-                subcategory: id,
-                subcategoryName:
-                    name,
-              ),
-            )
-          );
+              context,
+              MaterialPageRoute(
+                builder: (context) => Categories(
+                  subcategory: id,
+                  subcategoryName: name,
+                ),
+              ));
         },
         child: ListTile(
           title: Text(

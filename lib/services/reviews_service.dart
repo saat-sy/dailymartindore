@@ -66,9 +66,9 @@ class ReviewService {
           for (var data in responseData) {
             print(data);
             final f = ReviewsModel(
-              review: data['review'],
-              rating: data['rating'],
-              username: data['name'],
+              review: data['review'] ?? '',
+              rating: data['rating'] ?? '',
+              username: data['name'] ?? '',
             );
             cartItems.add(f);
           }

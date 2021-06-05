@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/user.dart';
+import 'package:frontend/screens/authenticate/change_password.dart';
 import 'package:frontend/services/profile_service.dart';
+import 'package:frontend/strings.dart';
 import 'package:frontend/stylesheet/styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -66,12 +68,14 @@ class _ProfilePageState extends State<ProfilePage> {
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getInt(PrefConstants.id).toString();
 
-    _apiResponse = await service.updateProfile(phoneNo ?? currentPhone, name ?? currentName, id);
+    _apiResponse = await service.updateProfile(
+        phoneNo ?? currentPhone, name ?? currentName, id);
 
     if (_apiResponse.error) {
-      setState(() {
-        error = _apiResponse.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
     } else {
       await updateShredPrefs(
         name ?? prefs.getString(PrefConstants.name).toString(),
@@ -80,7 +84,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
     Navigator.pop(context);
   }
-
 
   Future<void> updateShredPrefs(String name, String phone) async {
     final prefs = await SharedPreferences.getInstance();
@@ -101,9 +104,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String verifyPhoneNo(String val) {
     if (val.isEmpty)
-      return 'Enter your Phone number';
+      return Strings.PROFILE_PAGE_PHONE_ON_ERROR;
     else if (val.length != 10)
-      return 'Enter a valid Phone number';
+      return Strings.PROFILE_PAGE_PHONE_INVALID_PHONE;
     else
       return null;
   }
@@ -113,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('About Me'),
+        title: Text(Strings.PROFILE_PAGE_APPBAR),
         centerTitle: true,
       ),
       body: isLoading
@@ -130,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Name:',
+                          Strings.PROFILE_PAGE_NAME,
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.w500,
@@ -144,10 +147,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           width: MediaQuery.of(context).size.width * 0.5,
                           child: TextFormField(
                             controller: nameController,
-                            validator: (val) =>
-                                val.isEmpty ? 'Enter your name' : null,
+                            validator: (val) => val.isEmpty
+                                ? Strings.PROFILE_PAGE_NAME_ON_ERROR
+                                : null,
                             onChanged: (value) {
-                              setState((){
+                              setState(() {
                                 if (value != currentName) {
                                   name = value;
                                   update = true;
@@ -159,7 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                   vertical: 0.0, horizontal: 10.0),
-                              hintText: 'Name',
+                              hintText: Strings.PROFILE_PAGE_NAME_PLACEHOLDER,
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(6),
                                   borderSide: BorderSide(
@@ -185,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Email:',
+                          Strings.PROFILE_PAGE_EMAIL,
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.w500,
@@ -204,7 +208,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                   vertical: 0.0, horizontal: 10.0),
-                              hintText: 'Email',
+                              hintText: Strings.PROFILE_PAGE_EMAIL_PLACEHOLDER,
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(6),
                                   borderSide: BorderSide(
@@ -221,7 +225,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Row(
                       children: [
                         Text(
-                          'Phone:',
+                          Strings.PROFILE_PAGE_PHONE,
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.w500,
@@ -234,19 +238,20 @@ class _ProfilePageState extends State<ProfilePage> {
                             controller: phoneNoController,
                             validator: (val) => verifyPhoneNo(val),
                             onChanged: (value) {
-                              setState(() {
-                                if (value != currentPhone) {
-                                  phoneNo = value;
-                                  update = true;
-                                } else
-                                  update = false;
-                              });
+                              if (mounted)
+                                setState(() {
+                                  if (value != currentPhone) {
+                                    phoneNo = value;
+                                    update = true;
+                                  } else
+                                    update = false;
+                                });
                             },
                             cursorColor: MyColors.PrimaryColor,
                             decoration: InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                   vertical: 0.0, horizontal: 10.0),
-                              hintText: 'Phone No',
+                              hintText: Strings.PROFILE_PAGE_PHONE_PLACEHOLDER,
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(6),
                                   borderSide: BorderSide(
@@ -269,15 +274,18 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
                     SizedBox(
-                      height: 10,
+                      height: 20,
                     ),
-                    Text(error, style: TextStyle(color: Colors.red),),
+                    Text(
+                      error,
+                      style: TextStyle(color: Colors.red),
+                    ),
                     SizedBox(
                       height: 10,
                     ),
                     update
                         ? SubmitButton(
-                            text: 'Update Profile',
+                            text: Strings.PROFILE_PAGE_SUBMIT,
                             onPress: () {
                               updateProfile();
                             })

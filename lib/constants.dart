@@ -12,4 +12,8 @@ class PrefConstants {
   static const String phone = 'userPhoneNumber';
   static const String id = 'userIdentity';
   static const String storeDefaultAddress = 'StoreDefaultAddress';
+  static const String firstOpen = 'FirstOpen';
+  static const String inFav = 'InFavorites';
+  static const String inCart = 'InCart';
+  static const String recentProducts = 'RecentProducts';
 }

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:frontend/models/api_response.dart';
-import 'package:frontend/models/user.dart';
 import 'package:http/http.dart' as http;
 
 class ProfileService {

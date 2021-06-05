@@ -32,7 +32,7 @@ dependencies:
   shared_preferences: ^2.0.5
   material_design_icons_flutter: ^4.0.5955
   grouped_buttons: ^1.0.4
-  flutter_launcher_icons:
+  flutter_launcher_icons:  
   flutter_launcher_name: 
   
 
@@ -67,9 +67,6 @@ flutter:
     - assets/images/onboard3.jpg
     - assets/images/onboard4.jpg
     - assets/images/logo.png
-    - assets/images/veg1.png
-    - assets/images/veg2.png
-    - assets/images/veg3.png
     - assets/images/login_bottom.png
     - assets/images/otp.png
     - assets/images/forgot_password.png
@@ -77,11 +74,6 @@ flutter:
     - assets/dashboard/bannerImages/2.png
     - assets/dashboard/sliderImages/1.png
     - assets/dashboard/sliderImages/2.png
-    - assets/dashboard/categories/dairy.png
-    - assets/dashboard/categories/foodgrains.png
-    - assets/dashboard/categories/fruits-vegetables.png
-    - assets/dashboard/categories/household.png
-    - assets/dashboard/categories/snacks.png
     - assets/images/empty_favorites.png
     - assets/images/empty_cart.png
     - assets/images/empty_address.png

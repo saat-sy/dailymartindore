@@ -44,10 +44,11 @@ class SearchService {
               description: data['description'],
               isVeg: data['is_veg'] == "0" ? true : false,
               rating: data['avg_rating'],
-              old_price: data['old_price'],
+              inStock: data['quantity'] == '0' ? false : true,
+              oldPrice: data['oldPrice'],
               discount: data['discount_name'],
-              new_price: data['price'],
-              quantity: data['quantity']
+              newPrice: data['price'],
+              quantity: data['quantity_info']
             );
             searchProducts.add(f);
           }

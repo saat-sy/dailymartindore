@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants.dart';
 
 class UpdateAddress extends StatefulWidget {
-  AddressModel addressModel;
+  final AddressModel addressModel;
 
   UpdateAddress({this.addressModel});
 
@@ -64,10 +64,11 @@ class _UpdateAddressState extends State<UpdateAddress> {
     _apiResponse = await service.updateAddress(addressModel, id);
 
     if (_apiResponse.error) {
-      setState(() {
-        Navigator.pop(context);
-        error = _apiResponse.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          Navigator.pop(context);
+          error = _apiResponse.errorMessage;
+        });
     } else {
       Navigator.pop(context);
       Navigator.push(
@@ -117,9 +118,10 @@ class _UpdateAddressState extends State<UpdateAddress> {
           children: <Widget>[
             TextFormField(
               onChanged: (value) {
-                setState(() {
-                  name = value;
-                });
+                if (mounted)
+                  setState(() {
+                    name = value;
+                  });
               },
               controller: nameController,
               cursorColor: MyColors.PrimaryColor,
@@ -149,9 +151,10 @@ class _UpdateAddressState extends State<UpdateAddress> {
             TextFormField(
               controller: addressController,
               onChanged: (value) {
-                setState(() {
-                  address = value;
-                });
+                if (mounted)
+                  setState(() {
+                    address = value;
+                  });
               },
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
@@ -180,9 +183,10 @@ class _UpdateAddressState extends State<UpdateAddress> {
             TextFormField(
               controller: cityController,
               onChanged: (value) {
-                setState(() {
-                  city = value;
-                });
+                if (mounted)
+                  setState(() {
+                    city = value;
+                  });
               },
               cursorColor: MyColors.PrimaryColor,
               decoration: InputDecoration(
@@ -210,9 +214,10 @@ class _UpdateAddressState extends State<UpdateAddress> {
             ),
             TextFormField(
               onChanged: (value) {
-                setState(() {
-                  state = value;
-                });
+                if (mounted)
+                  setState(() {
+                    state = value;
+                  });
               },
               controller: stateController,
               cursorColor: MyColors.PrimaryColor,
@@ -241,9 +246,10 @@ class _UpdateAddressState extends State<UpdateAddress> {
             ),
             TextFormField(
               onChanged: (value) {
-                setState(() {
-                  pincode = value;
-                });
+                if (mounted)
+                  setState(() {
+                    pincode = value;
+                  });
               },
               controller: pincodeController,
               cursorColor: MyColors.PrimaryColor,
@@ -276,9 +282,10 @@ class _UpdateAddressState extends State<UpdateAddress> {
                   child: CupertinoSwitch(
                     value: _makedefault,
                     onChanged: (value) {
-                      setState(() {
-                        _makedefault = value;
-                      });
+                      if (mounted)
+                        setState(() {
+                          _makedefault = value;
+                        });
                     },
                     activeColor: MyColors.PrimaryColor,
                   ),

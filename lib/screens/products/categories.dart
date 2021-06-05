@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants.dart';
 import 'package:frontend/models/api_response.dart';
-import 'package:frontend/models/products/all.dart';
 import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/services/products_service.dart';
 import 'package:frontend/stylesheet/styles.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Categories extends StatefulWidget {
-  String category;
-  String categoryName;
-  String subcategory;
-  String subcategoryName;
+  final String category;
+  final String categoryName;
+  final String subcategory;
+  final String subcategoryName;
   Categories({
     this.category,
     this.categoryName,
@@ -33,17 +34,31 @@ class _CategoriesState extends State<Categories> {
   List<CategoriesProduct> categories;
 
   getProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
+
     _apiResponse = await service.getCategoryProducts(
         category: widget.category, subCategory: widget.subcategory);
     if (_apiResponse.error) {
-      setState(() {
-        error = _apiResponse.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
     } else {
       categories = _apiResponse.data;
-      setState(() {
-        isLoading = false;
-      });
+      for (int i = 0; i < categories.length; i++) {
+        fav.split(',').forEach((element) {
+          if (element == categories[i].id) categories[i].inFav = true;
+        });
+        cart.split(',').forEach((element) {
+          if (element == categories[i].id) categories[i].inCart = true;
+        });
+      }
+      if (mounted)
+        setState(() {
+          isLoading = false;
+        });
     }
   }
 
@@ -77,8 +92,7 @@ class _CategoriesState extends State<Categories> {
                   child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    error == '' ?
-                    CircularProgressIndicator() : Container(),
+                    error == '' ? CircularProgressIndicator() : Container(),
                     Text(
                       error,
                       style: TextStyle(color: Colors.red),

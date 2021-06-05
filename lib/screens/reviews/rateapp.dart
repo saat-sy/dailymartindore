@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/reviews/reviews_model.dart';
-import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/services/reviews_service.dart';
+import 'package:frontend/strings.dart';
 import 'package:frontend/stylesheet/styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants.dart';
 
 class RateApp extends StatefulWidget {
-  String productID;
+  final String productID;
   RateApp({this.productID});
   @override
   _RateAppState createState() => _RateAppState();
@@ -19,7 +19,7 @@ class RateApp extends StatefulWidget {
 class _RateAppState extends State<RateApp> {
   ReviewService service = ReviewService();
   APIResponse<bool> _apiResponse;
-  String error;
+  String error = '';
 
   showLoaderDialog(BuildContext context) {
     AlertDialog alert = AlertDialog(
@@ -56,16 +56,17 @@ class _RateAppState extends State<RateApp> {
     _apiResponse = await service.addReview(reviewsModel);
 
     if (_apiResponse.error) {
-      setState(() {
-        error = _apiResponse.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
     }
     Navigator.pop(context);
     Navigator.pop(context);
   }
 
-  String rating;
-  String review;
+  String rating = '';
+  String review = '';
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +75,7 @@ class _RateAppState extends State<RateApp> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
-          'Write Review',
+          Strings.RATEAPP_APPBAR,
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -85,10 +86,10 @@ class _RateAppState extends State<RateApp> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'What do you think?',
+              Strings.RATEAPP_TITLE,
               style: TextStyle(
                 color: Colors.black,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
                 fontSize: 25,
               ),
             ),
@@ -96,7 +97,7 @@ class _RateAppState extends State<RateApp> {
               height: 20,
             ),
             Text(
-              'Please give your rating by clicking on the stars below.',
+              Strings.RATEAPP_DESCRIPTION,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey.shade600,
@@ -134,7 +135,7 @@ class _RateAppState extends State<RateApp> {
               decoration: InputDecoration(
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 3.0, horizontal: 10.0),
-                  hintText: 'Tell us about your experience',
+                  hintText: Strings.RATEAPP_TEXTFIELD_PLACEHOLDER,
                   fillColor: Colors.white,
                   filled: true,
                   prefixIcon: Visibility(
@@ -155,7 +156,7 @@ class _RateAppState extends State<RateApp> {
               height: 30,
             ),
             SubmitButton(
-              text: 'Submit',
+              text: Strings.RATEAPP_SUBMIT_BUTTON,
               onPress: () {
                 addReview();
               },

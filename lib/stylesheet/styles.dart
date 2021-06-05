@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:frontend/models/api_response.dart';
@@ -78,58 +76,142 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
-  addToFavorites(String itemID, BuildContext context) async {
+  addToFavorites(String itemID, int index) async {
     showLoaderDialog(context);
 
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getInt(PrefConstants.id).toString();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
 
     _apiResponse = await service.addToFavorites(id, itemID);
 
     if (_apiResponse.error) {
-      setState(() {
-        error = _apiResponse.errorMessage;
-      });
-    }
-    else {
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
+    } else {
+      if (fav.isNotEmpty) fav += ',';
+      fav += itemID;
+      await prefs.setString(PrefConstants.inFav, fav);
+
+      if (mounted)
+        setState(() {
+          widget.items[index].inFav = true;
+        });
+
       final snackBar = SnackBar(content: Text('Added to Wish List!'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
     Navigator.pop(context);
   }
 
+  removeFavorites(String itemID, int index) async {
+    showLoaderDialog(context);
+
+    String newFav;
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
+
+    _apiResponse = await service.removeFavorites(id, itemID);
+
+    if (_apiResponse.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
+    } else {
+      if (mounted)
+        setState(() {
+          widget.items[index].inFav = false;
+        });
+
+      if (fav != "") {
+        fav.split(',').forEach((element) {
+          if (newFav.isNotEmpty) newFav += ',';
+          if (element != itemID) newFav += element;
+        });
+      }
+      await prefs.setString(PrefConstants.inFav, newFav);
+    }
+    final snackBar = SnackBar(content: Text('Removed from Wish List'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    Navigator.pop(context);
+  }
+
   CartService serviceCart = CartService();
   APIResponse<bool> _apiResponseCart;
 
-  Future<void> addToCart({String productId, String price, BuildContext context}) async {
+  addToCart({String productId, String price, int index}) async {
     showLoaderDialog(context);
 
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getInt(PrefConstants.id).toString();
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
 
     ShoppingCartModel s = ShoppingCartModel(
-        productID: productId,
-        price: price,
-        numAdded: '1',
-        sumPrice: price
-    );
+        productID: productId, price: price, numAdded: '1', sumPrice: price);
 
-        _apiResponseCart = await serviceCart.addToCart(id, s);
+    _apiResponseCart = await serviceCart.addToCart(id, s);
     if (_apiResponseCart.error) {
-      setState(() {
-        error = _apiResponseCart.errorMessage;
-        Navigator.pop(context);
-        print(error);
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponseCart.errorMessage;
+          Navigator.pop(context);
+          print(error);
+        });
     } else {
-      setState(() {
-        isLoading = false;
-      });
+      if (cart.isNotEmpty) cart += ',';
+      cart += productId;
+      await prefs.setString(PrefConstants.inCart, cart);
+      if (mounted)
+        setState(() {
+          isLoading = false;
+          widget.items[index].inCart = true;
+        });
       Navigator.pop(context);
       final snackBar = SnackBar(content: Text('Added to Cart!'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      print('Added to cart');
     }
+  }
+
+  deleteFromCart({String itemID, int index}) async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getInt(PrefConstants.id).toString();
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
+    String newCart = "";
+
+    print(itemID);
+
+    _apiResponseCart =
+        await serviceCart.deleteFromCart(userId: userId, productId: itemID);
+
+    if (_apiResponseCart.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponseCart.errorMessage;
+        });
+    } else {
+      if (mounted)
+        setState(() {
+          widget.items[index].inCart = false;
+        });
+
+      if (cart != "") {
+        cart.split(',').forEach((element) {
+          if (newCart.isNotEmpty) newCart += ',';
+          if (element != itemID) newCart += element;
+        });
+      }
+      await prefs.setString(PrefConstants.inCart, newCart);
+    }
+    final snackBar = SnackBar(content: Text('Removed from Cart'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    Navigator.pop(context);
   }
 
   @override
@@ -152,6 +234,7 @@ class _ProductCardState extends State<ProductCard> {
                   MaterialPageRoute(
                       builder: (context) => ProductPage(
                             id: widget.items[index].id,
+                            inStock: widget.items[index].inStock,
                           )));
             },
             child: Container(
@@ -175,7 +258,8 @@ class _ProductCardState extends State<ProductCard> {
                             Center(
                               child: Image.network(
                                 widget.items[index].imagePath,
-                                height: MediaQuery.of(context).size.height * 0.145,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.145,
                               ),
                             ),
                             widget.items[index].discount != null &&
@@ -188,21 +272,30 @@ class _ProductCardState extends State<ProductCard> {
                                         borderRadius: BorderRadius.only(
                                             topRight: Radius.circular(10),
                                             bottomLeft: Radius.circular(10))),
-                                    child: Text('${widget.items[index].discount}%',
+                                    child: Text(
+                                        '${widget.items[index].discount}%',
                                         style: TextStyle(color: Colors.white)))
                                 : Container(),
                             GestureDetector(
                               onTap: () {
-                                addToFavorites(widget.items[index].id, context);
+                                widget.items[index].inFav
+                                    ? removeFavorites(
+                                        widget.items[index].id, index)
+                                    : addToFavorites(
+                                        widget.items[index].id, index);
                               },
                               child: Align(
                                 alignment: Alignment.bottomRight,
                                 child: Container(
                                     margin: EdgeInsets.only(
-                                        top: MediaQuery.of(context).size.height *
-                                            0.13),
-                                    child: Icon(Icons.favorite_outline,
-                                        color: MyColors.PrimaryColor)),
+                                        top:
+                                            MediaQuery.of(context).size.height *
+                                                0.13),
+                                    child: widget.items[index].inFav
+                                        ? Icon(Icons.favorite,
+                                            color: Colors.redAccent.shade400)
+                                        : Icon(Icons.favorite_outline,
+                                            color: MyColors.PrimaryColor)),
                               ),
                             ),
                           ],
@@ -216,7 +309,8 @@ class _ProductCardState extends State<ProductCard> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Text(
                               widget.items[index].title.toUpperCase(),
                               maxLines: 1,
@@ -224,7 +318,7 @@ class _ProductCardState extends State<ProductCard> {
                               style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 15,
-                                  fontWeight: FontWeight.w700),
+                                  fontWeight: FontWeight.w600),
                             ),
                           ),
                           SizedBox(
@@ -234,13 +328,13 @@ class _ProductCardState extends State<ProductCard> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Text(
-                              widget.items[index].quantity + 'g',
+                              widget.items[index].quantity,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.w400),
                             ),
                           ),
                           SizedBox(
@@ -248,7 +342,8 @@ class _ProductCardState extends State<ProductCard> {
                           ),
                           Container(
                             height: 50,
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Text(
                               widget.items[index].description,
                               maxLines: 2,
@@ -260,7 +355,8 @@ class _ProductCardState extends State<ProductCard> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -299,12 +395,13 @@ class _ProductCardState extends State<ProductCard> {
                             height: 15,
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Text(
-                                  '₹' + widget.items[index].old_price.toString(),
+                                  '₹' + widget.items[index].oldPrice.toString(),
                                   style: TextStyle(
                                       color: Colors.grey,
                                       fontSize: 17,
@@ -314,12 +411,12 @@ class _ProductCardState extends State<ProductCard> {
                                   width: 5,
                                 ),
                                 Text(
-                                  '₹' + widget.items[index].new_price.toString(),
+                                  '₹' + widget.items[index].newPrice.toString(),
                                   style: TextStyle(
                                     decoration: TextDecoration.underline,
                                     color: MyColors.SecondaryColor,
                                     fontSize: 21,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],
@@ -328,7 +425,6 @@ class _ProductCardState extends State<ProductCard> {
                           SizedBox(
                             height: 15,
                           ),
-                          
                         ],
                       )
                     ],
@@ -337,11 +433,12 @@ class _ProductCardState extends State<ProductCard> {
                     alignment: Alignment.bottomCenter,
                     child: InkWell(
                       onTap: () {
-                        addToCart(
-                          productId: widget.items[index].id,
-                          price: widget.items[index].new_price.toString(),
-                          context: context
-                        );
+                        if(widget.items[index].inStock)
+                          widget.items[index].inCart
+                              ? deleteFromCart(itemID: widget.items[index].id)
+                              : addToCart(
+                                  productId: widget.items[index].id,
+                                  price: widget.items[index].newPrice.toString());
                       },
                       child: Container(
                         height: 40,
@@ -350,12 +447,21 @@ class _ProductCardState extends State<ProductCard> {
                           color: MyColors.PrimaryColor,
                         ),
                         child: Center(
-                          child: Text(
-                            'ADD TO CART',
+                          child: widget.items[index].inStock ? 
+                          Text(
+                            widget.items[index].inCart
+                                ? 'IN CART'
+                                : 'ADD TO CART',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500),
-                          ),
+                          ) : 
+                          Text(
+                            'OUT OF STOCK',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500),
+                          ) 
                         ),
                       ),
                     ),
@@ -381,7 +487,6 @@ class HomeProductCard extends StatefulWidget {
 }
 
 class _HomeProductCardState extends State<HomeProductCard> {
-
   FavoriteService service = FavoriteService();
 
   APIResponse<bool> _apiResponse;
@@ -410,58 +515,140 @@ class _HomeProductCardState extends State<HomeProductCard> {
     );
   }
 
-  addToFavorites(String itemID) async {
+  addToFavorites(String itemID, int index) async {
     showLoaderDialog(context);
 
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getInt(PrefConstants.id).toString();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
 
     _apiResponse = await service.addToFavorites(id, itemID);
 
     if (_apiResponse.error) {
-      setState(() {
-        error = _apiResponse.errorMessage;
-      });
-    }
-    else{
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
+    } else {
+      if (fav.isNotEmpty) fav += ',';
+      fav += itemID;
+      await prefs.setString(PrefConstants.inFav, fav);
+
+      if (mounted)
+        setState(() {
+          widget.items[index].inFav = true;
+        });
+
       final snackBar = SnackBar(content: Text('Added to Wish List!'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
     Navigator.pop(context);
   }
 
+  removeFavorites(String itemID, int index) async {
+    showLoaderDialog(context);
+
+    String newFav = "";
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
+
+    _apiResponse = await service.removeFavorites(id, itemID);
+
+    if (_apiResponse.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
+    } else {
+      if (mounted)
+        setState(() {
+          widget.items[index].inFav = false;
+        });
+
+      if (fav != "") {
+        fav.split(',').forEach((element) {
+          if (newFav.isNotEmpty) newFav += ',';
+          if (element != itemID) newFav += element;
+        });
+      }
+      await prefs.setString(PrefConstants.inFav, newFav);
+    }
+    final snackBar = SnackBar(content: Text('Removed from Wish List'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    Navigator.pop(context);
+  }
+
   CartService serviceCart = CartService();
   APIResponse<bool> _apiResponseCart;
 
-  Future<void> addToCart({String productId, String price}) async {
+  addToCart({String productId, String price, int index}) async {
     showLoaderDialog(context);
 
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getInt(PrefConstants.id).toString();
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
 
     ShoppingCartModel s = ShoppingCartModel(
-        productID: productId,
-        price: price,
-        numAdded: '1',
-        sumPrice: price
-    );
+        productID: productId, price: price, numAdded: '1', sumPrice: price);
 
-        _apiResponseCart = await serviceCart.addToCart(id, s);
+    _apiResponseCart = await serviceCart.addToCart(id, s);
     if (_apiResponseCart.error) {
-      setState(() {
-        error = _apiResponseCart.errorMessage;
-        Navigator.pop(context);
-        print(error);
-      });
-    } else {
+      if (mounted)
+        setState(() {
+          error = _apiResponseCart.errorMessage;
+          Navigator.pop(context);
+          print(error);
+        });
+    }
+    if (cart.isNotEmpty) cart += ',';
+    cart += productId;
+    await prefs.setString(PrefConstants.inCart, cart);
+    if (mounted)
       setState(() {
         isLoading = false;
+        widget.items[index].inCart = true;
       });
-      Navigator.pop(context);
-      final snackBar = SnackBar(content: Text('Added to Cart!'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      print('Added to cart');
+    Navigator.pop(context);
+    final snackBar = SnackBar(content: Text('Added to Cart!'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  deleteFromCart({String itemID, int index}) async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getInt(PrefConstants.id).toString();
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
+    String newCart = "";
+
+    print(itemID);
+
+    _apiResponseCart =
+        await serviceCart.deleteFromCart(userId: userId, productId: itemID);
+
+    if (_apiResponseCart.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponseCart.errorMessage;
+        });
     }
+    if (mounted)
+      setState(() {
+        widget.items[index].inCart = false;
+      });
+
+    if (cart != "") {
+      cart.split(',').forEach((element) {
+        if (newCart.isNotEmpty) newCart += ',';
+        if (element != itemID) newCart += element;
+      });
+    }
+    await prefs.setString(PrefConstants.inCart, newCart);
+    final snackBar = SnackBar(content: Text('Removed from Cart'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    Navigator.pop(context);
   }
 
   @override
@@ -481,6 +668,7 @@ class _HomeProductCardState extends State<HomeProductCard> {
                             id: widget.items[index].id != null
                                 ? widget.items[index].id
                                 : "33",
+                            inStock: widget.items[index].inStock,    
                           )));
             },
             child: Container(
@@ -509,8 +697,8 @@ class _HomeProductCardState extends State<HomeProductCard> {
                               child: Center(
                                 child: Image.network(
                                   widget.items[index].imagePath,
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.145,
+                                  height: MediaQuery.of(context).size.height *
+                                      0.145,
                                 ),
                               ),
                             ),
@@ -524,21 +712,30 @@ class _HomeProductCardState extends State<HomeProductCard> {
                                         borderRadius: BorderRadius.only(
                                             topRight: Radius.circular(10),
                                             bottomLeft: Radius.circular(10))),
-                                    child: Text('${widget.items[index].discount}%',
+                                    child: Text(
+                                        '${widget.items[index].discount}%',
                                         style: TextStyle(color: Colors.white)))
                                 : Container(),
                             GestureDetector(
                               onTap: () {
-                                addToFavorites(widget.items[index].id);
+                                if (widget.items[index].inFav)
+                                  removeFavorites(
+                                      widget.items[index].id, index);
+                                else
+                                  addToFavorites(widget.items[index].id, index);
                               },
                               child: Align(
                                 alignment: Alignment.bottomRight,
                                 child: Container(
                                     margin: EdgeInsets.only(
-                                        top: MediaQuery.of(context).size.height *
-                                            0.13),
-                                    child: Icon(Icons.favorite_outline,
-                                        color: MyColors.PrimaryColor)),
+                                        top:
+                                            MediaQuery.of(context).size.height *
+                                                0.13),
+                                    child: widget.items[index].inFav
+                                        ? Icon(Icons.favorite,
+                                            color: Colors.redAccent.shade400)
+                                        : Icon(Icons.favorite_outline,
+                                            color: MyColors.PrimaryColor)),
                               ),
                             ),
                           ],
@@ -552,7 +749,8 @@ class _HomeProductCardState extends State<HomeProductCard> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
                               widget.items[index].title.toUpperCase(),
                               maxLines: 1,
@@ -560,7 +758,7 @@ class _HomeProductCardState extends State<HomeProductCard> {
                               style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.w600),
                             ),
                           ),
                           SizedBox(
@@ -570,13 +768,13 @@ class _HomeProductCardState extends State<HomeProductCard> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Text(
-                              widget.items[index].quantity + 'g',
+                              widget.items[index].quantity,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.w400),
                             ),
                           ),
                           SizedBox(
@@ -584,7 +782,8 @@ class _HomeProductCardState extends State<HomeProductCard> {
                           ),
                           Container(
                             height: 30,
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Text(
                               widget.items[index].description,
                               maxLines: 1,
@@ -599,7 +798,8 @@ class _HomeProductCardState extends State<HomeProductCard> {
                             height: 10,
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -638,12 +838,13 @@ class _HomeProductCardState extends State<HomeProductCard> {
                             height: 7,
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 Text(
-                                  '₹' + widget.items[index].old_price.toString(),
+                                  '₹' + widget.items[index].oldPrice.toString(),
                                   style: TextStyle(
                                       color: Colors.grey,
                                       fontSize: 15,
@@ -653,12 +854,12 @@ class _HomeProductCardState extends State<HomeProductCard> {
                                   width: 5,
                                 ),
                                 Text(
-                                  '₹' + widget.items[index].new_price.toString(),
+                                  '₹' + widget.items[index].newPrice.toString(),
                                   style: TextStyle(
                                     decoration: TextDecoration.underline,
                                     color: MyColors.SecondaryColor,
                                     fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],
@@ -675,11 +876,15 @@ class _HomeProductCardState extends State<HomeProductCard> {
                     alignment: Alignment.bottomCenter,
                     child: InkWell(
                       onTap: () {
-                        addToCart(
-                          productId: widget.items[index].id,
-                          price: widget.items[index].new_price.toString()
-                          );
-                        },
+                        if(widget.items[index].inStock)
+                          widget.items[index].inCart
+                              ? deleteFromCart(
+                                  itemID: widget.items[index].id, index: index)
+                              : addToCart(
+                                  productId: widget.items[index].id,
+                                  price: widget.items[index].newPrice.toString(),
+                                  index: index);
+                      },
                       child: Container(
                         height: 35,
                         padding: EdgeInsets.all(8.0),
@@ -687,12 +892,21 @@ class _HomeProductCardState extends State<HomeProductCard> {
                           color: MyColors.PrimaryColor,
                         ),
                         child: Center(
-                          child: Text(
-                            'ADD TO CART',
+                          child: widget.items[index].inStock ? 
+                          Text(
+                            widget.items[index].inCart
+                                ? 'IN CART'
+                                : 'ADD TO CART',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500),
-                          ),
+                          ) : 
+                          Text(
+                            'OUT OF STOCK',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500),
+                          ) 
                         ),
                       ),
                     ),

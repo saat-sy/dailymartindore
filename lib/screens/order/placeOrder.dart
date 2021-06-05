@@ -8,18 +8,25 @@ import 'package:frontend/screens/order/myOrder.dart';
 import 'package:frontend/services/address_service.dart';
 import 'package:frontend/services/cart_service.dart';
 import 'package:frontend/services/order_service.dart';
-import 'package:frontend/services/products_service.dart';
+import 'package:frontend/strings.dart';
 import 'package:frontend/stylesheet/styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants.dart';
 
 class PlaceOrder extends StatefulWidget {
-  String productID;
-  String quantity;
-  String amount;
+  final String productID;
+  final String quantity;
+  final String finalsum;
+  final String youSave;
+  final String subtotal;
 
-  PlaceOrder({this.productID, this.quantity, this.amount});
+  PlaceOrder(
+      {this.productID,
+      this.quantity,
+      this.finalsum,
+      this.subtotal,
+      this.youSave});
 
   @override
   _PlaceOrderState createState() => _PlaceOrderState();
@@ -64,14 +71,14 @@ class _PlaceOrderState extends State<PlaceOrder> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Order Success',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Strings.PLACE_ORDER_SUCCESS_HEADING,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
               ),
               SizedBox(
                 height: 10,
               ),
               Text(
-                'Your order is being processed by the system, you can see the progress at',
+                Strings.PLACE_ORDER_SUCCESS_MESSAGE,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14),
               ),
@@ -87,7 +94,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                   'My Order',
                   style: TextStyle(
                     color: MyColors.SecondaryColor,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                     decoration: TextDecoration.underline,
                   ),
                 ),
@@ -104,13 +111,21 @@ class _PlaceOrderState extends State<PlaceOrder> {
               ),
               InkWell(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => BottomNav()));
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => BottomNav(
+                        index: 1,
+                      ),
+                    ),
+                    (route) => false,
+                  );
                 },
                 child: Container(
                   color: MyColors.SecondaryColor,
                   padding: EdgeInsets.all(5),
-                  child: Text('Go back', style: TextStyle(color: Colors.white)),
+                  child: Text(Strings.PLACE_ORDER_SUCCESS_GO_BACK,
+                      style: TextStyle(color: Colors.white)),
                 ),
               )
             ],
@@ -129,15 +144,26 @@ class _PlaceOrderState extends State<PlaceOrder> {
   APIResponse<bool> _apiResponseRemove;
 
   deleteFromCart() async {
-
     final products = widget.productID.split(',');
 
     final prefs = await SharedPreferences.getInstance();
     String userId = prefs.getInt(PrefConstants.id).toString();
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
+    String newCart = "";
 
     for (var product in products) {
       _apiResponseRemove =
           await servicecart.deleteFromCart(userId: userId, productId: product);
+      if (!_apiResponseRemove.error) {
+        if (cart != "") {
+          cart.split(',').forEach((element) {
+            if (newCart.isNotEmpty) newCart += ',';
+            if (element != product) newCart += element;
+          });
+        }
+
+        await prefs.setString(PrefConstants.inCart, newCart);
+      }
     }
   }
 
@@ -163,15 +189,16 @@ class _PlaceOrderState extends State<PlaceOrder> {
         paymentType: _selectedMethod,
         id: widget.productID,
         quantity: widget.quantity,
-        totalAmount: widget.amount,
+        totalAmount: widget.finalsum,
         userID: id);
 
     _apiResponseOrder = await service.placeOrder(o);
 
     if (_apiResponseOrder.error) {
-      setState(() {
-        error = _apiResponseOrder.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponseOrder.errorMessage;
+        });
       print(error);
       Navigator.pop(context);
     } else {
@@ -190,14 +217,16 @@ class _PlaceOrderState extends State<PlaceOrder> {
   getPaymentMethods() async {
     _apiResponsePayment = await service.getPaymentList();
     if (_apiResponsePayment.error) {
-      setState(() {
-        errorPayment = _apiResponsePayment.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          errorPayment = _apiResponsePayment.errorMessage;
+        });
     } else {
       payment = _apiResponsePayment.data;
-      setState(() {
-        isPaymentLoading = false;
-      });
+      if (mounted)
+        setState(() {
+          isPaymentLoading = false;
+        });
     }
   }
 
@@ -208,19 +237,21 @@ class _PlaceOrderState extends State<PlaceOrder> {
     _apiResponseCoupon = await service.applyCoupon(coupon);
 
     if (_apiResponseCoupon.error) {
-      setState(() {
-        errorcoupon = Text(
-          _apiResponseCoupon.errorMessage,
-          style: TextStyle(color: Colors.red),
-        );
-      });
+      if (mounted)
+        setState(() {
+          errorcoupon = Text(
+            _apiResponseCoupon.errorMessage,
+            style: TextStyle(color: Colors.red),
+          );
+        });
     } else {
-      setState(() {
-        errorcoupon = Text(
-          'Coupon applied successfully',
-          style: TextStyle(color: Colors.green),
-        );
-      });
+      if (mounted)
+        setState(() {
+          errorcoupon = Text(
+            'Coupon applied successfully',
+            style: TextStyle(color: Colors.green),
+          );
+        });
     }
     Navigator.pop(context);
   }
@@ -229,6 +260,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
   AddressService addressService = AddressService();
   APIResponse<List<AddressModel>> _apiResponse;
   String error;
+  // ignore: unused_field
   bool _recordFound = false;
 
   List<AddressModel> address;
@@ -240,18 +272,19 @@ class _PlaceOrderState extends State<PlaceOrder> {
     _apiResponse = await addressService.getAddressList(id);
 
     if (_apiResponse.error) {
-      setState(() {
-        print(error);
-        error = _apiResponse.errorMessage;
-        isAddressLoading = false;
-      });
+      if (mounted)
+        setState(() {
+          print(error);
+          error = _apiResponse.errorMessage;
+          isAddressLoading = false;
+        });
     } else {
       address = _apiResponse.data;
-      print('true');
-      setState(() {
-        isAddressLoading = false;
-        _recordFound = true;
-      });
+      if (mounted)
+        setState(() {
+          isAddressLoading = false;
+          _recordFound = true;
+        });
     }
   }
 
@@ -284,7 +317,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Order'),
+        title: Text(Strings.PLACE_ORDER_APPBAR),
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
@@ -310,11 +343,11 @@ class _PlaceOrderState extends State<PlaceOrder> {
                               height: 15,
                             ),
                             Text(
-                              'Select your Address',
+                              Strings.PLACE_ORDER_ADDRESS,
                               style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.black,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.w400),
                             ),
                             SizedBox(
                               height: 5,
@@ -326,9 +359,10 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                 itemBuilder: (context, index) {
                                   return GestureDetector(
                                     onTap: () {
-                                      setState(() {
-                                        currentIndexAddress = index;
-                                      });
+                                      if (mounted)
+                                        setState(() {
+                                          currentIndexAddress = index;
+                                        });
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
@@ -355,7 +389,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                                     color: Colors.black,
                                                     fontSize: 17,
                                                     fontWeight:
-                                                        FontWeight.w600),
+                                                        FontWeight.w400),
                                               ),
                                               SizedBox(
                                                 height: 4,
@@ -366,7 +400,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                                     color: Colors.grey.shade600,
                                                     fontSize: 14,
                                                     fontWeight:
-                                                        FontWeight.w600),
+                                                        FontWeight.w400),
                                               )
                                             ],
                                           ),
@@ -399,10 +433,13 @@ class _PlaceOrderState extends State<PlaceOrder> {
                       children: <Widget>[
                         InkWell(
                           onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => BottomNav()));
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (BuildContext context) => BottomNav(),
+                              ),
+                              (route) => false,
+                            );
                           },
                           child: Container(
                             height: 40,
@@ -462,11 +499,11 @@ class _PlaceOrderState extends State<PlaceOrder> {
                         height: 15,
                       ),
                       Text(
-                        'Select your Payment Method',
+                        Strings.PLACE_ORDER_PAYMENT,
                         style: TextStyle(
                             fontSize: 16,
                             color: Colors.black,
-                            fontWeight: FontWeight.bold),
+                            fontWeight: FontWeight.w400),
                       ),
                       SizedBox(
                         height: 4,
@@ -492,9 +529,10 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                     value: payment[index].name,
                                     groupValue: _selectedMethod,
                                     onChanged: (value) {
-                                      setState(() {
-                                        _selectedMethod = value;
-                                      });
+                                      if (mounted)
+                                        setState(() {
+                                          _selectedMethod = value;
+                                        });
                                     },
                                   ),
                                   title: Text(payment[index].value),
@@ -509,9 +547,9 @@ class _PlaceOrderState extends State<PlaceOrder> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Add a coupon',
+                            Text(Strings.PLACE_ORDER_ADD_COUPON,
                                 style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold)),
+                                    fontSize: 16, fontWeight: FontWeight.w400)),
                             SizedBox(
                               height: 10,
                             ),
@@ -528,7 +566,8 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                       decoration: InputDecoration(
                                         contentPadding: EdgeInsets.symmetric(
                                             vertical: 0.0, horizontal: 10.0),
-                                        hintText: 'Enter code',
+                                        hintText: Strings
+                                            .PLACE_ORDER_ADD_COUPON_PLACEHOLDER,
                                         fillColor: Colors.white,
                                         filled: true,
                                         enabledBorder: OutlineInputBorder(
@@ -651,15 +690,15 @@ class _PlaceOrderState extends State<PlaceOrder> {
                   children: [
                     SizedBox(height: 15),
                     SubmitButton(
-                      text: 'Place your order',
+                      text: Strings.PLACE_ORDER_SUBMIT_BUTTON,
                       onPress: () {
                         placeOrder();
                       },
                     ),
                     SizedBox(height: 25),
-                    Text('Order Summary',
+                    Text(Strings.PLACE_ORDER_SUMMARY_HEADING,
                         style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
+                            fontSize: 20, fontWeight: FontWeight.w400)),
                     SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
@@ -677,16 +716,36 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                       MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     Text(
-                                      'Subtotal',
+                                      'SGST',
                                       style: TextStyle(
-                                          color: Colors.grey.shade600,
-                                          fontSize: 16,
+                                          fontSize: 17,
                                           fontWeight: FontWeight.w500),
                                     ),
                                     Text(
-                                      '₹' + widget.amount,
+                                      '₹0',
                                       style: TextStyle(
-                                          color: Colors.grey.shade600,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      'CGST',
+                                      style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Text(
+                                      '₹0',
+                                      style: TextStyle(
+                                          color: Colors.black,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500),
                                     ),
@@ -702,21 +761,76 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                     Text(
                                       'Shipping',
                                       style: TextStyle(
-                                          color: Colors.grey.shade600,
+                                          color: Colors.black,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500),
                                     ),
                                     Text(
                                       '₹0',
                                       style: TextStyle(
-                                          color: Colors.grey.shade600,
+                                          color: Colors.black,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                 ),
+                                SizedBox(
+                                  height: 10,
+                                ),
                               ],
                             ),
+                          ),
+                          Container(
+                              child: Divider(
+                            height: 2,
+                            color: Colors.grey.shade500,
+                          )),
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  'Total',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  '₹' + widget.subtotal,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  'YOU SAVE ',
+                                  style: TextStyle(
+                                      color: MyColors.SecondaryColor,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  '₹' + widget.youSave,
+                                  style: TextStyle(
+                                      color: MyColors.SecondaryColor,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 12,
                           ),
                           Container(
                               child: Divider(
@@ -736,9 +850,9 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                       fontWeight: FontWeight.w700),
                                 ),
                                 Text(
-                                  '₹' + widget.amount,
+                                  '₹' + widget.finalsum,
                                   style: TextStyle(
-                                      color: MyColors.PrimaryColor,
+                                      color: Colors.black,
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700),
                                 ),

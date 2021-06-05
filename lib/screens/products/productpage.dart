@@ -8,13 +8,15 @@ import 'package:frontend/models/products/shopping_cart_model.dart';
 import 'package:frontend/screens/reviews/rateapp.dart';
 import 'package:frontend/screens/reviews/reviews.dart';
 import 'package:frontend/services/cart_service.dart';
+import 'package:frontend/services/favorites_service.dart';
 import 'package:frontend/services/products_service.dart';
 import 'package:frontend/stylesheet/styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductPage extends StatefulWidget {
-  String id;
-  ProductPage({this.id});
+  final String id;
+  final bool inStock;
+  ProductPage({this.id, this.inStock});
 
   @override
   _ProductPageState createState() => _ProductPageState();
@@ -28,7 +30,9 @@ class _ProductPageState extends State<ProductPage>
 
   ProductService service = ProductService();
   CartService serviceCart = CartService();
+  FavoriteService serviceFav = FavoriteService();
 
+  APIResponse<bool> _apiResponseFav;
   APIResponse<ProductModel> _apiResponse;
   APIResponse<bool> _apiResponseCart;
 
@@ -60,11 +64,77 @@ class _ProductPageState extends State<ProductPage>
     );
   }
 
-  Future<void> addToCart() async {
+  addToFavorites(String itemID) async {
     showLoaderDialog(context);
 
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getInt(PrefConstants.id).toString();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
+
+    _apiResponseFav = await serviceFav.addToFavorites(id, itemID);
+
+    if (_apiResponseFav.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponseFav.errorMessage;
+        });
+    } else {
+      if (fav.isNotEmpty) fav += ',';
+      fav += itemID;
+      await prefs.setString(PrefConstants.inFav, fav);
+
+      if (mounted)
+        setState(() {
+          product.inFav = true;
+        });
+
+      final snackBar = SnackBar(content: Text('Added to Wish List!'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+    Navigator.pop(context);
+  }
+
+  removeFavorites(String itemID) async {
+    showLoaderDialog(context);
+
+    String newFav;
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
+
+    _apiResponseFav = await serviceFav.removeFavorites(id, itemID);
+
+    if (_apiResponseFav.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponseFav.errorMessage;
+        });
+    } else {
+      if (mounted)
+        setState(() {
+          product.inFav = false;
+        });
+
+      if (fav != "") {
+        fav.split(',').forEach((element) {
+          if (newFav.isNotEmpty) newFav += ',';
+          if (element != itemID) newFav += element;
+        });
+      }
+      await prefs.setString(PrefConstants.inFav, newFav);
+    }
+    final snackBar = SnackBar(content: Text('Removed from Wish List'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    Navigator.pop(context);
+  }
+
+  addToCart() async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString();
+    String cartString = prefs.getString(PrefConstants.inCart) ?? "";
 
     ShoppingCartModel s = ShoppingCartModel(
         productID: product.id,
@@ -74,30 +144,97 @@ class _ProductPageState extends State<ProductPage>
 
     _apiResponseCart = await serviceCart.addToCart(id, s);
     if (_apiResponseCart.error) {
-      setState(() {
-        error = _apiResponseCart.errorMessage;
-        Navigator.pop(context);
-        print(error);
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponseCart.errorMessage;
+          Navigator.pop(context);
+          print(error);
+        });
     } else {
-      setState(() {
-        isLoading = false;
-      });
+      if (cartString.isNotEmpty) cartString += ',';
+      cartString += product.id;
+      await prefs.setString(PrefConstants.inCart, cartString);
+      if (mounted)
+        setState(() {
+          isLoading = false;
+        });
+      final snackBar = SnackBar(content: Text('Added to Cart'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
       Navigator.pop(context);
-      print('Added to cart');
+      print('Added to Cart!');
     }
   }
 
+  deleteFromCart({String itemID}) async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getInt(PrefConstants.id).toString();
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
+    String newCart = "";
+
+    print(itemID);
+
+    _apiResponseCart =
+        await serviceCart.deleteFromCart(userId: userId, productId: itemID);
+
+    if (_apiResponseCart.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponseCart.errorMessage;
+        });
+    } else {
+      if (cart != "") {
+        cart.split(',').forEach((element) {
+          if (newCart.isNotEmpty) newCart += ',';
+          if (element != itemID) newCart += element;
+        });
+        await prefs.setString(PrefConstants.inCart, newCart);
+      }
+    }
+    final snackBar = SnackBar(content: Text('Removed from Cart'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    Navigator.pop(context);
+  }
+
   Future<void> getProduct() async {
+    final prefs = await SharedPreferences.getInstance();
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
+    String recent = prefs.getString(PrefConstants.recentProducts) ?? "";
+
     _apiResponse = await service.getProductByID(widget.id);
     if (_apiResponse.error) {
-      setState(() {
-        error = _apiResponse.errorMessage;
-        print(error);
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+          print(error);
+        });
     } else {
       product = _apiResponse.data;
-      if (mounted)
+      product.imageArr.insert(0, product.image);
+      cart.split(',').forEach((element) {
+        if (element == product.id) product.inCart = true;
+      });
+
+      String newRecent = "";
+
+      if (recent != "") {
+        final l = recent.split(',');
+        if (l.length >= 10) {
+          for (int i = 0; i <= 8; i++) {
+            if (newRecent.isNotEmpty) newRecent += ',';
+            newRecent += l[i];
+          }
+        } else
+          newRecent = recent;
+      }
+
+      if (newRecent.isNotEmpty) newRecent = ',' + newRecent;
+      newRecent = widget.id + newRecent;
+
+      await prefs.setString(PrefConstants.recentProducts, newRecent);
+
+      if (mounted) if (mounted)
         setState(() {
           isLoading = false;
         });
@@ -106,15 +243,15 @@ class _ProductPageState extends State<ProductPage>
   }
 
   Future<void> refresh() async {
-    print('ha');
     await getProduct();
   }
 
-  String textCart = 'Add to Cart';
+  String textCart;
 
   @override
   void initState() {
     getProduct();
+    textCart = widget.inStock ? 'Add to Cart' : 'Out of Stock';
 
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 200));
@@ -130,11 +267,12 @@ class _ProductPageState extends State<ProductPage>
 
   int quantity = 1;
   updateQuantity(int i) {
-    setState(() {
-      if (i == 1)
-        quantity++;
-      else if (i == 0 && quantity > 1) quantity--;
-    });
+    if (mounted)
+      setState(() {
+        if (i == 1)
+          quantity++;
+        else if (i == 0 && quantity > 1) quantity--;
+      });
   }
 
   int currentImageIndex = 0;
@@ -147,9 +285,10 @@ class _ProductPageState extends State<ProductPage>
   }
 
   _onPageViewChange(int page) {
-    setState(() {
-      currentImageIndex = page;
-    });
+    if (mounted)
+      setState(() {
+        currentImageIndex = page;
+      });
   }
 
   ProductService serviceCat = ProductService();
@@ -166,15 +305,17 @@ class _ProductPageState extends State<ProductPage>
     _apiResponseCat =
         await serviceCat.getCategoryProducts(category: product.categoryID);
     if (_apiResponse.error) {
-      setState(() {
-        errorCat = _apiResponseCat.errorMessage;
-        print(errorCat);
-      });
+      if (mounted)
+        setState(() {
+          errorCat = _apiResponseCat.errorMessage;
+          print(errorCat);
+        });
     } else {
       categories = _apiResponseCat.data;
-      setState(() {
-        isCatLoading = false;
-      });
+      if (mounted)
+        setState(() {
+          isCatLoading = false;
+        });
     }
   }
 
@@ -219,7 +360,7 @@ class _ProductPageState extends State<ProductPage>
                         height: MediaQuery.of(context).size.height * 0.3,
                         child: PageView.builder(
                           controller: pageController,
-                          itemCount: product.image.length,
+                          itemCount: product.imageArr.length,
                           onPageChanged: _onPageViewChange,
                           itemBuilder: (context, index) {
                             return GestureDetector(
@@ -229,13 +370,13 @@ class _ProductPageState extends State<ProductPage>
                                     MaterialPageRoute(
                                         builder: (context) => DetailScreen(
                                               startingIndex: index,
-                                              product: product.image,
+                                              product: product.imageArr,
                                             )));
                               },
                               child: Hero(
                                 tag: 'imageHero',
                                 child: Image.network(
-                                  product.image[index],
+                                  product.imageArr[index],
                                   height:
                                       MediaQuery.of(context).size.height * 0.3,
                                 ),
@@ -251,7 +392,7 @@ class _ProductPageState extends State<ProductPage>
                           child: ListView.builder(
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
-                            itemCount: product.image.length,
+                            itemCount: product.imageArr.length,
                             itemBuilder: (context, index) {
                               return index == currentImageIndex
                                   ? Container(
@@ -261,7 +402,7 @@ class _ProductPageState extends State<ProductPage>
                                               color: MyColors.PrimaryColor,
                                               width: 2)),
                                       child: Image.network(
-                                        product.image[index],
+                                        product.imageArr[index],
                                         height:
                                             MediaQuery.of(context).size.height *
                                                 0.05,
@@ -269,15 +410,17 @@ class _ProductPageState extends State<ProductPage>
                                     )
                                   : InkWell(
                                       onTap: () {
-                                        setState(() {
-                                          currentImageIndex = index;
-                                          animateToNextPage(currentImageIndex);
-                                        });
+                                        if (mounted)
+                                          setState(() {
+                                            currentImageIndex = index;
+                                            animateToNextPage(
+                                                currentImageIndex);
+                                          });
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Image.asset(
-                                          product.image[index],
+                                        child: Image.network(
+                                          product.imageArr[index],
                                           height: MediaQuery.of(context)
                                                   .size
                                                   .height *
@@ -298,7 +441,7 @@ class _ProductPageState extends State<ProductPage>
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 23,
-                                fontWeight: FontWeight.bold),
+                                fontWeight: FontWeight.w400),
                           ),
                           SizedBox(
                             height: 5,
@@ -310,7 +453,7 @@ class _ProductPageState extends State<ProductPage>
                                 style: TextStyle(
                                     color: Colors.grey.shade800,
                                     fontSize: 17,
-                                    fontWeight: FontWeight.w600),
+                                    fontWeight: FontWeight.w400),
                               ),
                               SizedBox(
                                 width: 5,
@@ -346,7 +489,7 @@ class _ProductPageState extends State<ProductPage>
                             style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 13,
-                                fontWeight: FontWeight.w600),
+                                fontWeight: FontWeight.w400),
                           ),
                           SizedBox(
                             width: 4,
@@ -367,13 +510,21 @@ class _ProductPageState extends State<ProductPage>
                       SizedBox(
                         height: 7.5,
                       ),
-                      Text(
-                        'In Stock',
-                        style: TextStyle(
-                            color: MyColors.SecondaryColor,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600),
-                      ),
+                      widget.inStock
+                          ? Text(
+                              'In Stock',
+                              style: TextStyle(
+                                  color: MyColors.SecondaryColor,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w400),
+                            )
+                          : Text(
+                              'Out of Stock',
+                              style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w400),
+                            ),
                       SizedBox(
                         height: 7.5,
                       ),
@@ -399,7 +550,7 @@ class _ProductPageState extends State<ProductPage>
                             style: TextStyle(
                               color: MyColors.SecondaryColor,
                               fontSize: 25,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           SizedBox(
@@ -417,7 +568,7 @@ class _ProductPageState extends State<ProductPage>
                                 style: TextStyle(
                                     color: MyColors.SecondaryColor,
                                     fontSize: 13,
-                                    fontWeight: FontWeight.bold),
+                                    fontWeight: FontWeight.w400),
                               ),
                             ),
                           )
@@ -426,65 +577,69 @@ class _ProductPageState extends State<ProductPage>
                       SizedBox(
                         height: 15,
                       ),
-                      Row(
-                        children: [
-                          Text('Quantity: '),
-                          InkWell(
-                            onTap: () {
-                              updateQuantity(0);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: Colors.grey.shade600),
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(5),
-                                      bottomLeft: Radius.circular(5))),
-                              child: Text('–',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600)),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 1.5),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                  top: BorderSide(
-                                      color: Colors.grey.shade600, width: 1),
-                                  bottom: BorderSide(
-                                      color: Colors.grey.shade600, width: 1)),
-                            ),
-                            child: Text(quantity.toString(),
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: MyColors.SecondaryColor)),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              updateQuantity(1);
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: Colors.grey.shade600),
-                                  borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(5),
-                                      bottomRight: Radius.circular(5))),
-                              child: Text('+',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600)),
-                            ),
-                          ),
-                        ],
-                      ),
+                      textCart == 'Added to Cart'
+                          ? Row(
+                              children: [
+                                Text('Quantity: '),
+                                InkWell(
+                                  onTap: () {
+                                    updateQuantity(0);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 1.5),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey.shade600),
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(5),
+                                            bottomLeft: Radius.circular(5))),
+                                    child: Text('–',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w400)),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                        top: BorderSide(
+                                            color: Colors.grey.shade600,
+                                            width: 1),
+                                        bottom: BorderSide(
+                                            color: Colors.grey.shade600,
+                                            width: 1)),
+                                  ),
+                                  child: Text(quantity.toString(),
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w400,
+                                          color: MyColors.SecondaryColor)),
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    updateQuantity(1);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 1.5),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey.shade600),
+                                        borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(5),
+                                            bottomRight: Radius.circular(5))),
+                                    child: Text('+',
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w400)),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Container(),
                       SizedBox(
                         height: 15,
                       ),
@@ -524,31 +679,39 @@ class _ProductPageState extends State<ProductPage>
                                           width: 2)),
                                 ),
                                 onPressed: () {
-                                  // addToCart();
-                                  setState(() {
-                                    if (textCart == 'Added to Cart')
-                                      textCart = 'Add to Cart';
-                                    else
-                                      textCart = 'Added to Cart';
-                                  });
-                                  if (_animationController.status ==
-                                      AnimationStatus.completed) {
-                                    _animationController.reverse();
-                                  } else {
-                                    _animationController.forward();
+                                  if (widget.inStock) {
+                                    if (mounted)
+                                      setState(() {
+                                        if (textCart == 'Added to Cart')
+                                          textCart = 'Add to Cart';
+                                        else
+                                          textCart = 'Added to Cart';
+                                      });
+                                    if (_animationController.status ==
+                                        AnimationStatus.completed) {
+                                      _animationController.reverse();
+                                    } else {
+                                      _animationController.forward();
+                                    }
+                                    addToCart();
                                   }
-                                  addToCart();
                                 },
                               ),
                             ),
                           ),
-                          IconButton(
-                              icon: Icon(
-                                Icons.favorite_outline,
-                                color: MyColors.PrimaryColor,
-                                size: 25,
-                              ),
-                              onPressed: () {}),
+                          GestureDetector(
+                            onTap: () {
+                              if (product.inFav)
+                                removeFavorites(product.id);
+                              else
+                                addToFavorites(product.id);
+                            },
+                            child: product.inFav
+                                ? Icon(Icons.favorite,
+                                    color: Colors.redAccent.shade400)
+                                : Icon(Icons.favorite_outline,
+                                    color: MyColors.PrimaryColor),
+                          ),
                         ],
                       ),
                       SizedBox(
@@ -623,7 +786,7 @@ class _ProductPageState extends State<ProductPage>
                                     isScrollable: true,
                                     labelColor: Colors.white,
                                     labelStyle: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w400,
                                     ),
                                     unselectedLabelStyle: TextStyle(
                                         fontWeight: FontWeight.normal),
@@ -827,7 +990,7 @@ class _ProductPageState extends State<ProductPage>
                                                     color:
                                                         MyColors.SecondaryColor,
                                                     fontWeight:
-                                                        FontWeight.bold),
+                                                        FontWeight.w400),
                                               )),
                                         ],
                                       ),
@@ -839,7 +1002,7 @@ class _ProductPageState extends State<ProductPage>
                         'Related Products',
                         style: TextStyle(
                           color: Colors.black,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           fontSize: 20,
                         ),
                       ),
@@ -867,8 +1030,8 @@ class _ProductPageState extends State<ProductPage>
 }
 
 class DetailScreen extends StatefulWidget {
-  List<String> product;
-  int startingIndex;
+  final List product;
+  final int startingIndex;
   DetailScreen({this.startingIndex, this.product});
 
   @override
@@ -876,7 +1039,7 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  List<String> imagePath = [];
+  List imagePath = [];
 
   PageController pageController;
 
@@ -908,24 +1071,29 @@ class _DetailScreenState extends State<DetailScreen> {
         ),
       ),
       body: GestureDetector(
-        child: Center(
-          child: Hero(
-            tag: 'imageHero',
-            child: PageView.builder(
-              controller: pageController,
-              itemCount: imagePath.length,
-              itemBuilder: (context, index) {
-                return Image.network(
-                  imagePath[index],
-                  width: MediaQuery.of(context).size.width,
-                );
-              },
-            ),
-          ),
-        ),
         onTap: () {
           Navigator.pop(context);
         },
+        child: InteractiveViewer(
+          panEnabled: true,
+          minScale: 0.5,
+          maxScale: 4,
+          child: Center(
+            child: Hero(
+              tag: 'imageHero',
+              child: PageView.builder(
+                controller: pageController,
+                itemCount: imagePath.length,
+                itemBuilder: (context, index) {
+                  return Image.network(
+                    imagePath[index],
+                    width: MediaQuery.of(context).size.width,
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

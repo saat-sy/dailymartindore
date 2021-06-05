@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/wrapper.dart';
 
-void main() {
+void main() async {
+
   runApp(MyApp());
 }
 
@@ -11,9 +12,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        primarySwatch: createMaterialColor(MyColors.PrimaryColor),
-        fontFamily: 'Poppins'
-      ),
+          primarySwatch: createMaterialColor(MyColors.PrimaryColor),
+          fontFamily: 'Poppins'),
       home: Wrapper(),
     );
   }

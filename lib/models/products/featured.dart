@@ -7,8 +7,11 @@ class FeaturedProducts {
   String discount;
   String rating;
   String quantity;
-  String old_price;
-  String new_price;
+  String oldPrice;
+  String newPrice;
+  bool inStock;
+  bool inFav;
+  bool inCart;
 
   FeaturedProducts(
       {this.id,
@@ -16,9 +19,12 @@ class FeaturedProducts {
       this.title,
       this.description,
       this.isVeg,
+      this.inStock = true,
+      this.inCart = false,
+      this.inFav = false,
       this.discount,
       this.quantity,
       this.rating,
-      this.old_price,
-      this.new_price});
+      this.oldPrice,
+      this.newPrice});
 }

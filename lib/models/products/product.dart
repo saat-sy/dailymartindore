@@ -3,7 +3,8 @@ class ProductModel {
   String id;
   bool isVeg;
   String rating;
-  List<String> image;
+  List imageArr;
+  String image;
   String discount;
   String description;
   String shortDescription;
@@ -15,6 +16,9 @@ class ProductModel {
   String sku;
   String quantity;
   String categoryID;
+  bool inFav;
+  bool inCart;
+  bool inStock;
 
   ProductModel(
       {this.id,
@@ -23,6 +27,10 @@ class ProductModel {
       this.category,
       this.rating,
       this.sku,
+      this.imageArr,
+      this.inStock = true,
+      this.inCart = false,
+      this.inFav = false,
       this.quantity,
       this.categoryID,
       this.image,

@@ -2,11 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/api_response.dart';
+import 'package:frontend/models/products/favorites_model.dart';
+import 'package:frontend/models/products/product.dart';
+import 'package:frontend/models/products/shopping_cart_model.dart';
 import 'package:frontend/models/user.dart';
 import 'package:frontend/screens/authenticate/forgot_password.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/screens/authenticate/signup.dart';
 import 'package:frontend/services/authenticate_service.dart';
+import 'package:frontend/services/cart_service.dart';
+import 'package:frontend/services/favorites_service.dart';
+import 'package:frontend/services/products_service.dart';
 import 'package:frontend/stylesheet/styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,6 +26,67 @@ class _LoginState extends State<Login> {
   APIResponse<User> _apiResponse;
   bool isLoading = false;
 
+  getFavs() async {
+    FavoriteService service = FavoriteService();
+    APIResponse<List<FavoritesModel>> _apiResponse;
+    List<FavoritesModel> favorites;
+
+    String favs = "";
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString() ?? "-1";
+
+    _apiResponse = await service.getFavorites(id);
+
+    if (!_apiResponse.error) {
+      favorites = _apiResponse.data;
+      for (final fav in favorites) {
+        if (favs.isNotEmpty) favs += ',';
+        favs += fav.id;
+      }
+    }
+
+    if (favs.length >= 0) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(PrefConstants.inFav, favs);
+    }
+  }
+
+  getCart() async {
+    String cart = "";
+
+    CartService service = CartService();
+    APIResponse<List<ShoppingCartModel>> _apiResponse;
+
+    List<ShoppingCartModel> items2;
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString() ?? "-1";
+
+    print(id);
+
+    _apiResponse = await service.getCart(id);
+    if (!_apiResponse.error) {
+      items2 = _apiResponse.data;
+
+      ProductService serviceProduct = ProductService();
+      APIResponse<ProductModel> _apiResponseProduct;
+      ProductModel p = ProductModel();
+
+      for (var item in items2) {
+        _apiResponseProduct =
+            await serviceProduct.getProductByID(item.productID);
+        p = _apiResponseProduct.data;
+        if (cart.isNotEmpty) cart += ',';
+        cart += p.id;
+      }
+    }
+    if (cart.length >= 0) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(PrefConstants.inCart, cart);
+    }
+  }
+
   showLoaderDialog(BuildContext context) {
     AlertDialog alert = AlertDialog(
       backgroundColor: Colors.transparent,
@@ -27,11 +94,7 @@ class _LoginState extends State<Login> {
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
-            height: 55,
-            width: 55,
-            child: CircularProgressIndicator()
-          ),
+          SizedBox(height: 55, width: 55, child: CircularProgressIndicator()),
         ],
       ),
     );
@@ -46,27 +109,33 @@ class _LoginState extends State<Login> {
 
   login() async {
     showLoaderDialog(context);
-    // await Future.delayed(Duration(seconds: 3));
 
     _apiResponse = await service.login(email, password);
 
-    if (_apiResponse.error){
-      setState(() {
-        error = _apiResponse.errorMessage;
-      });
+    if (_apiResponse.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
       Navigator.pop(context);
-    }
-    else {
+    } else {
       if (_rememberme) {
         User user = _apiResponse.data;
 
         await updateShredPrefs(
             user.name, user.email, user.phoneNo, user.userID);
+      } else {
+        await getCart();
+        await getFavs();
       }
       Navigator.pop(context);
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => BottomNav()));
-
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => BottomNav(),
+        ),
+        (route) => false,
+      );
     }
   }
 
@@ -90,17 +159,18 @@ class _LoginState extends State<Login> {
   String email = '';
   String password = '';
 
-  String verifyEmail(String val){
-    if(val.isEmpty)
+  // ignore: missing_return
+  String verifyEmail(String val) {
+    if (val.isEmpty)
       return 'Enter your Email or Phone number';
-    else if(double.tryParse(val) != null){
-      if(val.length != 10)
-        return 'Enter a valid Phone number';  
-    }
-    else if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(val))
+    else if (double.tryParse(val) != null) {
+      if (val.length != 10) return 'Enter a valid Phone number';
+    } else if (!RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(val))
       return 'Enter a valid Email Address';
     else
-      return null;  
+      return null;
   }
 
   @override
@@ -114,7 +184,7 @@ class _LoginState extends State<Login> {
             alignment: Alignment.bottomCenter,
             child: Image.asset(
               'assets/images/login_bottom.png',
-              width: MediaQuery.of(context).size.width * 0.9,
+              width: MediaQuery.of(context).size.width * 0.75,
             ),
           ),
           Container(
@@ -122,13 +192,14 @@ class _LoginState extends State<Login> {
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.175,),
                   Text(
                     'Welcome back!',
                     style: TextStyle(
                       color: Colors.black,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       fontSize: 25,
                     ),
                   ),
@@ -152,9 +223,10 @@ class _LoginState extends State<Login> {
                   TextFormField(
                     validator: (val) => verifyEmail(val),
                     onChanged: (value) {
-                      setState(() {
-                        email = value;
-                      });
+                      if (mounted)
+                        setState(() {
+                          email = value;
+                        });
                     },
                     cursorColor: MyColors.PrimaryColor,
                     decoration: InputDecoration(
@@ -172,16 +244,20 @@ class _LoginState extends State<Login> {
                           )),
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.white, width: 1.0)),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 1.0)),
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.white, width: 1.0)),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 1.0)),
                       errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.red, width: 1.0)),
+                          borderSide:
+                              BorderSide(color: Colors.red, width: 1.0)),
                       focusedErrorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.red, width: 1.0)),
+                          borderSide:
+                              BorderSide(color: Colors.red, width: 1.0)),
                     ),
                   ),
 
@@ -190,9 +266,10 @@ class _LoginState extends State<Login> {
                   TextFormField(
                     validator: (val) => val.isEmpty ? 'Enter a Password' : null,
                     onChanged: (value) {
-                      setState(() {
-                        password = value;
-                      });
+                      if (mounted)
+                        setState(() {
+                          password = value;
+                        });
                     },
                     cursorColor: MyColors.PrimaryColor,
                     obscureText: _obscureText,
@@ -221,24 +298,29 @@ class _LoginState extends State<Login> {
                           ),
                           color: Colors.grey,
                           onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
+                            if (mounted)
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
                           },
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.white, width: 1.0)),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 1.0)),
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.white, width: 1.0)),
+                          borderSide:
+                              BorderSide(color: Colors.white, width: 1.0)),
                       errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.red, width: 1.0)),
+                          borderSide:
+                              BorderSide(color: Colors.red, width: 1.0)),
                       focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                            borderSide: BorderSide(color: Colors.red, width: 1.0)),    
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide:
+                              BorderSide(color: Colors.red, width: 1.0)),
                     ),
                   ),
 
@@ -253,9 +335,10 @@ class _LoginState extends State<Login> {
                             child: CupertinoSwitch(
                               value: _rememberme,
                               onChanged: (value) {
-                                setState(() {
-                                  _rememberme = value;
-                                });
+                                if (mounted)
+                                  setState(() {
+                                    _rememberme = value;
+                                  });
                               },
                               activeColor: MyColors.SecondaryColor,
                             ),
@@ -273,8 +356,10 @@ class _LoginState extends State<Login> {
                           style: TextStyle(color: MyColors.SecondaryColor),
                         ),
                         onPressed: () {
-                          Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => ForgotPassword()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ForgotPassword()));
                         },
                       )
                     ],
@@ -296,8 +381,7 @@ class _LoginState extends State<Login> {
                   SubmitButton(
                     text: 'Login',
                     onPress: () {
-                      if (_formKey.currentState.validate())
-                        login();
+                      if (_formKey.currentState.validate()) login();
                     },
                   ),
 
@@ -315,8 +399,10 @@ class _LoginState extends State<Login> {
                           padding: EdgeInsets.symmetric(horizontal: 2.0),
                         ),
                         onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => Signup()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Signup()));
                         },
                         child: Text(
                           'Signup',

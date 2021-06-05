@@ -30,17 +30,17 @@ class ProductService {
           final featuredProducts = <FeaturedProducts>[];
           for (var data in responseData) {
             final f = FeaturedProducts(
-              id: data['id'],
-              imagePath: data['image'],
-              title: data['title'],
-              description: data['description'],
-              isVeg: data['is_veg'] == "0" ? true : false,
-              rating: data['avg_rating'],
-              old_price: data['old_price'],
-              discount: data['discount_name'],
-              new_price: data['price'],
-              quantity: data['quantity']
-            );
+                id: data['id'],
+                imagePath: data['image'],
+                title: data['title'],
+                description: data['description'],
+                isVeg: data['is_veg'] == "0" ? true : false,
+                rating: data['avg_rating'],
+                oldPrice: data['old_price'],
+                discount: data['discount_name'],
+                newPrice: data['price'],
+                inStock: data['quantity'] == '0' ? false : true,
+                quantity: data['quantity_info']);
             featuredProducts.add(f);
           }
           return APIResponse<List<FeaturedProducts>>(
@@ -71,17 +71,17 @@ class ProductService {
           final topProducts = <TopProducts>[];
           for (var data in responseData) {
             final f = TopProducts(
-              id: data['id'],
-              imagePath: data['image'],
-              title: data['title'],
-              description: data['description'],
-              isVeg: data['is_veg'] == "0" ? true : false,
-              rating: data['avg_rating'],
-              old_price: data['old_price'],
-              discount: data['discount_name'],
-              new_price: data['price'],
-              quantity: data['quantity']
-            );
+                id: data['id'],
+                imagePath: data['image'],
+                title: data['title'],
+                description: data['description'],
+                isVeg: data['is_veg'] == "0" ? true : false,
+                rating: data['avg_rating'],
+                oldPrice: data['old_price'],
+                inStock: data['quantity'] == '0' ? false : true,
+                discount: data['discount_name'],
+                newPrice: data['price'],
+                quantity: data['quantity_info']);
             topProducts.add(f);
           }
           return APIResponse<List<TopProducts>>(
@@ -112,17 +112,17 @@ class ProductService {
           final allProducts = <AllProducts>[];
           for (var data in responseData) {
             final f = AllProducts(
-              id: data['id'],
-              imagePath: data['image'],
-              title: data['title'],
-              description: data['description'],
-              isVeg: data['is_veg'] == "0" ? true : false,
-              rating: data['avg_rating'],
-              old_price: data['old_price'],
-              discount: data['discount_name'],
-              new_price: data['price'],
-              quantity: data['quantity']
-            );
+                id: data['id'],
+                imagePath: data['image'],
+                title: data['title'],
+                description: data['description'],
+                isVeg: data['is_veg'] == "0" ? true : false,
+                rating: data['avg_rating'],
+                oldPrice: data['old_price'],
+                inStock: data['quantity'] == '0' ? false : true,
+                discount: data['discount_name'],
+                newPrice: data['price'],
+                quantity: data['quantity_info']);
             allProducts.add(f);
           }
           return APIResponse<List<AllProducts>>(
@@ -152,14 +152,15 @@ class ProductService {
         final jsonData = json.decode(value.body);
         if (jsonData['responseCode'] == 1) {
           final responseData = jsonData['responsedata'];
-          print(responseData['id']);
           final product = ProductModel(
               id: responseData['id'],
               categoryID: responseData['shop_categorie'],
               title: responseData['title'],
               isVeg: responseData['is_veg'] == "0" ? true : false,
               rating: responseData['avg_rating'],
-              image: [responseData['image']],
+              quantity: responseData['quantity_info'],
+              imageArr: responseData['image_arr'],
+              image: responseData['image'],
               discount: responseData['discount_name'],
               description: responseData['description'],
               shortDescription: responseData['short_description'],
@@ -194,19 +195,17 @@ class ProductService {
           final categories = <CategoriesModel>[];
 
           for (var data in responseData) {
-
             final subCategories = <SubCategoriesModel>[];
-            for (var sub in data['subcategory']) {
 
+            for (var sub in data['subcategory']) {
               final subSubCat = <SubSubCategoriesModel>[];
-              for(var subsub in sub['subsubcategory']) {
+              for (var subsub in sub['subsubcategory']) {
                 final ss = SubSubCategoriesModel(
                   id: subsub['id'],
                   name: subsub['name'],
                   image: subsub['image'],
                 );
                 subSubCat.add(ss);
-
               }
 
               final s = SubCategoriesModel(
@@ -247,33 +246,29 @@ class ProductService {
 
   Future<APIResponse<List<CategoriesProduct>>> getCategoryProducts(
       {String category, String subCategory}) {
-    final body = {
-      'category': category ?? '',
-      'subcategory': subCategory ?? ''
-    };
+    final body = {'category': category ?? '', 'subcategory': subCategory ?? ''};
 
     return http
         .post(Uri.parse(API + '/getProducts'), headers: headers, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
-        print(jsonData);
         if (jsonData['responseCode'] == 1) {
           final responseData = jsonData['responsedata'];
           final categoryProducts = <CategoriesProduct>[];
           for (var data in responseData) {
             final f = CategoriesProduct(
-              id: data['id'],
-              imagePath: data['image'],
-              title: data['title'],
-              description: data['description'],
-              isVeg: data['is_veg'] == "0" ? true : false,
-              rating: data['avg_rating'],
-              old_price: data['old_price'],
-              discount: data['discount_name'],
-              new_price: data['price'],
-              quantity: data['quantity']
-            );
+                id: data['id'],
+                imagePath: data['image'],
+                title: data['title'],
+                description: data['description'],
+                inStock: data['quantity'] == '0' ? false : true,
+                isVeg: data['is_veg'] == "0" ? true : false,
+                rating: data['avg_rating'],
+                oldPrice: data['old_price'],
+                discount: data['discount_name'],
+                newPrice: data['price'],
+                quantity: data['quantity_info']);
             categoryProducts.add(f);
           }
           return APIResponse<List<CategoriesProduct>>(

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/user.dart';
-import 'package:frontend/screens/authenticate/getting_started.dart';
+import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/services/authenticate_service.dart';
 import 'package:frontend/stylesheet/styles.dart';
 import 'package:pinput/pin_put/pin_put.dart';
@@ -30,7 +30,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
 
   String error = "";
 
-  String otp_send_status = 'Resend OTP';
+  String otpSendStatus = 'Resend OTP';
 
   int userEnteredOTP = 0;
 
@@ -41,11 +41,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
-            height: 55,
-            width: 55,
-            child: CircularProgressIndicator()
-          ),
+          SizedBox(height: 55, width: 55, child: CircularProgressIndicator()),
         ],
       ),
     );
@@ -64,20 +60,25 @@ class _VerifyOTPState extends State<VerifyOTP> {
 
     _apiResponse = await service.verifyOTP(widget.email, userEnteredOTP);
 
-    if (_apiResponse.error){
-      setState(() {
-        error = _apiResponse.errorMessage;
-      });
+    if (_apiResponse.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+        });
       Navigator.pop(context);
-    }
-    else {
+    } else {
       User user = _apiResponse.data;
 
       await updateShredPrefs(user.name, user.email, user.phoneNo, user.userID);
-      
+
       Navigator.pop(context);
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => GettingStarted()));
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => BottomNav(),
+        ),
+        (route) => false,
+      );
     }
   }
 
@@ -94,33 +95,34 @@ class _VerifyOTPState extends State<VerifyOTP> {
   int time = 120;
 
   resendOTP() async {
-    setState(() {
-      otp_send_status = 'Sending new OTP';
-    });
+    if (mounted)
+      setState(() {
+        otpSendStatus = 'Sending new OTP';
+      });
 
     _apiResponseResend = await service.resendOTP(widget.phone);
 
-    if (_apiResponseResend.error)
+    if (_apiResponseResend.error) if (mounted)
       setState(() {
         error = _apiResponseResend.errorMessage;
-        otp_send_status = 'Resend OTP';
-        Scaffold.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send new OTP'))
-        );
+        otpSendStatus = 'Resend OTP';
+        final snackBar = SnackBar(content: Text('Failed to send new OTP'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       });
     else {
-      setState(() {
-        time = time * 2;
-        _timerRunning = true;
-        startTimer();
-        Scaffold.of(context).showSnackBar(
-          SnackBar(content: Text('New OTP sent!'))
-        );
-      });
+      if (mounted)
+        setState(() {
+          time = time * 2;
+          _timerRunning = true;
+          startTimer();
+          final snackBar = SnackBar(content: Text('New OTP sent!'));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        });
     }
   }
 
   bool _timerRunning = true;
+  // ignore: unused_field
   Timer _timer;
   int _start;
   String timerData = "";
@@ -132,23 +134,23 @@ class _VerifyOTPState extends State<VerifyOTP> {
       oneSec,
       (Timer timer) {
         if (_start == 0) {
-          setState(() {
-            _timerRunning = false;
-            timer.cancel();
-          });
+          if (mounted)
+            setState(() {
+              _timerRunning = false;
+              timer.cancel();
+            });
         } else {
-          setState(() {
-            _start--;
-            int mins = (_start / 60).truncate();
-            int seconds = _start - mins * 60;
-            String minsString = (_start / 60).truncate().toString();
-            String secondsString = (_start - mins * 60).toString();
-            if(mins < 10)
-              minsString = "0" + minsString;
-            if(seconds < 10)
-              secondsString = "0" + secondsString;  
-            timerData = "$minsString : $secondsString";
-          });
+          if (mounted)
+            setState(() {
+              _start--;
+              int mins = (_start / 60).truncate();
+              int seconds = _start - mins * 60;
+              String minsString = (_start / 60).truncate().toString();
+              String secondsString = (_start - mins * 60).toString();
+              if (mins < 10) minsString = "0" + minsString;
+              if (seconds < 10) secondsString = "0" + secondsString;
+              timerData = "$minsString : $secondsString";
+            });
         }
       },
     );
@@ -189,7 +191,7 @@ class _VerifyOTPState extends State<VerifyOTP> {
             'Verify OTP',
             style: TextStyle(
               color: Colors.black,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w400,
               fontSize: 25,
             ),
           ),
@@ -242,9 +244,10 @@ class _VerifyOTPState extends State<VerifyOTP> {
               if (userEnteredOTP != 0) {
                 verifyOTP();
               } else {
-                setState(() {
-                  error = 'Please enter the OTP';
-                });
+                if (mounted)
+                  setState(() {
+                    error = 'Please enter the OTP';
+                  });
               }
             },
           ),
@@ -258,26 +261,26 @@ class _VerifyOTPState extends State<VerifyOTP> {
           SizedBox(
             height: 5,
           ),
-          _timerRunning ?
-          Text(timerData,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: MyColors.SecondaryColor),
-          ) 
-          :
-          InkWell(
-            onTap: () {
-              resendOTP();
-            },
-            child: Container(
-              child: Text(
-                otp_send_status,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: MyColors.SecondaryColor),
-              ),
-            ),
-          ),
+          _timerRunning
+              ? Text(
+                  timerData,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      color: MyColors.SecondaryColor),
+                )
+              : InkWell(
+                  onTap: () {
+                    resendOTP();
+                  },
+                  child: Container(
+                    child: Text(
+                      otpSendStatus,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: MyColors.SecondaryColor),
+                    ),
+                  ),
+                ),
         ],
       ),
     );

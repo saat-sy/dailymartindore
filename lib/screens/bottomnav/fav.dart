@@ -28,17 +28,19 @@ class _FavoriteState extends State<Favorite> {
     _apiResponse = await service.getFavorites(id);
 
     if (_apiResponse.error) {
-      setState(() {
-        error = _apiResponse.errorMessage;
-        isLoading = false;
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponse.errorMessage;
+          isLoading = false;
+        });
     } else {
       print('YES');
       favorites = _apiResponse.data;
-      setState(() {
-        isLoading = false;
-        _recordFound = true;
-      });
+      if (mounted)
+        setState(() {
+          isLoading = false;
+          _recordFound = true;
+        });
     }
   }
 
@@ -67,15 +69,29 @@ class _FavoriteState extends State<Favorite> {
   removeFavorites(String itemID) async {
     showLoaderDialog(context);
 
+    String newFav = "";
+
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getInt(PrefConstants.id).toString();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
 
     _apiResponseRemove = await service.removeFavorites(id, itemID);
 
     if (_apiResponseRemove.error) {
-      setState(() {
-        error = _apiResponseRemove.errorMessage;
-      });
+      if (mounted)
+        setState(() {
+          error = _apiResponseRemove.errorMessage;
+        });
+    } else {
+      if (fav != "") {
+        fav.split(',').forEach((element) {
+          if (newFav.isNotEmpty) newFav += ',';
+          if (element != itemID) newFav += element;
+        });
+        await prefs.setString(PrefConstants.inFav, newFav);
+      }
+      final snackBar = SnackBar(content: Text('Removed from Wish List'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
     Navigator.pop(context);
   }
@@ -157,11 +173,12 @@ class _FavoriteState extends State<Favorite> {
                             );
                           },
                           onDismissed: (_) {
-                            setState(() {
-                              removeFavorites(favorites[index].id);
-                              favorites.removeAt(index);
-                              if (favorites.length == 0) _recordFound = false;
-                            });
+                            if (mounted)
+                              setState(() {
+                                removeFavorites(favorites[index].id);
+                                favorites.removeAt(index);
+                                if (favorites.length == 0) _recordFound = false;
+                              });
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -215,7 +232,7 @@ class _FavoriteState extends State<Favorite> {
                                               style: TextStyle(
                                                 color: MyColors.PrimaryColor,
                                                 fontSize: 18,
-                                                fontWeight: FontWeight.bold,
+                                                fontWeight: FontWeight.w400,
                                               ),
                                             ),
                                             SizedBox(

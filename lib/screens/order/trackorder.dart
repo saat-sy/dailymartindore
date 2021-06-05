@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/order/track_order_model.dart';
 import 'package:frontend/services/order_service.dart';
+import 'package:frontend/strings.dart';
 
 import '../../constants.dart';
 
 class TrackOrder extends StatefulWidget {
-  String orderID;
-  String total;
+  final String orderID;
+  final String total;
   TrackOrder({this.orderID, this.total});
   @override
   _TrackOrderState createState() => _TrackOrderState();
@@ -96,9 +97,10 @@ class _TrackOrderState extends State<TrackOrder> {
         }
       }
 
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted)
+        setState(() {
+          isLoading = false;
+        });
     }
   }
 
@@ -156,7 +158,7 @@ class _TrackOrderState extends State<TrackOrder> {
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 18,
-                                    fontWeight: FontWeight.bold),
+                                    fontWeight: FontWeight.w400),
                               ),
                               SizedBox(
                                 height: 4,
@@ -225,17 +227,17 @@ class _TrackOrderState extends State<TrackOrder> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  'Order Placed',
+                                  Strings.TRACK_ORDER_ORDER_PLACED,
                                   style: TextStyle(
                                       color: one ? Colors.black : Colors.grey,
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w400),
                                 ),
                                 SizedBox(
                                   height: 4,
                                 ),
                                 Text(
-                                  one ? oneDate : 'Pending',
+                                  one ? oneDate : Strings.TRACK_ORDER_PENDING,
                                   style: TextStyle(
                                     color: one ? Colors.black : Colors.grey,
                                     fontSize: 13,
@@ -268,17 +270,17 @@ class _TrackOrderState extends State<TrackOrder> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  'Order Confirmed',
+                                  Strings.TRACK_ORDER_ORDER_CONFIRMED,
                                   style: TextStyle(
                                       color: two ? Colors.black : Colors.grey,
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w400),
                                 ),
                                 SizedBox(
                                   height: 4,
                                 ),
                                 Text(
-                                  two ? twoDate : 'Pending',
+                                  two ? twoDate : Strings.TRACK_ORDER_PENDING,
                                   style: TextStyle(
                                     color: two ? Colors.black : Colors.grey,
                                     fontSize: 13,
@@ -312,17 +314,19 @@ class _TrackOrderState extends State<TrackOrder> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  'Order Packed',
+                                  Strings.TRACK_ORDER_ORDER_PACKED,
                                   style: TextStyle(
                                       color: three ? Colors.black : Colors.grey,
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w400),
                                 ),
                                 SizedBox(
                                   height: 4,
                                 ),
                                 Text(
-                                  three ? threeDate : 'Pending',
+                                  three
+                                      ? threeDate
+                                      : Strings.TRACK_ORDER_PENDING,
                                   style: TextStyle(
                                     color: three ? Colors.black : Colors.grey,
                                     fontSize: 13,
@@ -356,17 +360,17 @@ class _TrackOrderState extends State<TrackOrder> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  'Order Shipped',
+                                  Strings.TRACK_ORDER_ORDER_SHIPPED,
                                   style: TextStyle(
                                       color: four ? Colors.black : Colors.grey,
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w400),
                                 ),
                                 SizedBox(
                                   height: 4,
                                 ),
                                 Text(
-                                  four ? fourDate : 'Pending',
+                                  four ? fourDate : Strings.TRACK_ORDER_PENDING,
                                   style: TextStyle(
                                     color: four ? Colors.black : Colors.grey,
                                     fontSize: 13,
@@ -400,17 +404,17 @@ class _TrackOrderState extends State<TrackOrder> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  'Out for Delivery',
+                                  Strings.TRACK_ORDER_OUT_FOR_DELIVERY,
                                   style: TextStyle(
                                       color: five ? Colors.black : Colors.grey,
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w400),
                                 ),
                                 SizedBox(
                                   height: 4,
                                 ),
                                 Text(
-                                  five ? fiveDate : 'Pending',
+                                  five ? fiveDate : Strings.TRACK_ORDER_PENDING,
                                   style: TextStyle(
                                     color: five ? Colors.black : Colors.grey,
                                     fontSize: 13,
@@ -443,17 +447,17 @@ class _TrackOrderState extends State<TrackOrder> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  'Order Delivered',
+                                  Strings.TRACK_ORDER_ORDER_DELIVERED,
                                   style: TextStyle(
                                       color: six ? Colors.black : Colors.grey,
                                       fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w400),
                                 ),
                                 SizedBox(
                                   height: 4,
                                 ),
                                 Text(
-                                  six ? sixDate : 'Pending',
+                                  six ? sixDate : Strings.TRACK_ORDER_PENDING,
                                   style: TextStyle(
                                     color: six ? Colors.black : Colors.grey,
                                     fontSize: 13,

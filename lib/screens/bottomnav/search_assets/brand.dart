@@ -70,10 +70,13 @@ class _BrandState extends State<Brand> {
                 children: [
                   InkWell(
                     onTap: () {
-                      Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => BottomNav(index: 1,)));
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => BottomNav(index: 1,),
+                        ),
+                        (route) => false,
+                      );
                     },
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.4,
@@ -90,10 +93,13 @@ class _BrandState extends State<Brand> {
                   ),
                   InkWell(
                     onTap: () {
-                      Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => BottomNav(index: 1,)));
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) => BottomNav(index: 1,),
+                        ),
+                        (route) => false,
+                      );
                     },
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.4,

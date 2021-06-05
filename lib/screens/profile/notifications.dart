@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/screens/profile/notification_settings.dart';
+import 'package:frontend/strings.dart';
 
 class Notifications extends StatefulWidget {
   @override
@@ -11,20 +12,20 @@ class Notifications extends StatefulWidget {
 class _NotificationsState extends State<Notifications> {
   List<NotificationsModel> notifs = [
     NotificationsModel(
-        title: 'Special Offer for Grapes',
-        description: 'Today 12:00 PM',
+      title: 'Special Offer for Grapes',
+      description: 'Today 12:00 PM',
     ),
     NotificationsModel(
-        title: 'Special Offer for Musk Melon',
-        description: 'Today 12:00 PM',
+      title: 'Special Offer for Musk Melon',
+      description: 'Today 12:00 PM',
     ),
     NotificationsModel(
-        title: 'Special Offer for Apples',
-        description: 'Today 12:00 PM',
+      title: 'Special Offer for Apples',
+      description: 'Today 12:00 PM',
     ),
     NotificationsModel(
-        title: 'Special Offer for Pomogranate',
-        description: 'Today 12:00 PM',
+      title: 'Special Offer for Pomogranate',
+      description: 'Today 12:00 PM',
     ),
   ];
 
@@ -37,16 +38,14 @@ class _NotificationsState extends State<Notifications> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         backgroundColor: Colors.white,
-        title: Text('Notifications'),
+        title: Text(Strings.NOTIFICATIONS_APPBAR),
         centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => NotifSettings()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => NotifSettings()));
             },
           )
         ],
@@ -59,9 +58,10 @@ class _NotificationsState extends State<Notifications> {
               key: UniqueKey(),
               direction: DismissDirection.endToStart,
               onDismissed: (_) {
-                setState(() {
-                  notifs.removeAt(index);
-                });
+                if (mounted)
+                  setState(() {
+                    notifs.removeAt(index);
+                  });
               },
               background: Container(
                 color: Colors.red,
@@ -91,16 +91,25 @@ class _NotificationsState extends State<Notifications> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.category, color: MyColors.SecondaryColor,),
-                    SizedBox(width: 10,),
+                    Icon(
+                      Icons.category,
+                      color: MyColors.SecondaryColor,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(notifs[index].title, style: TextStyle(fontWeight: FontWeight.w700),),
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          child: Text(notifs[index].description,)
+                        Text(
+                          notifs[index].title,
+                          style: TextStyle(fontWeight: FontWeight.w700),
                         ),
+                        Container(
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            child: Text(
+                              notifs[index].description,
+                            )),
                       ],
                     )
                   ],

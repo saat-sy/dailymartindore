@@ -97,6 +97,7 @@ class AuthenticateService {
         final jsonData = json.decode(value.body);
         if (jsonData['responseCode'] == 1) {
           final responseData = jsonData['responsedata'];
+          print(responseData);
 
           final userData = User(
               name: responseData['name'],
@@ -115,6 +116,63 @@ class AuthenticateService {
           errorMessage: json.decode(value.body)['responseMessage']);
     }).catchError((error) {
       return APIResponse<User>(error: true, errorMessage: 'An error occured');
+    });
+  }
+
+  Future<APIResponse<bool>> changePassword(
+      {String password, String cpassword, String opassword, String userID}) {
+    var body = {
+      'password': password,
+      'cpassword': cpassword,
+      'opassword': opassword,
+      'user_id': userID,
+    };
+
+    return http
+        .post(Uri.parse(API + '/changePassword'), headers: headers, body: body)
+        .then((value) {
+      if (value.statusCode == 200) {
+        print(jsonDecode(value.body));
+        if (jsonDecode(value.body)['responseCode'] == 1) {
+          return APIResponse<bool>(error: false, data: true);
+        }
+        return APIResponse<bool>(
+            error: true,
+            errorMessage: json.decode(value.body)['responseMessage']);
+      }
+      return APIResponse<bool>(
+          error: true,
+          errorMessage: json.decode(value.body)['responseMessage']);
+    }).catchError((error) {
+      print(error);
+      return APIResponse<bool>(error: true, errorMessage: 'An error occured');
+    });
+  }
+
+  Future<APIResponse<String>> forgotPassword(String email) {
+    var body = {
+      'email': email,
+    };
+
+    return http
+        .post(Uri.parse(API + '/forgotPassword'), headers: headers, body: body)
+        .then((value) {
+      if (value.statusCode == 200) {
+        print(jsonDecode(value.body));
+        if (jsonDecode(value.body)['responseCode'] == 1) {
+          return APIResponse<String>(
+              error: false, data: jsonDecode(value.body)['responseMessage']);
+        }
+        return APIResponse<String>(
+            error: true,
+            errorMessage: json.decode(value.body)['responseMessage']);
+      }
+      return APIResponse<String>(
+          error: true,
+          errorMessage: json.decode(value.body)['responseMessage']);
+    }).catchError((error) {
+      print(error);
+      return APIResponse<String>(error: true, errorMessage: 'An error occured');
     });
   }
 
