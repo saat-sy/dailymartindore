@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/getting_started/onboard.dart';
 import 'package:frontend/screens/authenticate/login.dart';
+import 'package:frontend/screens/bottomnav/bottomnav_anonymous.dart';
 import 'package:frontend/stylesheet/styles.dart';
 
 class GettingStarted extends StatefulWidget {
@@ -100,7 +101,7 @@ class _GettingStartedState extends State<GettingStarted> {
                       animateToNextPage(currentIndex + 1);
                     } else
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => Login()));
+                          MaterialPageRoute(builder: (context) => BottomNavAnonymous()));
                   },
                 ),
                 SizedBox(
