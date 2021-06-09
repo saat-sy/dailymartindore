@@ -11,9 +11,11 @@ import 'cart.dart';
 
 class BottomNav extends StatefulWidget {
   final int index;
+  final bool search;
 
   BottomNav({
     this.index,
+    this.search = false
   });
 
   @override
@@ -52,7 +54,11 @@ class _BottomNavState extends State<BottomNav> {
       selectedPage = widget.index ?? 0;
       indexUsed = true;
     }
-
+    if (widget.search){
+      setState(() {
+        fromBtm = true;
+      });
+    }
     return Scaffold(
       body: SafeArea(
         child: selectedPage == 1

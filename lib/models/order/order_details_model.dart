@@ -1,5 +1,6 @@
 class OrderDetails {
   String orderID;
+  String productID;
   String total;
   String type;
   String productTitle;
@@ -13,6 +14,7 @@ class OrderDetails {
       this.isExpanded: false,
       this.orderID,
       this.price,
+      this.productID,
       this.productTitle,
       this.quantity,
       this.total,

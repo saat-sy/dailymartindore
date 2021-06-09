@@ -11,7 +11,8 @@ import '../../constants.dart';
 
 class RateApp extends StatefulWidget {
   final String productID;
-  RateApp({this.productID});
+  final String orderID;
+  RateApp({this.productID, this.orderID});
   @override
   _RateAppState createState() => _RateAppState();
 }
@@ -50,6 +51,7 @@ class _RateAppState extends State<RateApp> {
     ReviewsModel reviewsModel = ReviewsModel(
         review: review,
         productID: widget.productID,
+        orderID: widget.orderID,
         rating: rating,
         userID: id);
 

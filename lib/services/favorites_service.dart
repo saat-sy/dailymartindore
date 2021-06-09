@@ -1,24 +1,17 @@
 import 'dart:convert';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/favorites_model.dart';
+import 'package:frontend/strings.dart';
 import 'package:http/http.dart' as http;
 
 class FavoriteService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  static const headers = {
-    'authorization': 'LS',
-    'device_id': '1235',
-    'device_version': '1.0',
-    'device_type': '1',
-    'store_id': '14'
-  };
-
   Future<APIResponse<List<FavoritesModel>>> getFavorites(String userId) {
     final body = {'user_id': userId};
 
     return http
-        .post(Uri.parse(API + '/wishList'), headers: headers, body: body)
+        .post(Uri.parse(API + '/wishList'), headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -61,7 +54,7 @@ class FavoriteService {
     final body = {'user_id': userId, 'article_id': itemID};
 
     return http
-        .post(Uri.parse(API + '/addToWishList'), headers: headers, body: body)
+        .post(Uri.parse(API + '/addToWishList'), headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -91,7 +84,7 @@ class FavoriteService {
     final body = {'user_id': userId, 'article_id': itemID};
 
     return http
-        .post(Uri.parse(API + '/removeToWishList'), headers: headers, body: body)
+        .post(Uri.parse(API + '/removeToWishList'), headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);

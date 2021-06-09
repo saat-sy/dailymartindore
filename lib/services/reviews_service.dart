@@ -1,18 +1,11 @@
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/reviews/reviews_model.dart';
+import 'package:frontend/strings.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ReviewService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
-
-  static const headers = {
-    'authorization': 'LS',
-    'device_id': '1235',
-    'device_version': '1.0',
-    'device_type': '1',
-    'store_id': '14'
-  };
 
   Future<APIResponse<bool>> addReview(ReviewsModel reviewsModel) {
     final body = {
@@ -20,12 +13,12 @@ class ReviewService {
       'product_id': reviewsModel.productID,
       'rating': reviewsModel.rating,
       'review': reviewsModel.review,
-      'order_id': '1267'
+      'order_id': reviewsModel.orderID
     };
 
     return http
         .post(Uri.parse(API + '/addReviewRating'),
-            headers: headers, body: body)
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -54,7 +47,7 @@ class ReviewService {
   Future<APIResponse<List<ReviewsModel>>> getReviews(String productId) {
     final body = {'product_id': productId,};
     return http
-        .post(Uri.parse(API + '/getProductReview'), headers: headers, body: body)
+        .post(Uri.parse(API + '/getProductReview'), headers: Strings.HEADERS, body: body)
         .then((value) {
           print(value.statusCode);
       if (value.statusCode == 200) {

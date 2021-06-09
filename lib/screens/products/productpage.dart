@@ -896,7 +896,7 @@ class _ProductPageState extends State<ProductPage>
                                 ),
                               ),
                               Container(
-                                  height: 200,
+                                  height: 350,
                                   child: TabBarView(children: <Widget>[
                                     Center(
                                       child: Container(
@@ -998,54 +998,88 @@ class _ProductPageState extends State<ProductPage>
                                       ),
                                     ),
                                     Container(
-                                      padding: EdgeInsets.all(10),
-                                      child: Column(
+                                      padding: EdgeInsets.symmetric(horizontal: 10),
+                                      child: product.reviewList.length == 0 ?
+                                      Center(
+                                        child: Text('No reviews found'),
+                                      ) :
+                                      Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
                                         children: <Widget>[
-                                          Column(
-                                            children: [
-                                              Text(
-                                                'Review this Product',
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    color: Colors.black,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                              ),
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                              Text(
-                                                  'Share your thoughts with other customers'),
-                                              SizedBox(
-                                                height: 7,
-                                              ),
-                                            ],
-                                          ),
-                                          InkWell(
-                                            onTap: () {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          RateApp(
-                                                            productID:
-                                                                product.id,
-                                                          )));
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10, vertical: 5),
-                                              decoration: BoxDecoration(
-                                                  color: MyColors.PrimaryColor,
-                                                  borderRadius:
-                                                      BorderRadius.circular(6)),
-                                              child: Text(
-                                                'Write a Review',
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              ),
+                                          Container(
+                                            child: ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: product.reviewList.length <= 5 ? product.reviewList.length : 5,
+                                              itemBuilder: (context, indexR) {
+                                                return Container(
+                                                  padding: EdgeInsets.all(10),
+                                                  margin: EdgeInsets.only(top: 10),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius: BorderRadius.circular(8),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.grey.shade400,
+                                                        offset: Offset(0.0, 1.0),
+                                                        blurRadius: 4.0,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        product.reviewList[indexR].username,
+                                                        style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontWeight: FontWeight.w400),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      Container(
+                                                        child: Divider(
+                                                          color: Colors.grey,
+                                                          height: 1,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        children: [
+                                                          Text(
+                                                            product.reviewList[indexR].rating.toString(),
+                                                            style: TextStyle(
+                                                                color: Colors.grey,
+                                                                fontSize: 13,
+                                                                fontWeight: FontWeight.w400),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 4,
+                                                          ),
+                                                          RatingBarIndicator(
+                                                            rating: double.parse(product.reviewList[indexR].rating),
+                                                            itemBuilder: (context, index) => Icon(
+                                                              Icons.star,
+                                                              color: Colors.amber,
+                                                            ),
+                                                            itemCount: 5,
+                                                            itemSize: 15.0,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      SizedBox(
+                                                        height: 5,
+                                                      ),
+                                                      Text(product.reviewList[indexR].review ?? ""),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
                                             ),
                                           ),
                                           SizedBox(
@@ -1074,6 +1108,9 @@ class _ProductPageState extends State<ProductPage>
                                     ),
                                   ]))
                             ]),
+                      ),
+                      SizedBox(
+                        height: 20,
                       ),
                       Text(
                         'Related Products',

@@ -1,24 +1,17 @@
 import 'dart:convert';
 import 'package:frontend/models/address/address_model.dart';
 import 'package:frontend/models/api_response.dart';
+import 'package:frontend/strings.dart';
 import 'package:http/http.dart' as http;
 
 class AddressService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  static const headers = {
-    'authorization': 'LS',
-    'device_id': '1235',
-    'device_version': '1.0',
-    'device_type': '1',
-    'store_id': '14'
-  };
-
   Future<APIResponse<List<AddressModel>>> getAddressList(String userID) {
     final body = {'user_id': userID};
 
     return http
-        .post(Uri.parse(API + '/addressList'), headers: headers, body: body)
+        .post(Uri.parse(API + '/addressList'), headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -69,7 +62,7 @@ class AddressService {
     };
 
     return http
-        .post(Uri.parse(API + '/addAddress'), headers: headers, body: body)
+        .post(Uri.parse(API + '/addAddress'), headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -109,7 +102,7 @@ class AddressService {
     };
 
     return http
-        .post(Uri.parse(API + '/updateAddress'), headers: headers, body: body)
+        .post(Uri.parse(API + '/updateAddress'), headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -143,7 +136,7 @@ class AddressService {
     };
 
     return http
-        .post(Uri.parse(API + '/removeAddress'), headers: headers, body: body)
+        .post(Uri.parse(API + '/removeAddress'), headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);

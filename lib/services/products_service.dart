@@ -6,22 +6,16 @@ import 'package:frontend/models/products/featured.dart';
 import 'package:frontend/models/products/product.dart';
 import 'package:frontend/models/products/store_list_model.dart';
 import 'package:frontend/models/products/top.dart';
+import 'package:frontend/models/reviews/reviews_model.dart';
+import 'package:frontend/strings.dart';
 import 'package:http/http.dart' as http;
 
 class ProductService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  static const headers = {
-    'authorization': 'LS',
-    'device_id': '1235',
-    'device_version': '1.0',
-    'device_type': '1',
-    'store_id': '14'
-  };
-
   Future<APIResponse<List<FeaturedProducts>>> getFeaturedProducts() {
     return http
-        .get(Uri.parse(API + '/getFeaturedProducts'), headers: headers)
+        .get(Uri.parse(API + '/getFeaturedProducts'), headers: Strings.HEADERS)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -62,7 +56,7 @@ class ProductService {
 
   Future<APIResponse<List<TopProducts>>> getTopProducts() {
     return http
-        .get(Uri.parse(API + '/getTopProducts'), headers: headers)
+        .get(Uri.parse(API + '/getTopProducts'), headers: Strings.HEADERS)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -103,7 +97,7 @@ class ProductService {
 
   Future<APIResponse<List<AllProducts>>> getAllProducts() {
     return http
-        .get(Uri.parse(API + '/getSaleProducts'), headers: headers)
+        .get(Uri.parse(API + '/getSaleProducts'), headers: Strings.HEADERS)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -146,12 +140,22 @@ class ProductService {
     final body = {"product_id": id};
 
     return http
-        .post(Uri.parse(API + '/getProductbyId'), headers: headers, body: body)
+        .post(Uri.parse(API + '/getProductbyId'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
         if (jsonData['responseCode'] == 1) {
           final responseData = jsonData['responsedata'];
+          final reviewList = <ReviewsModel>[];
+          for (final review in responseData['reviewList']) {
+            final r = ReviewsModel(
+                userID: review['user_id'],
+                username: review['name'],
+                rating: review['rating'],
+                review: review['review']);
+            reviewList.add(r);
+          }
           final product = ProductModel(
               id: responseData['id'],
               categoryID: responseData['shop_categorie'],
@@ -161,6 +165,7 @@ class ProductService {
               quantity: responseData['quantity_info'],
               imageArr: responseData['image_arr'],
               image: responseData['image'],
+              reviewList: reviewList,
               discount: responseData['discount_name'],
               description: responseData['description'],
               shortDescription: responseData['short_description'],
@@ -186,7 +191,7 @@ class ProductService {
 
   Future<APIResponse<List<CategoriesModel>>> getCategories() {
     return http
-        .get(Uri.parse(API + '/getCategory'), headers: headers)
+        .get(Uri.parse(API + '/getCategory'), headers: Strings.HEADERS)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -249,7 +254,8 @@ class ProductService {
     final body = {'category': category ?? '', 'subcategory': subCategory ?? ''};
 
     return http
-        .post(Uri.parse(API + '/getProducts'), headers: headers, body: body)
+        .post(Uri.parse(API + '/getProducts'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -291,7 +297,7 @@ class ProductService {
 
   Future<APIResponse<List<StoreListModel>>> getStoreList() {
     return http
-        .get(Uri.parse(API + '/storeList'), headers: headers)
+        .get(Uri.parse(API + '/storeList'), headers: Strings.HEADERS)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);

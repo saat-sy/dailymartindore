@@ -4,12 +4,15 @@ import 'package:frontend/constants.dart';
 import 'package:frontend/screens/about_us/aboutUs.dart';
 import 'package:frontend/screens/about_us/abt_us.dart';
 import 'package:frontend/screens/about_us/faq.dart';
+import 'package:frontend/screens/about_us/privacy_policy.dart';
 import 'package:frontend/screens/about_us/terms.dart';
 import 'package:frontend/screens/address/address.dart';
 import 'package:frontend/screens/authenticate/change_password.dart';
 import 'package:frontend/screens/authenticate/login.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/screens/order/myOrder.dart';
+import 'package:frontend/screens/order/trackOrderList.dart';
+import 'package:frontend/screens/order/trackorder.dart';
 import 'package:frontend/screens/products/all_categories.dart';
 import 'package:frontend/screens/profile/notifications.dart';
 import 'package:frontend/screens/profile/profile_page.dart';
@@ -174,6 +177,40 @@ class _ProfileState extends State<Profile> {
                                       width: 10,
                                     ),
                                     Text('My Orders'),
+                                  ],
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 15,
+                                  color: Colors.grey,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => TrackOrderList()));
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      MdiIcons.truckDeliveryOutline ,
+                                      color: MyColors.PrimaryColor,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text('Track Orders'),
                                   ],
                                 ),
                                 Icon(
@@ -409,13 +446,47 @@ class _ProfileState extends State<Profile> {
                                 Row(
                                   children: <Widget>[
                                     Icon(
-                                      MdiIcons.frequentlyAskedQuestions,
+                                      Icons.question_answer_outlined,
                                       color: MyColors.PrimaryColor,
                                     ),
                                     SizedBox(
                                       width: 10,
                                     ),
                                     Text('FAQ'),
+                                  ],
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 15,
+                                  color: Colors.grey,
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PrivacyPolicy()));
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            height: 40,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: <Widget>[
+                                    Icon(
+                                      MdiIcons.lockOutline ,
+                                      color: MyColors.PrimaryColor,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text('Privacy Policy'),
                                   ],
                                 ),
                                 Icon(

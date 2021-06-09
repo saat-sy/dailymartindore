@@ -93,7 +93,7 @@ class _NotificationsState extends State<Notifications> {
                   children: [
                     Icon(
                       Icons.category,
-                      color: MyColors.SecondaryColor,
+                      color: MyColors.PrimaryColor,
                     ),
                     SizedBox(
                       width: 10,

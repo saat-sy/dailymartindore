@@ -4,6 +4,7 @@ import 'package:frontend/constants.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/order/order_details_model.dart';
 import 'package:frontend/screens/order/trackorder.dart';
+import 'package:frontend/screens/reviews/rateapp.dart';
 import 'package:frontend/services/order_service.dart';
 import 'package:frontend/strings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,7 +36,7 @@ class _MyOrderState extends State<MyOrder> {
         });
     } else {
       orders = _apiResponse.data;
-      if (mounted) if (mounted)
+      if (mounted)
         setState(() {
           isLoading = false;
         });
@@ -107,9 +108,9 @@ class MyExpansionTile extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => TrackOrder(
+                    builder: (context) => RateApp(
                           orderID: order.orderID,
-                          total: order.total,
+                          productID: order.productID,
                         )));
           },
           child: Row(

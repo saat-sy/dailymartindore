@@ -3,19 +3,12 @@ import 'dart:convert';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/authenticate/signup_model.dart';
 import 'package:frontend/models/user.dart';
+import 'package:frontend/strings.dart';
 
 import 'package:http/http.dart' as http;
 
 class AuthenticateService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
-
-  static const headers = {
-    'authorization': 'LS',
-    'device_id': '1235',
-    'device_version': '1.0',
-    'device_type': '1',
-    'store_id': '14'
-  };
 
   Future<APIResponse<SignUpModel>> signup(SignUpInputModel input) {
     var body = {
@@ -27,7 +20,8 @@ class AuthenticateService {
     };
 
     return http
-        .post(Uri.parse(API + '/register/'), headers: headers, body: body)
+        .post(Uri.parse(API + '/register/'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -57,7 +51,8 @@ class AuthenticateService {
     };
 
     return http
-        .post(Uri.parse(API + '/VerifyOTP'), headers: headers, body: body)
+        .post(Uri.parse(API + '/VerifyOTP'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -91,7 +86,7 @@ class AuthenticateService {
     };
 
     return http
-        .post(Uri.parse(API + '/login'), headers: headers, body: body)
+        .post(Uri.parse(API + '/login'), headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -129,7 +124,8 @@ class AuthenticateService {
     };
 
     return http
-        .post(Uri.parse(API + '/changePassword'), headers: headers, body: body)
+        .post(Uri.parse(API + '/changePassword'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         print(jsonDecode(value.body));
@@ -155,7 +151,8 @@ class AuthenticateService {
     };
 
     return http
-        .post(Uri.parse(API + '/forgotPassword'), headers: headers, body: body)
+        .post(Uri.parse(API + '/forgotPassword'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         print(jsonDecode(value.body));
@@ -182,7 +179,8 @@ class AuthenticateService {
     };
 
     return http
-        .post(Uri.parse(API + '/resendOtp'), headers: headers, body: body)
+        .post(Uri.parse(API + '/resendOtp'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         if (jsonDecode(value.body)['responseCode'] == 1) {

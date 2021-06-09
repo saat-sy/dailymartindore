@@ -1,3 +1,5 @@
+import 'package:frontend/models/reviews/reviews_model.dart';
+
 class ProductModel {
   String title;
   String id;
@@ -19,6 +21,7 @@ class ProductModel {
   bool inFav;
   bool inCart;
   bool inStock;
+  List<ReviewsModel> reviewList;
 
   ProductModel(
       {this.id,
@@ -31,6 +34,7 @@ class ProductModel {
       this.inStock = true,
       this.inCart = false,
       this.inFav = false,
+      this.reviewList,
       this.quantity,
       this.categoryID,
       this.image,

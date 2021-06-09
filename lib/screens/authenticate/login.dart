@@ -122,6 +122,7 @@ class _LoginState extends State<Login> {
     } else {
       if (_rememberme) {
         User user = _apiResponse.data;
+        print(user.name);
 
         await updateShredPrefs(
             user.name, user.email, user.phoneNo, user.userID);
@@ -148,6 +149,7 @@ class _LoginState extends State<Login> {
     await prefs.setString(PrefConstants.name, name);
     await prefs.setString(PrefConstants.phone, phone);
     await prefs.setInt(PrefConstants.id, userID);
+    print(prefs.getString(PrefConstants.name));
   }
 
   String error = "";

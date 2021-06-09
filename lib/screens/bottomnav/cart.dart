@@ -20,6 +20,7 @@ class _CartState extends State<Cart> {
   CartService service = CartService();
 
   APIResponse<List<ShoppingCartModel>> _apiResponse;
+  APIResponse<bool> _apiResponseClear;
 
   bool isLoading = true;
   String error = "";
@@ -67,19 +68,21 @@ class _CartState extends State<Cart> {
 
     for (var item in items2) {
       _apiResponseProduct = await serviceProduct.getProductByID(item.productID);
-      p = _apiResponseProduct.data;
-      print(item.oldPrice);
-      final i = ShoppingCartModel(
-          imagePath: p.image,
-          title: p.title,
-          price: item.price,
-          oldPrice: p.oldPrice,
-          rating: p.rating,
-          discount: p.discount,
-          description: p.description,
-          numAdded: item.numAdded,
-          productID: p.id);
-      items.add(i);
+      if (!_apiResponseProduct.error) {
+        p = _apiResponseProduct.data;
+        print(item.oldPrice);
+        final i = ShoppingCartModel(
+            imagePath: p.image,
+            title: p.title,
+            price: item.price,
+            oldPrice: p.oldPrice,
+            rating: p.rating,
+            discount: p.discount,
+            description: p.description,
+            numAdded: item.numAdded,
+            productID: p.id);
+        items.add(i);
+      }
     }
 
     double oldP = 0.0;
@@ -147,6 +150,25 @@ class _CartState extends State<Cart> {
     Navigator.pop(context);
   }
 
+  clearCart() async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String userId = prefs.getInt(PrefConstants.id).toString();
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
+
+    _apiResponseClear = await service.clearCart(userId: userId);
+    if (_apiResponseClear.error) {
+      print(_apiResponseClear.errorMessage);
+    } else {
+      await prefs.setString(PrefConstants.inCart, "");
+      setState(() {
+        _recordFound = false;
+        Navigator.pop(context);
+      });
+    }
+  }
+
   @override
   void initState() {
     getCart();
@@ -164,6 +186,22 @@ class _CartState extends State<Cart> {
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: InkWell(
+                onTap: () {
+                  clearCart();
+                },
+                child: Text(
+                  'Clear Cart',
+                  style: TextStyle(color: MyColors.PrimaryColor),
+                ),
+              ),
+            ),
+          )
+        ],
       ),
       body: isLoading
           ? Container(child: Center(child: CircularProgressIndicator()))
@@ -270,7 +308,9 @@ class _CartState extends State<Cart> {
                                                   color: Colors.black,
                                                   fontWeight: FontWeight.w500),
                                             ),
-                                            SizedBox(height: 5,),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
                                             RatingBarIndicator(
                                               rating:
                                                   items[index].rating != null
@@ -285,7 +325,9 @@ class _CartState extends State<Cart> {
                                               itemCount: 5,
                                               itemSize: 13.0,
                                             ),
-                                            SizedBox(height: 5,),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
                                             Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.start,

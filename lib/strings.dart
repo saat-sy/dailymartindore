@@ -1,4 +1,14 @@
+import 'dart:io' show Platform;
 class Strings {
+
+  static final HEADERS = {
+    'authorization': 'DMIB',
+    'device_id': '1235',
+    'device_version': '1.0',
+    'device_type': Platform.isAndroid ? '2' : '1',
+    'store_id': '14'
+  };
+
   //// REVIEWS AND RATING
 
   // rateapp.dart

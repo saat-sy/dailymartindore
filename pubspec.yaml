@@ -34,6 +34,8 @@ dependencies:
   grouped_buttons: ^1.0.4
   flutter_launcher_icons:  
   flutter_launcher_name: 
+  flutter_html:
+  url_launcher:
   
 
 dev_dependencies:

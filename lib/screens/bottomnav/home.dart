@@ -315,7 +315,8 @@ class _HomeState extends State<Home> {
   checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     String name = prefs.getString(PrefConstants.name).toString() ?? "";
-    if (name == "") {
+    print('name:' + name);
+    if (name == "" || name == null) {
       setState(() {
         isLoggedIn = false;
       });
@@ -371,39 +372,38 @@ class _HomeState extends State<Home> {
                             width: MediaQuery.of(context).size.width * 0.3,
                           ),
                         ),
-                        isLoggedIn ?
-                        Row(
-                          children: [
-                            isStorePresent
-                                ? IconButton(
-                                    icon: Icon(CupertinoIcons.location,
-                                        color: Colors.grey.shade700),
-                                    onPressed: () {
-                                      getStoreDialog();
-                                    })
-                                : Container(),
-                            IconButton(
-                                icon: Icon(CupertinoIcons.bell,
+                        isLoggedIn
+                            ? Row(
+                                children: [
+                                  isStorePresent
+                                      ? IconButton(
+                                          icon: Icon(CupertinoIcons.location,
+                                              color: Colors.grey.shade700),
+                                          onPressed: () {
+                                            getStoreDialog();
+                                          })
+                                      : Container(),
+                                  IconButton(
+                                      icon: Icon(CupertinoIcons.bell,
+                                          color: Colors.grey.shade700),
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    Notifications()));
+                                      })
+                                ],
+                              )
+                            : IconButton(
+                                icon: Icon(CupertinoIcons.person,
                                     color: Colors.grey.shade700),
                                 onPressed: () {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              Notifications()));
+                                          builder: (context) => Login()));
                                 })
-                          ],
-                        ) :
-                        IconButton(
-                          icon: Icon(CupertinoIcons.person,
-                              color: Colors.grey.shade700),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        Login()));
-                          })
                       ],
                     ),
                     InkWell(
@@ -413,6 +413,7 @@ class _HomeState extends State<Home> {
                           MaterialPageRoute(
                             builder: (BuildContext context) => BottomNav(
                               index: 1,
+                              search: true,
                             ),
                           ),
                           (route) => false,
@@ -488,10 +489,12 @@ class _HomeState extends State<Home> {
                                               ),
                                               InkWell(
                                                 onTap: () {
-                                                   Navigator.push(
+                                                  Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
-                                                      builder: (BuildContext context) => BottomNav(
+                                                      builder: (BuildContext
+                                                              context) =>
+                                                          BottomNav(
                                                         index: 1,
                                                       ),
                                                     ),
@@ -528,17 +531,18 @@ class _HomeState extends State<Home> {
                           ),
                           items: sliderImagePath
                               .map((item) => GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (BuildContext context) => BottomNav(
-                                        index: 1,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (BuildContext context) =>
+                                              BottomNav(
+                                            index: 1,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
                                       child: Center(
                                           child: ClipRRect(
                                         borderRadius: BorderRadius.circular(20),
@@ -549,7 +553,7 @@ class _HomeState extends State<Home> {
                                         ),
                                       )),
                                     ),
-                              ))
+                                  ))
                               .toList(),
                         )),
                         Padding(

@@ -64,9 +64,11 @@ getCart() async {
 
     for (var item in items2) {
       _apiResponseProduct = await serviceProduct.getProductByID(item.productID);
-      p = _apiResponseProduct.data;
-      if (cart.isNotEmpty) cart += ',';
-      cart += p.id;
+      if (!_apiResponseProduct.error) {
+        p = _apiResponseProduct.data;
+        if (cart.isNotEmpty) cart += ',';
+        cart += p.id;
+      }
     }
   }
 
@@ -83,6 +85,10 @@ class Wrapper extends StatelessWidget {
     bool firstOpen = prefs.getBool(PrefConstants.firstOpen) ?? true;
     String fav = prefs.getString(PrefConstants.inFav) ?? "";
     String cart = prefs.getString(PrefConstants.inCart) ?? "";
+
+    if (name == "") {
+      await prefs.setString(PrefConstants.name, "");
+    }
 
     if (name != "") await getFavs();
 

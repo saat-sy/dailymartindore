@@ -4,18 +4,11 @@ import 'package:frontend/models/order/order_details_model.dart';
 import 'package:frontend/models/order/order_model.dart';
 import 'package:frontend/models/order/payment_models.dart';
 import 'package:frontend/models/order/track_order_model.dart';
+import 'package:frontend/strings.dart';
 import 'package:http/http.dart' as http;
 
 class OrderService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
-
-  static const headers = {
-    'authorization': 'LS',
-    'device_id': '1235',
-    'device_version': '1.0',
-    'device_type': '1',
-    'store_id': '14',
-  };
 
   Future<APIResponse<bool>> placeOrder(OrderModel orderModel) {
     final body = {
@@ -41,11 +34,11 @@ class OrderService {
     };
 
     return http
-        .post(Uri.parse(API + "/makeOrder/"), headers: headers, body: body)
+        .post(Uri.parse(API + "/makeOrder/"),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       final jsonData = json.decode(value.body);
       if (value.statusCode == 200) {
-        print(jsonData);
         if (jsonData['responseCode'] == 1) {
           print('true');
           return APIResponse<bool>(
@@ -73,7 +66,8 @@ class OrderService {
     final body = {'coupon': coupon};
 
     return http
-        .post(Uri.parse(API + '/applyCoupon'), headers: headers, body: body)
+        .post(Uri.parse(API + '/applyCoupon'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -101,7 +95,7 @@ class OrderService {
 
   Future<APIResponse<List<PaymentMethods>>> getPaymentList() {
     return http
-        .get(Uri.parse(API + '/getPaymentModeList'), headers: headers)
+        .get(Uri.parse(API + '/getPaymentModeList'), headers: Strings.HEADERS)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -137,7 +131,8 @@ class OrderService {
     final body = {"user_id": id};
 
     return http
-        .post(Uri.parse(API + '/myOrders'), headers: headers, body: body)
+        .post(Uri.parse(API + '/myOrders'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -150,6 +145,7 @@ class OrderService {
             final productData = data['products'];
             final o = OrderDetails(
                 orderID: data['order_id'],
+                productID: data['product_id'],
                 total: data['total'],
                 type: data['type'],
                 image: productData['image'],
@@ -181,7 +177,8 @@ class OrderService {
     final body = {'order_id': orderID};
 
     return http
-        .post(Uri.parse(API + '/trackOrder'), headers: headers, body: body)
+        .post(Uri.parse(API + '/trackOrder'),
+            headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -189,8 +186,8 @@ class OrderService {
         final track = <TrackOrderModel>[];
 
         for (final data in orderData) {
-          final t = TrackOrderModel(
-              status: data['status'], date: data['created_at']);
+          final t =
+              TrackOrderModel(status: data['status'], date: data['created_at']);
           track.add(t);
         }
 

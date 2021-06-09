@@ -1,19 +1,12 @@
 import 'dart:convert';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/search_model.dart';
+import 'package:frontend/strings.dart';
 import 'package:http/http.dart' as http;
 
 class SearchService {
 
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
-
-  static const headers = {
-    'authorization': 'LS',
-    'device_id': '1235',
-    'device_version': '1.0',
-    'device_type': '1',
-    'store_id': '14'
-  };
 
   Future<APIResponse<List<SearchModel>>> getSearchResults(
       String searchTerm, String sortOrder, String minPrice, String maxPrice, String color, String discount, String size, String ratings) {
@@ -29,7 +22,7 @@ class SearchService {
     };
 
     return http
-        .post(Uri.parse(API + '/getProducts'), headers: headers, body: body)
+        .post(Uri.parse(API + '/getProducts'), headers: Strings.HEADERS, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
