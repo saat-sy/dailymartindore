@@ -111,10 +111,6 @@ class _FavoriteState extends State<Favorite> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         backgroundColor: Colors.white,
         title: Text(
           'Favorites',

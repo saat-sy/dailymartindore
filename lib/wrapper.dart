@@ -52,8 +52,6 @@ getCart() async {
   final prefs = await SharedPreferences.getInstance();
   String id = prefs.getInt(PrefConstants.id).toString() ?? "-1";
 
-  print(id);
-
   _apiResponse = await service.getCart(id);
   if (!_apiResponse.error) {
     items2 = _apiResponse.data;
@@ -94,8 +92,6 @@ class Wrapper extends StatelessWidget {
 
     if (name != "") await getCart();
 
-    print('cart:' + cart);
-    print('fav:' + fav);
 
     if (firstOpen) {
       await prefs.setBool(PrefConstants.firstOpen, false);

@@ -36,6 +36,7 @@ dependencies:
   flutter_launcher_name: 
   flutter_html:
   url_launcher:
+  flutter_staggered_grid_view:
   
 
 dev_dependencies:

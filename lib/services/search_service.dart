@@ -38,7 +38,7 @@ class SearchService {
               isVeg: data['is_veg'] == "0" ? true : false,
               rating: data['avg_rating'],
               inStock: data['quantity'] == '0' ? false : true,
-              oldPrice: data['oldPrice'],
+              oldPrice: data['old_price'],
               discount: data['discount_name'],
               newPrice: data['price'],
               quantity: data['quantity_info']

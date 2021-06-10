@@ -69,6 +69,57 @@ class _HomeState extends State<Home> {
     final prefs = await SharedPreferences.getInstance();
     String fav = prefs.getString(PrefConstants.inFav) ?? "";
     String cart = prefs.getString(PrefConstants.inCart) ?? "";
+    String recent = prefs.getString(PrefConstants.recentProducts) ?? "";
+    if (recent == "") {
+      setState(() {
+        isRecentLoading = false;
+      });
+    }
+
+    //GET CATEGORIES
+    _apiResponseCategory = await service.getCategories(fromHome: true);
+    if (_apiResponseCategory.error) {
+      if (mounted)
+        setState(() {
+          errorCat = _apiResponseCategory.errorMessage;
+        });
+    } else {
+      categories = _apiResponseCategory.data;
+      if (mounted)
+        setState(() {
+          isCatLoading = false;
+        });
+    }
+
+    _apiResponseStore = await service.getStoreList();
+    if (_apiResponseStore.error) {
+      if (mounted)
+        setState(() {
+          errorStore = _apiResponseStore.errorMessage;
+        });
+    } else {
+      stores = _apiResponseStore.data;
+
+      final prefs = await SharedPreferences.getInstance();
+      String storeAddress =
+          prefs.getString(PrefConstants.storeDefaultAddress).toString() ?? '';
+
+      if (storeAddress != '')
+        for (final store in stores) {
+          if (store.address == storeAddress) _selectedStore = store.address;
+        }
+      else
+        _selectedStore = stores[0].address;
+
+      if (mounted)
+        setState(() {
+          isStoreLoading = false;
+        });
+      if (stores == null) if (mounted)
+        setState(() {
+          isStorePresent = false;
+        });
+    }
 
     //GET FEATURED PRODUCTS
     _apiResponseFeat = await service.getFeaturedProducts();
@@ -141,53 +192,7 @@ class _HomeState extends State<Home> {
         });
     }
 
-    //GET CATEGORIES
-    _apiResponseCategory = await service.getCategories();
-    if (_apiResponseCategory.error) {
-      if (mounted)
-        setState(() {
-          errorCat = _apiResponseCategory.errorMessage;
-        });
-    } else {
-      categories = _apiResponseCategory.data;
-      if (mounted)
-        setState(() {
-          isCatLoading = false;
-        });
-    }
-
-    _apiResponseStore = await service.getStoreList();
-    if (_apiResponseStore.error) {
-      if (mounted)
-        setState(() {
-          errorStore = _apiResponseStore.errorMessage;
-        });
-    } else {
-      stores = _apiResponseStore.data;
-
-      final prefs = await SharedPreferences.getInstance();
-      String storeAddress =
-          prefs.getString(PrefConstants.storeDefaultAddress).toString() ?? '';
-
-      if (storeAddress != '')
-        for (final store in stores) {
-          if (store.address == storeAddress) _selectedStore = store.address;
-        }
-      else
-        _selectedStore = stores[0].address;
-
-      if (mounted)
-        setState(() {
-          isStoreLoading = false;
-        });
-      if (stores == null) if (mounted)
-        setState(() {
-          isStorePresent = false;
-        });
-    }
-
     //GET RECENT PRODUCTS
-    String recent = prefs.getString(PrefConstants.recentProducts) ?? "";
     if (recent != "") {
       for (final r in recent.split(',')) {
         APIResponse<ProductModel> _apiProduct;

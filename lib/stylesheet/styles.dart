@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/shopping_cart_model.dart';
 import 'package:frontend/screens/authenticate/login.dart';
@@ -237,14 +238,12 @@ class _ProductCardState extends State<ProductCard> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(10),
-      child: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 20,
-          childAspectRatio: 0.55,
-        ),
+      child: StaggeredGridView.countBuilder(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 20,
         itemCount: widget.items.length,
+        staggeredTileBuilder: (int index) => new StaggeredTile.fit(1),
         itemBuilder: (BuildContext context, int index) {
           return InkWell(
             onTap: () {
@@ -476,76 +475,73 @@ class _ProductCardState extends State<ProductCard> {
                             height: 15,
                           ),
                         ],
-                      )
+                      ),
+                      InkWell(
+                        onTap: () {
+                          if (widget.items[index].inStock) if (isLoggedIn)
+                            widget.items[index].inCart
+                                ? deleteFromCart(itemID: widget.items[index].id)
+                                : addToCart(
+                                    productId: widget.items[index].id,
+                                    price: widget.items[index].newPrice
+                                        .toString());
+                          else
+                            showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return AlertDialog(
+                                    title: Text('Login/Signup'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Please login or Sign up to add to cart',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                        SubmitButton(
+                                          text: 'Login',
+                                          onPress: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Login()));
+                                          },
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                });
+                        },
+                        child: Container(
+                          //height: 40,
+                          padding: EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: MyColors.PrimaryColor,
+                          ),
+                          child: Center(
+                              child: widget.items[index].inStock
+                                  ? Text(
+                                      widget.items[index].inCart
+                                          ? 'IN CART'
+                                          : 'ADD TO CART',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500),
+                                    )
+                                  : Text(
+                                      'OUT OF STOCK',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500),
+                                    )),
+                        ),
+                      ),
                     ],
                   ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: InkWell(
-                      onTap: () {
-                        if (widget.items[index].inStock) if (isLoggedIn)
-                          widget.items[index].inCart
-                              ? deleteFromCart(itemID: widget.items[index].id)
-                              : addToCart(
-                                  productId: widget.items[index].id,
-                                  price:
-                                      widget.items[index].newPrice.toString());
-                        else
-                          showDialog(
-                              context: context,
-                              builder: (_) {
-                                return AlertDialog(
-                                  title: Text('Login/Signup'),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Please login or Sign up to add to cart',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      SubmitButton(
-                                        text: 'Login',
-                                        onPress: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      Login()));
-                                        },
-                                      )
-                                    ],
-                                  ),
-                                );
-                              });
-                      },
-                      child: Container(
-                        height: 40,
-                        padding: EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: MyColors.PrimaryColor,
-                        ),
-                        child: Center(
-                            child: widget.items[index].inStock
-                                ? Text(
-                                    widget.items[index].inCart
-                                        ? 'IN CART'
-                                        : 'ADD TO CART',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500),
-                                  )
-                                : Text(
-                                    'OUT OF STOCK',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500),
-                                  )),
-                      ),
-                    ),
-                  )
                 ],
               ),
             ),
@@ -751,22 +747,19 @@ class _HomeProductCardState extends State<HomeProductCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 335.3,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: widget.items.length > 6 ? 6 : widget.items.length,
-        itemBuilder: (context, index) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+          children: widget.items.map(
+        (item) {
           return InkWell(
             onTap: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => ProductPage(
-                            id: widget.items[index].id != null
-                                ? widget.items[index].id
-                                : "33",
-                            inStock: widget.items[index].inStock,
+                            id: item.id != null ? item.id : "33",
+                            inStock: item.inStock,
                           )));
             },
             child: Container(
@@ -782,222 +775,215 @@ class _HomeProductCardState extends State<HomeProductCard> {
                   ),
                 ],
               ),
-              child: Stack(
-                children: [
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Center(
+                            child: Image.network(
+                              item.imagePath,
+                              height: MediaQuery.of(context).size.height *
+                                  0.145,
+                            ),
+                          ),
+                        ),
+                        item.discount != null && item.discount != "0"
+                            ? Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 7, vertical: 10),
+                                decoration: BoxDecoration(
+                                    color: MyColors.PrimaryColor,
+                                    borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10))),
+                                child: Text('${item.discount}%',
+                                    style: TextStyle(color: Colors.white)))
+                            : Container(),
+                        GestureDetector(
+                          onTap: () {
+                            if (isLoggedIn)
+                              item.inFav
+                                  ? removeFavorites(
+                                      item.id, widget.items.indexOf(item))
+                                  : addToFavorites(
+                                      item.id, widget.items.indexOf(item));
+                            else
+                              showDialog(
+                                  context: context,
+                                  builder: (_) {
+                                    return AlertDialog(
+                                      title: Text('Login/Signup'),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Please login or Sign up to add to favorites',
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+                                          SubmitButton(
+                                            text: 'Login',
+                                            onPress: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Login()));
+                                            },
+                                          )
+                                        ],
+                                      ),
+                                    );
+                                  });
+                          },
+                          child: Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                                margin: EdgeInsets.only(
+                                    top:
+                                        MediaQuery.of(context).size.height *
+                                            0.13),
+                                child: item.inFav
+                                    ? Icon(Icons.favorite,
+                                        color: Colors.redAccent.shade400)
+                                    : Icon(Icons.favorite_outline,
+                                        color: MyColors.PrimaryColor)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
+                      Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Text(
+                          item.title.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text(
+                          item.quantity,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
                       Container(
-                        child: Stack(
+                        height: 30,
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text(
+                          item.description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Center(
-                                child: Image.network(
-                                  widget.items[index].imagePath,
-                                  height: MediaQuery.of(context).size.height *
-                                      0.145,
-                                ),
+                            RatingBarIndicator(
+                              rating: item.rating != null
+                                  ? double.parse(item.rating)
+                                  : 0,
+                              itemBuilder: (context, index) => Icon(
+                                Icons.star,
+                                color: Colors.amber,
                               ),
+                              itemCount: 5,
+                              itemSize: 16.0,
                             ),
-                            widget.items[index].discount != null &&
-                                    widget.items[index].discount != "0"
-                                ? Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 7, vertical: 10),
-                                    decoration: BoxDecoration(
-                                        color: MyColors.PrimaryColor,
-                                        borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(10),
-                                            bottomLeft: Radius.circular(10))),
-                                    child: Text(
-                                        '${widget.items[index].discount}%',
-                                        style: TextStyle(color: Colors.white)))
-                                : Container(),
-                            GestureDetector(
-                              onTap: () {
-                                if (isLoggedIn)
-                                  widget.items[index].inFav
-                                      ? removeFavorites(
-                                          widget.items[index].id, index)
-                                      : addToFavorites(
-                                          widget.items[index].id, index);
-                                else
-                                  showDialog(
-                                      context: context,
-                                      builder: (_) {
-                                        return AlertDialog(
-                                          title: Text('Login/Signup'),
-                                          content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(
-                                                'Please login or Sign up to add to favorites',
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              SizedBox(
-                                                height: 20,
-                                              ),
-                                              SubmitButton(
-                                                text: 'Login',
-                                                onPress: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              Login()));
-                                                },
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      });
-                              },
-                              child: Align(
-                                alignment: Alignment.bottomRight,
-                                child: Container(
-                                    margin: EdgeInsets.only(
-                                        top:
-                                            MediaQuery.of(context).size.height *
-                                                0.13),
-                                    child: widget.items[index].inFav
-                                        ? Icon(Icons.favorite,
-                                            color: Colors.redAccent.shade400)
-                                        : Icon(Icons.favorite_outline,
-                                            color: MyColors.PrimaryColor)),
+                            Container(
+                              padding: EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(50),
+                                  border: Border.all(
+                                      color: item.isVeg
+                                          ? Colors.green
+                                          : Colors.red,
+                                      width: 2)),
+                              child: Icon(
+                                Icons.circle,
+                                size: 8,
+                                color:
+                                    item.isVeg ? Colors.green : Colors.red,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 7,
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              '₹' + item.oldPrice.toString(),
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 15,
+                                  decoration: TextDecoration.lineThrough),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              '₹' + item.newPrice.toString(),
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                color: MyColors.SecondaryColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ],
                         ),
                       ),
                       SizedBox(
-                        height: 10,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(
-                              widget.items[index].title.toUpperCase(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Text(
-                              widget.items[index].quantity,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            height: 30,
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Text(
-                              widget.items[index].description,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                RatingBarIndicator(
-                                  rating: widget.items[index].rating != null
-                                      ? double.parse(widget.items[index].rating)
-                                      : 0,
-                                  itemBuilder: (context, index) => Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                  ),
-                                  itemCount: 5,
-                                  itemSize: 16.0,
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(50),
-                                      border: Border.all(
-                                          color: widget.items[index].isVeg
-                                              ? Colors.green
-                                              : Colors.red,
-                                          width: 2)),
-                                  child: Icon(
-                                    Icons.circle,
-                                    size: 8,
-                                    color: widget.items[index].isVeg
-                                        ? Colors.green
-                                        : Colors.red,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 7,
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(
-                                  '₹' + widget.items[index].oldPrice.toString(),
-                                  style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 15,
-                                      decoration: TextDecoration.lineThrough),
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  '₹' + widget.items[index].newPrice.toString(),
-                                  style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    color: MyColors.SecondaryColor,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 6,
-                          ),
-                        ],
+                        height: 6,
                       ),
                     ],
                   ),
@@ -1005,13 +991,12 @@ class _HomeProductCardState extends State<HomeProductCard> {
                     alignment: Alignment.bottomCenter,
                     child: InkWell(
                       onTap: () {
-                        if (widget.items[index].inStock) if (isLoggedIn)
-                          widget.items[index].inCart
-                              ? deleteFromCart(itemID: widget.items[index].id)
+                        if (item.inStock) if (isLoggedIn)
+                          item.inCart
+                              ? deleteFromCart(itemID: item.id)
                               : addToCart(
-                                  productId: widget.items[index].id,
-                                  price:
-                                      widget.items[index].newPrice.toString());
+                                  productId: item.id,
+                                  price: item.newPrice.toString());
                         else
                           showDialog(
                               context: context,
@@ -1050,11 +1035,9 @@ class _HomeProductCardState extends State<HomeProductCard> {
                           color: MyColors.PrimaryColor,
                         ),
                         child: Center(
-                            child: widget.items[index].inStock
+                            child: item.inStock
                                 ? Text(
-                                    widget.items[index].inCart
-                                        ? 'IN CART'
-                                        : 'ADD TO CART',
+                                    item.inCart ? 'IN CART' : 'ADD TO CART',
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w500),
@@ -1073,7 +1056,7 @@ class _HomeProductCardState extends State<HomeProductCard> {
             ),
           );
         },
-      ),
+      ).toList()),
     );
   }
 }

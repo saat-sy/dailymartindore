@@ -189,10 +189,11 @@ class ProductService {
     });
   }
 
-  Future<APIResponse<List<CategoriesModel>>> getCategories() {
+  Future<APIResponse<List<CategoriesModel>>> getCategories({bool fromHome = false}) {
     return http
         .get(Uri.parse(API + '/getCategory'), headers: Strings.HEADERS)
         .then((value) {
+      int index = 1;
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
         if (jsonData['responseCode'] == 1) {
@@ -229,6 +230,9 @@ class ProductService {
               subCategories: subCategories ?? [],
             );
             categories.add(f);
+
+            if (fromHome && index >= 6) break;
+            index += 1;
           }
 
           return APIResponse<List<CategoriesModel>>(

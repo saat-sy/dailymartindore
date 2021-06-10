@@ -491,7 +491,7 @@ class _SearchState extends State<Search> {
                                                   ),
                                                 ),
                                                 Container(
-                                                    height: 230,
+                                                    height: 460,
                                                     decoration: BoxDecoration(
                                                       color: Colors.white,
                                                       boxShadow: [
@@ -505,9 +505,9 @@ class _SearchState extends State<Search> {
                                                       ],
                                                     ),
                                                     child: Container(
-                                                      height: 230,
                                                       child: ListView.builder(
                                                         itemCount: color.length,
+                                                        physics: NeverScrollableScrollPhysics(),
                                                         itemBuilder:
                                                             (context, index) {
                                                           return CheckboxListTile(
@@ -542,7 +542,7 @@ class _SearchState extends State<Search> {
                                                   ),
                                                 ),
                                                 Container(
-                                                    height: 230,
+                                                    height: 287.5,
                                                     decoration: BoxDecoration(
                                                       color: Colors.white,
                                                       boxShadow: [
@@ -557,6 +557,7 @@ class _SearchState extends State<Search> {
                                                     ),
                                                     child: Container(
                                                       child: ListView.builder(
+                                                        physics: NeverScrollableScrollPhysics(),
                                                         itemCount:
                                                             discount.length,
                                                         itemBuilder:
