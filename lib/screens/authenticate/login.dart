@@ -120,16 +120,11 @@ class _LoginState extends State<Login> {
         });
       Navigator.pop(context);
     } else {
-      if (_rememberme) {
-        User user = _apiResponse.data;
-        print(user.name);
-
-        await updateShredPrefs(
-            user.name, user.email, user.phoneNo, user.userID);
-      } else {
-        await getCart();
-        await getFavs();
-      }
+      User user = _apiResponse.data;
+      await updateShredPrefs(
+            user.name, user.email, user.phoneNo, user.userID, _rememberme);
+      await getCart();
+      await getFavs();
       Navigator.pop(context);
       Navigator.pushAndRemoveUntil(
         context,
@@ -142,13 +137,14 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> updateShredPrefs(
-      String name, String email, String phone, int userID) async {
+      String name, String email, String phone, int userID, bool rm) async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setString(PrefConstants.email, email);
     await prefs.setString(PrefConstants.name, name);
     await prefs.setString(PrefConstants.phone, phone);
     await prefs.setInt(PrefConstants.id, userID);
+    await prefs.setBool(PrefConstants.rememberMe, rm);
     print(prefs.getString(PrefConstants.name));
   }
 

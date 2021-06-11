@@ -79,19 +79,31 @@ getCart() async {
 class Wrapper extends StatelessWidget {
   Future<String> _getWidget() async {
     final prefs = await SharedPreferences.getInstance();
-    String name = prefs.getString(PrefConstants.name) ?? "";
-    bool firstOpen = prefs.getBool(PrefConstants.firstOpen) ?? true;
-    String fav = prefs.getString(PrefConstants.inFav) ?? "";
-    String cart = prefs.getString(PrefConstants.inCart) ?? "";
 
-    if (name == "") {
+    String name = prefs.getString(PrefConstants.name) ?? "";
+    bool rememberMe = prefs.getBool(PrefConstants.rememberMe) ?? false;
+    print(rememberMe);
+    print(name);
+
+    if (name != "" && !rememberMe) {
+      name = "";
+      await prefs.setString(PrefConstants.email, "");
       await prefs.setString(PrefConstants.name, "");
+      await prefs.setString(PrefConstants.phone, "");
+      await prefs.setString(PrefConstants.inCart, "");
+      await prefs.setString(PrefConstants.inFav, "");
+      await prefs.setInt(PrefConstants.id, -1);
     }
+
+    bool firstOpen = prefs.getBool(PrefConstants.firstOpen) ?? true;
+
+    // if (name == "") {
+    //   await prefs.setString(PrefConstants.name, "");
+    // }
 
     if (name != "") await getFavs();
 
     if (name != "") await getCart();
-
 
     if (firstOpen) {
       await prefs.setBool(PrefConstants.firstOpen, false);

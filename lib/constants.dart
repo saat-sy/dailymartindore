@@ -11,6 +11,7 @@ class PrefConstants {
   static const String email = 'userEmail';
   static const String phone = 'userPhoneNumber';
   static const String id = 'userIdentity';
+  static const String rememberMe = 'rememberMe';
   static const String storeDefaultAddress = 'StoreDefaultAddress';
   static const String firstOpen = 'FirstOpen';
   static const String inFav = 'InFavorites';

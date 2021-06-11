@@ -144,7 +144,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           width: 5,
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.5,
+                          width: MediaQuery.of(context).size.width * 0.8,
                           child: TextFormField(
                             controller: nameController,
                             validator: (val) => val.isEmpty
@@ -200,7 +200,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           width: 5,
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.5,
+                          width: MediaQuery.of(context).size.width * 0.8,
                           child: TextFormField(
                             controller: emailController,
                             enableInteractiveSelection: false,
@@ -233,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.5,
+                          width: MediaQuery.of(context).size.width * 0.8,
                           child: TextFormField(
                             controller: phoneNoController,
                             validator: (val) => verifyPhoneNo(val),
