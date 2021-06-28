@@ -10,7 +10,8 @@ import 'package:http/http.dart' as http;
 class OrderService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  Future<APIResponse<bool>> placeOrder(OrderModel orderModel) {
+  Future<APIResponse<bool>> placeOrder(OrderModel orderModel) async {
+    final header = await Strings.getHeaders();
     final body = {
       'first_name': orderModel.firstName,
       'last_name': orderModel.lastName,
@@ -34,13 +35,12 @@ class OrderService {
     };
 
     return http
-        .post(Uri.parse(API + "/makeOrder/"),
-            headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + "/makeOrder/"), headers: header, body: body)
         .then((value) {
       final jsonData = json.decode(value.body);
       if (value.statusCode == 200) {
         if (jsonData['responseCode'] == 1) {
-          print('true');
+          print(jsonData);
           return APIResponse<bool>(
             data: true,
             error: false,
@@ -62,12 +62,12 @@ class OrderService {
     });
   }
 
-  Future<APIResponse<bool>> applyCoupon(String coupon) {
+  Future<APIResponse<bool>> applyCoupon(String coupon) async {
+    final header = await Strings.getHeaders();
     final body = {'coupon': coupon};
 
     return http
-        .post(Uri.parse(API + '/applyCoupon'),
-            headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/applyCoupon'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -93,9 +93,10 @@ class OrderService {
     });
   }
 
-  Future<APIResponse<List<PaymentMethods>>> getPaymentList() {
+  Future<APIResponse<List<PaymentMethods>>> getPaymentList() async {
+    final header = await Strings.getHeaders();
     return http
-        .get(Uri.parse(API + '/getPaymentModeList'), headers: Strings.HEADERS)
+        .get(Uri.parse(API + '/getPaymentModeList'), headers: header)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -127,12 +128,12 @@ class OrderService {
     });
   }
 
-  Future<APIResponse<List<OrderDetails>>> getMyOrders(String id) {
+  Future<APIResponse<List<OrderDetails>>> getMyOrders(String id) async {
+    final header = await Strings.getHeaders();
     final body = {"user_id": id};
 
     return http
-        .post(Uri.parse(API + '/myOrders'),
-            headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/myOrders'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -173,12 +174,12 @@ class OrderService {
     });
   }
 
-  Future<APIResponse<List<TrackOrderModel>>> trackOrder(String orderID) {
+  Future<APIResponse<List<TrackOrderModel>>> trackOrder(String orderID) async {
+    final header = await Strings.getHeaders();
     final body = {'order_id': orderID};
 
     return http
-        .post(Uri.parse(API + '/trackOrder'),
-            headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/trackOrder'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);

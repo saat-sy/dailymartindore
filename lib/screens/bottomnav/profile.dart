@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
-import 'package:frontend/screens/about_us/aboutUs.dart';
 import 'package:frontend/screens/about_us/abt_us.dart';
 import 'package:frontend/screens/about_us/faq.dart';
 import 'package:frontend/screens/about_us/privacy_policy.dart';
@@ -12,7 +11,6 @@ import 'package:frontend/screens/authenticate/login.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/screens/order/myOrder.dart';
 import 'package:frontend/screens/order/trackOrderList.dart';
-import 'package:frontend/screens/order/trackorder.dart';
 import 'package:frontend/screens/products/all_categories.dart';
 import 'package:frontend/screens/profile/notifications.dart';
 import 'package:frontend/screens/profile/profile_page.dart';
@@ -55,6 +53,7 @@ class _ProfileState extends State<Profile> {
     await prefs.setString(PrefConstants.phone, "");
     await prefs.setString(PrefConstants.inCart, "");
     await prefs.setString(PrefConstants.inFav, "");
+    await prefs.setString(PrefConstants.storeID, "14");
     await prefs.setInt(PrefConstants.id, -1);
   }
 

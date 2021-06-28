@@ -10,7 +10,8 @@ import 'package:http/http.dart' as http;
 class AuthenticateService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  Future<APIResponse<SignUpModel>> signup(SignUpInputModel input) {
+  Future<APIResponse<SignUpModel>> signup(SignUpInputModel input) async {
+    final header = await Strings.getHeaders();
     var body = {
       'name': input.name,
       'phone': input.phoneNo,
@@ -21,7 +22,7 @@ class AuthenticateService {
 
     return http
         .post(Uri.parse(API + '/register/'),
-            headers: Strings.HEADERS, body: body)
+            headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -44,7 +45,8 @@ class AuthenticateService {
     });
   }
 
-  Future<APIResponse<User>> verifyOTP(String email, int otp) {
+  Future<APIResponse<User>> verifyOTP(String email, int otp) async {
+    final header = await Strings.getHeaders();
     var body = {
       'email': email,
       'otp': otp.toString(),
@@ -52,7 +54,7 @@ class AuthenticateService {
 
     return http
         .post(Uri.parse(API + '/VerifyOTP'),
-            headers: Strings.HEADERS, body: body)
+            headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -79,14 +81,15 @@ class AuthenticateService {
     });
   }
 
-  Future<APIResponse<User>> login(String email, String password) {
+  Future<APIResponse<User>> login(String email, String password) async {
+    final header = await Strings.getHeaders();
     var body = {
       'email': email,
       'password': password,
     };
 
     return http
-        .post(Uri.parse(API + '/login'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/login'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -115,7 +118,8 @@ class AuthenticateService {
   }
 
   Future<APIResponse<bool>> changePassword(
-      {String password, String cpassword, String opassword, String userID}) {
+      {String password, String cpassword, String opassword, String userID}) async {
+        final header = await Strings.getHeaders();
     var body = {
       'password': password,
       'cpassword': cpassword,
@@ -125,7 +129,7 @@ class AuthenticateService {
 
     return http
         .post(Uri.parse(API + '/changePassword'),
-            headers: Strings.HEADERS, body: body)
+            headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         print(jsonDecode(value.body));
@@ -145,14 +149,15 @@ class AuthenticateService {
     });
   }
 
-  Future<APIResponse<String>> forgotPassword(String email) {
+  Future<APIResponse<String>> forgotPassword(String email) async {
+    final header = await Strings.getHeaders();
     var body = {
       'email': email,
     };
 
     return http
         .post(Uri.parse(API + '/forgotPassword'),
-            headers: Strings.HEADERS, body: body)
+            headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         print(jsonDecode(value.body));
@@ -173,14 +178,15 @@ class AuthenticateService {
     });
   }
 
-  Future<APIResponse<User>> resendOTP(String phone) {
+  Future<APIResponse<User>> resendOTP(String phone) async {
+    final header = await Strings.getHeaders();
     var body = {
       'phone': phone,
     };
 
     return http
         .post(Uri.parse(API + '/resendOtp'),
-            headers: Strings.HEADERS, body: body)
+            headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         if (jsonDecode(value.body)['responseCode'] == 1) {

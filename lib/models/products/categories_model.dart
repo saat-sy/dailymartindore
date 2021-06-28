@@ -22,8 +22,18 @@ class SubSubCategoriesModel {
   String name;
   String image;
   String parentId;
+  List<SubSubSubCategoriesModel> subSubSubCategoriesModel;
 
-  SubSubCategoriesModel({this.id, this.name, this.image});
+  SubSubCategoriesModel(
+      {this.id, this.name, this.image, this.subSubSubCategoriesModel});
+}
+
+class SubSubSubCategoriesModel {
+  String id;
+  String name;
+  String image;
+
+  SubSubSubCategoriesModel({this.id, this.name, this.image});
 }
 
 class CategoriesProduct {

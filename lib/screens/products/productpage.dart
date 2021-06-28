@@ -6,7 +6,6 @@ import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/models/products/product.dart';
 import 'package:frontend/models/products/shopping_cart_model.dart';
 import 'package:frontend/screens/authenticate/login.dart';
-import 'package:frontend/screens/reviews/rateapp.dart';
 import 'package:frontend/screens/reviews/reviews.dart';
 import 'package:frontend/services/cart_service.dart';
 import 'package:frontend/services/favorites_service.dart';

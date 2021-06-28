@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/services/about_us_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TermsAndConditions extends StatefulWidget {
   @override
@@ -36,6 +38,12 @@ class _TermsAndConditionsState extends State<TermsAndConditions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         backgroundColor: Colors.white,
         title: Text(
           'Terms and Conditions',
@@ -47,10 +55,20 @@ class _TermsAndConditionsState extends State<TermsAndConditions> {
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                child: Text(abtUs),
+          : SingleChildScrollView(
+              child: Html(
+                data: abtUs,
+                onLinkTap: (url) async {
+                  if (await canLaunch(url))
+                    await launch(url,
+                      forceSafariVC: false,
+                      forceWebView: false,
+                    );
+                  else {
+                    final snackBar = SnackBar(content: Text('Could not launch the url'));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+                },
               ),
             ),
     );

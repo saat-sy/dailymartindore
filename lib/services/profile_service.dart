@@ -7,7 +7,8 @@ class ProfileService {
 
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  Future<APIResponse<bool>> updateProfile(String phoneNo, String name, String userID) {
+  Future<APIResponse<bool>> updateProfile(String phoneNo, String name, String userID) async {
+    final header = await Strings.getHeaders();
     final body = {
       'user_id': userID,
       'name': name,
@@ -15,7 +16,7 @@ class ProfileService {
     };
 
     return http
-        .post(Uri.parse(API + '/updateProfile'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/updateProfile'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);

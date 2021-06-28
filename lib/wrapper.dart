@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/screens/authenticate/getting_started.dart';
-import 'package:frontend/screens/authenticate/login.dart';
 import 'package:frontend/screens/bottomnav/bottomnav.dart';
 import 'package:frontend/screens/bottomnav/bottomnav_anonymous.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -82,8 +81,11 @@ class Wrapper extends StatelessWidget {
 
     String name = prefs.getString(PrefConstants.name) ?? "";
     bool rememberMe = prefs.getBool(PrefConstants.rememberMe) ?? false;
-    print(rememberMe);
-    print(name);
+
+    String storeID = prefs.getString(PrefConstants.storeID) ?? "";
+    if(storeID != "") {
+      await prefs.setString(PrefConstants.storeID, "14");
+    }
 
     if (name != "" && !rememberMe) {
       name = "";
@@ -97,9 +99,9 @@ class Wrapper extends StatelessWidget {
 
     bool firstOpen = prefs.getBool(PrefConstants.firstOpen) ?? true;
 
-    // if (name == "") {
-    //   await prefs.setString(PrefConstants.name, "");
-    // }
+    if (name == "") {
+      await prefs.setString(PrefConstants.name, "");
+    }
 
     if (name != "") await getFavs();
 

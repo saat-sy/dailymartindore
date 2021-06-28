@@ -7,10 +7,11 @@ import 'package:http/http.dart' as http;
 class CartService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  Future<APIResponse<List<ShoppingCartModel>>> getCart(String userID) {
+  Future<APIResponse<List<ShoppingCartModel>>> getCart(String userID) async {
+    final header = await Strings.getHeaders();
     final body = {'user_id': userID,};
     return http
-        .post(Uri.parse(API + '/getCart'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/getCart'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -47,7 +48,8 @@ class CartService {
     });
   }
 
-  Future<APIResponse<bool>> addToCart(String userId, ShoppingCartModel s) {
+  Future<APIResponse<bool>> addToCart(String userId, ShoppingCartModel s) async {
+    final header = await Strings.getHeaders();
     final body = {
       'user_id': userId,
       'product_id': s.productID,
@@ -58,7 +60,7 @@ class CartService {
     };
 
     return http
-        .post(Uri.parse(API + '/addToCart'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/addToCart'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -85,14 +87,15 @@ class CartService {
     });
   }
 
-  Future<APIResponse<bool>> deleteFromCart({String userId, String productId}) {
+  Future<APIResponse<bool>> deleteFromCart({String userId, String productId}) async {
+    final header = await Strings.getHeaders();
     final body = {
       'user_id': userId,
       'product_id': productId
     };
 
     return http
-        .post(Uri.parse(API + '/removeCartItems'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/removeCartItems'), headers: header, body: body)
         .then((value) {
           print(value.statusCode);
       if (value.statusCode == 200) {
@@ -119,13 +122,14 @@ class CartService {
     });
   }
 
-  Future<APIResponse<bool>> clearCart({String userId}) {
+  Future<APIResponse<bool>> clearCart({String userId}) async {
+    final header = await Strings.getHeaders();
     final body = {
       'user_id': userId,
     };
 
     return http
-        .post(Uri.parse(API + '/clearCart'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/clearCart'), headers: header, body: body)
         .then((value) {
           print(value.statusCode);
       if (value.statusCode == 200) {

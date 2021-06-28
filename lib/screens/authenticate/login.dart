@@ -64,8 +64,6 @@ class _LoginState extends State<Login> {
     final prefs = await SharedPreferences.getInstance();
     String id = prefs.getInt(PrefConstants.id).toString() ?? "-1";
 
-    print(id);
-
     _apiResponse = await service.getCart(id);
     if (!_apiResponse.error) {
       items2 = _apiResponse.data;
@@ -77,9 +75,11 @@ class _LoginState extends State<Login> {
       for (var item in items2) {
         _apiResponseProduct =
             await serviceProduct.getProductByID(item.productID);
-        p = _apiResponseProduct.data;
-        if (cart.isNotEmpty) cart += ',';
-        cart += p.id;
+        if (!_apiResponseProduct.error) {
+          p = _apiResponseProduct.data;
+          if (cart.isNotEmpty) cart += ',';
+          cart += p.id;
+        }
       }
     }
     if (cart.length >= 0) {
@@ -114,15 +114,16 @@ class _LoginState extends State<Login> {
     _apiResponse = await service.login(email, password);
 
     if (_apiResponse.error) {
+      Navigator.pop(context);
       if (mounted)
         setState(() {
           error = _apiResponse.errorMessage;
+          print(error);
         });
-      Navigator.pop(context);
     } else {
       User user = _apiResponse.data;
       await updateShredPrefs(
-            user.name, user.email, user.phoneNo, user.userID, _rememberme);
+          user.name, user.email, user.phoneNo, user.userID, _rememberme);
       await getCart();
       await getFavs();
       Navigator.pop(context);

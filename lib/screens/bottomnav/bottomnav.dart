@@ -12,11 +12,10 @@ import 'cart.dart';
 class BottomNav extends StatefulWidget {
   final int index;
   final bool search;
+  final String brands;
+  final String searchTerm;
 
-  BottomNav({
-    this.index,
-    this.search = false
-  });
+  BottomNav({this.index, this.search = false, this.brands, this.searchTerm});
 
   @override
   _BottomNavState createState() => _BottomNavState();
@@ -54,7 +53,7 @@ class _BottomNavState extends State<BottomNav> {
       selectedPage = widget.index ?? 0;
       indexUsed = true;
     }
-    if (widget.search){
+    if (widget.search) {
       setState(() {
         fromBtm = true;
       });
@@ -64,7 +63,8 @@ class _BottomNavState extends State<BottomNav> {
         child: selectedPage == 1
             ? Search(
                 fromBottomNav: fromBtm,
-              )
+                brands: widget.brands,
+                searchTerm: widget.searchTerm)
             : _pageOption[selectedPage],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -123,7 +123,17 @@ class _BottomNavState extends State<BottomNav> {
             if (mounted)
               setState(() {
                 if (index == 1) fromBtm = true;
-                selectedPage = index;
+                if (widget.searchTerm != null) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => BottomNav(index: index,),
+                    ),
+                    (route) => false,
+                  );
+                }
+                else
+                  selectedPage = index;
               });
             //fromBtm = false;
             final prefs = await SharedPreferences.getInstance();

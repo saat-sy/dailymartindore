@@ -17,4 +17,5 @@ class PrefConstants {
   static const String inFav = 'InFavorites';
   static const String inCart = 'InCart';
   static const String recentProducts = 'RecentProducts';
+  static const String storeID = 'StoreID';
 }

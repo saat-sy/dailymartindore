@@ -7,11 +7,12 @@ import 'package:http/http.dart' as http;
 class FavoriteService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  Future<APIResponse<List<FavoritesModel>>> getFavorites(String userId) {
+  Future<APIResponse<List<FavoritesModel>>> getFavorites(String userId) async {
+    final header = await Strings.getHeaders();
     final body = {'user_id': userId};
 
     return http
-        .post(Uri.parse(API + '/wishList'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/wishList'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -50,11 +51,12 @@ class FavoriteService {
     });
   }
 
-  Future<APIResponse<bool>> addToFavorites(String userId, String itemID) {
+  Future<APIResponse<bool>> addToFavorites(String userId, String itemID) async {
+    final header = await Strings.getHeaders();
     final body = {'user_id': userId, 'article_id': itemID};
 
     return http
-        .post(Uri.parse(API + '/addToWishList'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/addToWishList'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -80,11 +82,12 @@ class FavoriteService {
     });
   }
 
-  Future<APIResponse<bool>> removeFavorites(String userId, String itemID) {
+  Future<APIResponse<bool>> removeFavorites(String userId, String itemID) async {
+    final header = await Strings.getHeaders();
     final body = {'user_id': userId, 'article_id': itemID};
 
     return http
-        .post(Uri.parse(API + '/removeToWishList'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/removeToWishList'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);

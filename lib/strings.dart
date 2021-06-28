@@ -1,13 +1,25 @@
 import 'dart:io' show Platform;
-class Strings {
 
-  static final HEADERS = {
-    'authorization': 'DMIB',
-    'device_id': '1235',
-    'device_version': '1.0',
-    'device_type': Platform.isAndroid ? '2' : '1',
-    'store_id': '14'
-  };
+import 'package:frontend/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class Strings {
+  static getHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    String storeID = prefs.getString(PrefConstants.storeID) ?? "14";
+
+    return {
+      'authorization': 'DMIB',
+      'device_id': '1235',
+      'device_version': '1.0',
+      'device_type': Platform.isAndroid ? '2' : '1',
+      'store_id': storeID
+    };
+  }
+
+  static const String PAGESIZE = '10';
+
+  static const String RAZORPAY_KEY = 'rzp_test_eUaWjgJFl2KdnO';
 
   //// REVIEWS AND RATING
 
@@ -77,16 +89,17 @@ class Strings {
   //placeOrder.dart
   static const String PLACE_ORDER_APPBAR = 'Order';
   static const String PLACE_ORDER_SUCCESS_HEADING = 'Order Success';
-  static const String PLACE_ORDER_SUCCESS_MESSAGE = 'Your order is being processed by the system, you can see the progress at';
+  static const String PLACE_ORDER_SUCCESS_MESSAGE =
+      'Your order is being processed by the system, you can see the progress at';
   static const String PLACE_ORDER_SUCCESS_GO_BACK = 'Go back';
-  static const String PLACE_ORDER_COUPON_APPLIED = 'Coupon applied successfully';
+  static const String PLACE_ORDER_COUPON_APPLIED =
+      'Coupon applied successfully';
   static const String PLACE_ORDER_ADDRESS = 'Select your Address';
   static const String PLACE_ORDER_PAYMENT = 'Select your Payment Method';
   static const String PLACE_ORDER_ADD_COUPON = 'Add a coupon';
   static const String PLACE_ORDER_ADD_COUPON_PLACEHOLDER = 'Enter code';
   static const String PLACE_ORDER_SUBMIT_BUTTON = 'Place your order';
   static const String PLACE_ORDER_SUMMARY_HEADING = 'Order Summary';
-  
 
   //myOrder.dart
   static const String MY_ORDER_APPBAR = 'My Orders';

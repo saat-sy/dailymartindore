@@ -37,6 +37,7 @@ dependencies:
   flutter_html:
   url_launcher:
   flutter_staggered_grid_view:
+  razorpay_flutter: ^1.2.3
   
 
 dev_dependencies:

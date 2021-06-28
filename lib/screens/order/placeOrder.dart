@@ -11,6 +11,7 @@ import 'package:frontend/services/order_service.dart';
 import 'package:frontend/strings.dart';
 import 'package:frontend/stylesheet/styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../../constants.dart';
 
@@ -87,8 +88,13 @@ class _PlaceOrderState extends State<PlaceOrder> {
               ),
               InkWell(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => MyOrder()));
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => MyOrder(),
+                    ),
+                    (route) => false,
+                  );
                 },
                 child: Text(
                   'My Order',
@@ -132,7 +138,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
           ),
         ));
     showDialog(
-      barrierDismissible: true,
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return alert;
@@ -164,48 +170,6 @@ class _PlaceOrderState extends State<PlaceOrder> {
 
         await prefs.setString(PrefConstants.inCart, newCart);
       }
-    }
-  }
-
-  placeOrder() async {
-    showLoaderDialog(context);
-
-    final prefs = await SharedPreferences.getInstance();
-    String id = prefs.getInt(PrefConstants.id).toString();
-    String email = prefs.getString(PrefConstants.email);
-    String phone = prefs.getString(PrefConstants.phone);
-
-    print(currentIndexAddress);
-    print(address[currentIndexAddress].address);
-
-    OrderModel o = OrderModel(
-        firstName: address[currentIndexAddress].username ?? 'User',
-        lastName: address[currentIndexAddress].username ?? 'User',
-        email: email,
-        phone: phone,
-        city: address[currentIndexAddress].city,
-        postCode: address[currentIndexAddress].pincode,
-        address: address[currentIndexAddress].address,
-        paymentType: _selectedMethod,
-        id: widget.productID,
-        quantity: widget.quantity,
-        totalAmount: widget.finalsum,
-        userID: id);
-
-    _apiResponseOrder = await service.placeOrder(o);
-
-    if (_apiResponseOrder.error) {
-      if (mounted)
-        setState(() {
-          error = _apiResponseOrder.errorMessage;
-        });
-      print(error);
-      Navigator.pop(context);
-    } else {
-      Navigator.pop(context);
-      showOrderDialog(context);
-
-      deleteFromCart();
     }
   }
 
@@ -305,12 +269,103 @@ class _PlaceOrderState extends State<PlaceOrder> {
 
   String _selectedMethod = "";
 
+  final _razorpay = Razorpay();
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    deleteFromCart();
+    showOrderDialog(context);
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    final snackBar =
+        SnackBar(content: Text('Payment Failed. Please try again'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    print('External Wallet');
+  }
+
+  placeOrder() async {
+    showLoaderDialog(context);
+
+    final prefs = await SharedPreferences.getInstance();
+    String id = prefs.getInt(PrefConstants.id).toString();
+    String email = prefs.getString(PrefConstants.email);
+    String phone = prefs.getString(PrefConstants.phone);
+
+    OrderModel o = OrderModel(
+        firstName: address[currentIndexAddress].username ?? 'User',
+        lastName: address[currentIndexAddress].username ?? 'User',
+        email: email,
+        phone: phone,
+        city: address[currentIndexAddress].city,
+        postCode: address[currentIndexAddress].pincode,
+        address: address[currentIndexAddress].address,
+        paymentType: _selectedMethod,
+        id: widget.productID,
+        quantity: widget.quantity,
+        totalAmount: widget.finalsum,
+        userID: id);
+
+    _apiResponseOrder = await service.placeOrder(o);
+
+    if (_apiResponseOrder.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponseOrder.errorMessage;
+        });
+      print(error);
+      Navigator.pop(context);
+    } else {
+      Navigator.pop(context);
+
+      if (_selectedMethod == 'razorPay')
+        razorpayOrder();
+      else
+        showOrderDialog(context);
+    }
+  }
+
+  void razorpayOrder() async {
+    final prefs = await SharedPreferences.getInstance();
+    String email = prefs.getString(PrefConstants.email);
+    String phone = prefs.getString(PrefConstants.phone);
+    var options = {
+      'key': Strings.RAZORPAY_KEY,
+      'amount': num.parse(widget.finalsum) * 100,
+      'name': 'Daily Mart Indore',
+      'description': 'Place Order',
+      'prefill': {'contact': phone, 'email': email}
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      print(e);
+      final snackBar =
+          SnackBar(content: Text('Payment Failed. Please try again'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
   @override
   void initState() {
     errorcoupon = Text('');
     getAddressList();
     getPaymentMethods();
+
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
   }
 
   @override

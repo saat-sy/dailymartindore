@@ -155,6 +155,7 @@ class _CartState extends State<Cart> {
 
     final prefs = await SharedPreferences.getInstance();
     String userId = prefs.getInt(PrefConstants.id).toString();
+    // ignore: unused_local_variable
     String cart = prefs.getString(PrefConstants.inCart) ?? "";
 
     _apiResponseClear = await service.clearCart(userId: userId);

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/getting_started/onboard.dart';
-import 'package:frontend/screens/authenticate/login.dart';
 import 'package:frontend/screens/bottomnav/bottomnav_anonymous.dart';
 import 'package:frontend/stylesheet/styles.dart';
 
@@ -44,28 +43,30 @@ class _GettingStartedState extends State<GettingStarted> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: Column(
         children: [
-          PageView.builder(
-            controller: pageController,
-            itemCount: slides.length,
-            itemBuilder: (context, index) {
-              return SliderTile(
-                imageAssetPath: slides[index].getImageAssetPath(),
-                title: slides[index].title,
-                description: slides[index].description,
-              );
-            },
-            onPageChanged: (val) {
-              if (mounted)
-                setState(() {
-                  currentIndex = val;
-                  if (currentIndex == 0 || currentIndex == slides.length - 1)
-                    message = 'Get Started';
-                  else
-                    message = 'Next';
-                });
-            },
+          Expanded(
+            child: PageView.builder(
+              controller: pageController,
+              itemCount: slides.length,
+              itemBuilder: (context, index) {
+                return SliderTile(
+                  imageAssetPath: slides[index].getImageAssetPath(),
+                  title: slides[index].title,
+                  description: slides[index].description,
+                );
+              },
+              onPageChanged: (val) {
+                if (mounted)
+                  setState(() {
+                    currentIndex = val;
+                    if (currentIndex == 0 || currentIndex == slides.length - 1)
+                      message = 'Get Started';
+                    else
+                      message = 'Next';
+                  });
+              },
+            ),
           ),
           Container(
             child: Column(
@@ -127,7 +128,7 @@ class SliderTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           SizedBox(
-            height: 80,
+            height: 40,
           ),
           Stack(
             alignment: Alignment.center,
@@ -152,7 +153,7 @@ class SliderTile extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.6,
               )),
               Container(
-                height: MediaQuery.of(context).size.width * 0.6,
+                height: MediaQuery.of(context).size.height * 0.3,
                 width: MediaQuery.of(context).size.width,
                 child: CustomPaint(
                   foregroundPainter: CirclePainter(),
@@ -168,7 +169,7 @@ class SliderTile extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 28,
                   color: Colors.black,
                   fontWeight: FontWeight.w400),
             ),

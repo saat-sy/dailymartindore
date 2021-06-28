@@ -1,35 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/api_response.dart';
+import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/models/products/search_model.dart';
 import 'package:frontend/screens/bottomnav/search_assets/brand.dart';
 import 'package:frontend/screens/products/all_categories.dart';
+import 'package:frontend/services/products_service.dart';
 import 'package:frontend/services/search_service.dart';
 import 'package:frontend/stylesheet/styles.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-// ignore: must_be_immutable
 class Search extends StatefulWidget {
-  final String minPrice;
-  final String maxPrice;
-  final String color;
-  final String size;
-  final String ratings;
-  final String discount;
+  final String brands;
+  final bool filter;
+  final bool fromBottomNav;
   final String searchTerm;
-  bool filter = false;
-  bool fromBottomNav = false;
 
-  Search(
-      {this.color,
-      this.discount,
-      this.maxPrice,
-      this.minPrice,
-      this.ratings,
-      this.searchTerm,
-      this.filter,
-      this.fromBottomNav = false,
-      this.size});
+  Search({
+    this.searchTerm,
+    this.brands,
+    this.filter = false,
+    this.fromBottomNav = false,
+  });
 
   @override
   _SearchState createState() => _SearchState();
@@ -37,35 +30,87 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   SearchService service = SearchService();
+  ProductService serviceCat = ProductService();
+
+  APIResponse<List<CategoriesProduct>> _apiResponseCat;
+
+  List<CategoriesProduct> categories;
 
   APIResponse<List<SearchModel>> _apiResponse;
+
+  ScrollController _scrollController = new ScrollController();
 
   bool isLoading = true;
 
   String error = '';
 
-  List<SearchModel> searchResults;
+  List<SearchModel> searchResults = [];
+  List<SearchModel> searchResultsCpy = [];
+
+  int page = 0;
+
+  String minPriceFinal = '';
+  String maxPriceFinal = '';
+  String ratingsFinal = '';
+  String colorFinal = '';
+  String sizeFinal = '';
+  String discountFinal = '';
+
+  getProducts(searchTerm) async {
+    final prefs = await SharedPreferences.getInstance();
+    String fav = prefs.getString(PrefConstants.inFav) ?? "";
+    String cart = prefs.getString(PrefConstants.inCart) ?? "";
+
+    _apiResponseCat =
+        await serviceCat.getCategoryProducts(category: searchTerm);
+    if (_apiResponseCat.error) {
+      if (mounted)
+        setState(() {
+          error = _apiResponseCat.errorMessage;
+        });
+    } else {
+      categories = _apiResponseCat.data;
+      for (int i = 0; i < categories.length; i++) {
+        fav.split(',').forEach((element) {
+          if (element == categories[i].id) categories[i].inFav = true;
+        });
+        cart.split(',').forEach((element) {
+          if (element == categories[i].id) categories[i].inCart = true;
+        });
+      }
+      if (mounted)
+        setState(() {
+          isLoading = false;
+        });
+    }
+  }
 
   load(String searchTerm) async {
+    if (searchResults.length != 0) searchResultsCpy = searchResults;
     isLoading = true;
     searchResults = [];
+    page++;
     _apiResponse = await service.getSearchResults(
         searchTerm,
         sortText,
-        widget.minPrice,
-        widget.maxPrice,
-        widget.color,
-        widget.discount,
-        widget.size,
-        widget.ratings);
+        minPriceFinal,
+        maxPriceFinal,
+        colorFinal,
+        discountFinal,
+        sizeFinal,
+        ratingsFinal,
+        widget.brands,
+        page);
 
     if (_apiResponse.error) {
       if (mounted)
         setState(() {
           error = _apiResponse.errorMessage;
+          print(error);
         });
     } else {
       searchResults = _apiResponse.data;
+      searchResults = [...searchResultsCpy, ...searchResults];
       if (mounted)
         setState(() {
           isLoading = false;
@@ -81,8 +126,11 @@ class _SearchState extends State<Search> {
 
   @override
   initState() {
-    load('');
-    print('ejvrnjinwr ' + widget.fromBottomNav.toString());
+    if (widget.searchTerm != null) {
+      searchController.text = widget.searchTerm.substring(widget.searchTerm.indexOf('@') + 1);
+      getProducts(widget.searchTerm.substring(0, widget.searchTerm.indexOf('@')));
+    } else
+      load('');
     if (!widget.fromBottomNav) {
       print('not from bottomNav');
     } else {
@@ -91,7 +139,21 @@ class _SearchState extends State<Search> {
         focusNode.requestFocus();
       });
     }
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        load(searchTerm);
+      }
+    });
+
     super.initState();
+  }
+
+  @override
+  dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   List<String> sortOptions = [
@@ -106,13 +168,6 @@ class _SearchState extends State<Search> {
 
   String sortText = 'Default';
   String searchTerm = '';
-
-  String minPriceFinal = '';
-  String maxPriceFinal = '';
-  String ratingsFinal = '';
-  String colorFinal = '';
-  String sizeFinal = '';
-  String discountFinal = '';
 
   List<bool> size = [
     false,
@@ -507,7 +562,8 @@ class _SearchState extends State<Search> {
                                                     child: Container(
                                                       child: ListView.builder(
                                                         itemCount: color.length,
-                                                        physics: NeverScrollableScrollPhysics(),
+                                                        physics:
+                                                            NeverScrollableScrollPhysics(),
                                                         itemBuilder:
                                                             (context, index) {
                                                           return CheckboxListTile(
@@ -557,7 +613,8 @@ class _SearchState extends State<Search> {
                                                     ),
                                                     child: Container(
                                                       child: ListView.builder(
-                                                        physics: NeverScrollableScrollPhysics(),
+                                                        physics:
+                                                            NeverScrollableScrollPhysics(),
                                                         itemCount:
                                                             discount.length,
                                                         itemBuilder:
@@ -726,6 +783,9 @@ class _SearchState extends State<Search> {
                                                 ),
                                                 InkWell(
                                                   onTap: () {
+                                                    setState(() {
+                                                      page = 0;
+                                                    });
                                                     size
                                                         .asMap()
                                                         .forEach((key, value) {
@@ -890,6 +950,7 @@ class _SearchState extends State<Search> {
                                                         sortText =
                                                             sortOptions[index];
                                                         load(searchTerm);
+                                                        page = 0;
                                                       });
                                                     Navigator.pop(context);
                                                   },
@@ -965,29 +1026,56 @@ class _SearchState extends State<Search> {
               ? Container()
               : Expanded(
                   child: isLoading
-                      ? Center(
-                          child: CircularProgressIndicator(),
+                      ? Container(
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                error == ""
+                                    ? CircularProgressIndicator()
+                                    : Container(),
+                                error != ""
+                                    ? Center(
+                                        child: Container(
+                                          child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Image.asset(
+                                                  "assets/images/empty_search.png",
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.5,
+                                                ),
+                                                Text('Sorry! No product found',
+                                                    style:
+                                                        TextStyle(fontSize: 23))
+                                              ]),
+                                        ),
+                                      )
+                                    : Container()
+                              ],
+                            ),
+                          ),
                         )
-                      : searchResults.length != 0
-                          ? ProductCard(
-                              items: searchResults,
-                            )
-                          : Center(
-                              child: Container(
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Image.asset(
-                                        "assets/images/empty_search.png",
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.5,
-                                      ),
-                                      Text('Sorry! No product found',
-                                          style: TextStyle(fontSize: 23))
-                                    ]),
+                      : SingleChildScrollView(
+                          controller: _scrollController,
+                          physics: ScrollPhysics(),
+                          child: Column(
+                            children: [
+                              SearchProductCard(
+                                items: widget.searchTerm != null ? categories : searchResults,
                               ),
-                            )),
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                child: Center(
+                                  child: widget.searchTerm != null ? Container() : CircularProgressIndicator(),
+                                ),
+                              )
+                            ],
+                          ),
+                        )),
         ],
       ),
     ));

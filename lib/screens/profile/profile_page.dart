@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/user.dart';
-import 'package:frontend/screens/authenticate/change_password.dart';
 import 'package:frontend/services/profile_service.dart';
 import 'package:frontend/strings.dart';
 import 'package:frontend/stylesheet/styles.dart';
@@ -115,6 +114,12 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         backgroundColor: Colors.white,
         title: Text(Strings.PROFILE_PAGE_APPBAR),
         centerTitle: true,
@@ -144,7 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           width: 5,
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
+                          width: MediaQuery.of(context).size.width * 0.6,
                           child: TextFormField(
                             controller: nameController,
                             validator: (val) => val.isEmpty
@@ -200,7 +205,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           width: 5,
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
+                          width: MediaQuery.of(context).size.width * 0.6,
                           child: TextFormField(
                             controller: emailController,
                             enableInteractiveSelection: false,
@@ -233,7 +238,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
+                          width: MediaQuery.of(context).size.width * 0.6,
                           child: TextFormField(
                             controller: phoneNoController,
                             validator: (val) => verifyPhoneNo(val),

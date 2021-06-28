@@ -8,7 +8,6 @@ import 'package:frontend/stylesheet/styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FeaturedScreen extends StatefulWidget {
-
   @override
   _FeaturedScreenState createState() => _FeaturedScreenState();
 }
@@ -25,7 +24,6 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
   List<FeaturedProducts> featuredProducts;
 
   getProducts() async {
-
     final prefs = await SharedPreferences.getInstance();
     String fav = prefs.getString(PrefConstants.inFav) ?? "";
     String cart = prefs.getString(PrefConstants.inCart) ?? "";
@@ -40,11 +38,11 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
       for (int i = 0; i < featuredProducts.length; i++) {
         print(featuredProducts[i].id);
         fav.split(',').forEach((element) {
-          if(element == featuredProducts[i].id)
+          if (element == featuredProducts[i].id)
             featuredProducts[i].inFav = true;
         });
         cart.split(',').forEach((element) {
-          if(element == featuredProducts[i].id)
+          if (element == featuredProducts[i].id)
             featuredProducts[i].inCart = true;
         });
       }
@@ -67,44 +65,38 @@ class _FeaturedScreenState extends State<FeaturedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor: Colors.white,
-        title: Text(Strings.FEATURED_PRODUCTS_SCREEN_APPBAR),
-        centerTitle: true,
-      ),
-
-      body: RefreshIndicator(
-
-        onRefresh: refresh,
-
-        child: isLoading ? Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-
-              CircularProgressIndicator(),
-
-              error != "" ? Text(
-                error,
-                style: TextStyle(color: Colors.red),
-              ) : Container()
-
-            ],
+        backgroundColor: Colors.grey.shade200,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-        )
-        
-         : ProductCard(
-
-          items: featuredProducts,
-
+          backgroundColor: Colors.white,
+          title: Text(Strings.FEATURED_PRODUCTS_SCREEN_APPBAR),
+          centerTitle: true,
         ),
-      )
-    );
+        body: RefreshIndicator(
+          onRefresh: refresh,
+          child: isLoading
+              ? Container(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        error == "" ? CircularProgressIndicator() : Container(),
+                        error != ""
+                            ? Text(
+                                error,
+                                style: TextStyle(color: Colors.red),
+                              )
+                            : Container()
+                      ],
+                    ),
+                  ),
+                )
+              : ProductCard(
+                  items: featuredProducts,
+                ),
+        ));
   }
 }

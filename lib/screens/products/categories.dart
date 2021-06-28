@@ -39,7 +39,7 @@ class _CategoriesState extends State<Categories> {
     String cart = prefs.getString(PrefConstants.inCart) ?? "";
 
     _apiResponse = await service.getCategoryProducts(
-        category: widget.category, subCategory: widget.subcategory);
+        category: widget.category);
     if (_apiResponse.error) {
       if (mounted)
         setState(() {

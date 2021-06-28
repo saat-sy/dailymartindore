@@ -6,10 +6,10 @@ import 'package:frontend/screens/bottomnav/search.dart';
 
 class BottomNavAnonymous extends StatefulWidget {
   final int index;
+  final String brands;
+  final String searchTerm;
 
-  BottomNavAnonymous({
-    this.index,
-  });
+  BottomNavAnonymous({this.searchTerm ,this.index, this.brands});
 
   @override
   _BottomNavAnonymousState createState() => _BottomNavAnonymousState();
@@ -37,7 +37,9 @@ class _BottomNavAnonymousState extends State<BottomNavAnonymous> {
       body: SafeArea(
         child: selectedPage == 1
             ? Search(
-                fromBottomNav: true,
+                fromBottomNav: widget.searchTerm == null,
+                brands: widget.brands,
+                searchTerm: widget.searchTerm,
               )
             : _pageOption[selectedPage],
       ),
@@ -57,7 +59,17 @@ class _BottomNavAnonymousState extends State<BottomNavAnonymous> {
           onTap: (index) async {
             if (mounted)
               setState(() {
-                selectedPage = index;
+                if (widget.searchTerm != null) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => BottomNavAnonymous(index: index,),
+                    ),
+                    (route) => false,
+                  );
+                }
+                else
+                  selectedPage = index;
               });
           }),
     );

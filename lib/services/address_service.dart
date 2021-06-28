@@ -7,11 +7,12 @@ import 'package:http/http.dart' as http;
 class AddressService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  Future<APIResponse<List<AddressModel>>> getAddressList(String userID) {
+  Future<APIResponse<List<AddressModel>>> getAddressList(String userID) async {
+    final header = await Strings.getHeaders();
     final body = {'user_id': userID};
 
     return http
-        .post(Uri.parse(API + '/addressList'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/addressList'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -51,7 +52,8 @@ class AddressService {
   }
 
   Future<APIResponse<bool>> addAddress(
-      AddressModel addressModel, String userId) {
+      AddressModel addressModel, String userId) async {
+        
     final body = {
       'user_id': userId,
       'username': addressModel.username,
@@ -61,8 +63,10 @@ class AddressService {
       'pincode': addressModel.pincode,
     };
 
+    final header = await Strings.getHeaders();
+
     return http
-        .post(Uri.parse(API + '/addAddress'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/addAddress'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -89,7 +93,8 @@ class AddressService {
   }
 
   Future<APIResponse<bool>> updateAddress(
-      AddressModel addressModel, String userId) {
+      AddressModel addressModel, String userId) async {
+        final header = await Strings.getHeaders();
     final body = {
       'user_id': userId,
       'username': addressModel.username,
@@ -102,7 +107,7 @@ class AddressService {
     };
 
     return http
-        .post(Uri.parse(API + '/updateAddress'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/updateAddress'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -129,14 +134,15 @@ class AddressService {
   }
 
   Future<APIResponse<bool>> removeAddress(
-      String itemId, String userId) {
+      String itemId, String userId) async {
+        final header = await Strings.getHeaders();
     final body = {
       'user_id': userId,
       'id': itemId
     };
 
     return http
-        .post(Uri.parse(API + '/removeAddress'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/removeAddress'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);

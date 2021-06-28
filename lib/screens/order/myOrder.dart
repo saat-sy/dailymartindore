@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/order/order_details_model.dart';
-import 'package:frontend/screens/order/trackorder.dart';
 import 'package:frontend/screens/reviews/rateapp.dart';
 import 'package:frontend/services/order_service.dart';
 import 'package:frontend/strings.dart';

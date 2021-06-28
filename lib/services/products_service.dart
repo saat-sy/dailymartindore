@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:frontend/models/api_response.dart';
+import 'package:frontend/models/dashboard/banner_images.dart';
+import 'package:frontend/models/dashboard/dashboard.dart';
 import 'package:frontend/models/products/all.dart';
 import 'package:frontend/models/products/categories_model.dart';
 import 'package:frontend/models/products/featured.dart';
@@ -13,9 +15,120 @@ import 'package:http/http.dart' as http;
 class ProductService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  Future<APIResponse<List<FeaturedProducts>>> getFeaturedProducts() {
+  Future<APIResponse<DashboardModel>> getDashboard() async {
+    final header = await Strings.getHeaders();
     return http
-        .get(Uri.parse(API + '/getFeaturedProducts'), headers: Strings.HEADERS)
+        .get(Uri.parse(API + '/dashboard'), headers: header)
+        .then((value) {
+      if (value.statusCode == 200) {
+        final jsonData = json.decode(value.body);
+        if (jsonData['responseCode'] == 1) {
+          //FEATURED PRODUCTS
+          final featured = jsonData['featuredProducts'];
+          final featuredProducts = <FeaturedProducts>[];
+          for (var data in featured) {
+            final f = FeaturedProducts(
+                id: data['id'],
+                imagePath: data['image'],
+                title: data['title'],
+                description: data['description'],
+                isVeg: data['is_veg'] == "0" ? true : false,
+                rating: data['avg_rating'],
+                oldPrice: data['old_price'],
+                discount: data['discount_name'],
+                newPrice: data['price'],
+                inStock: data['quantity'] == '0' ? false : true,
+                quantity: data['quantity_info']);
+            featuredProducts.add(f);
+          }
+          //TOP PRODUCTS
+          final top = jsonData['topProducts'];
+          final topProducts = <TopProducts>[];
+          for (var data in top) {
+            final f = TopProducts(
+                id: data['id'],
+                imagePath: data['image'],
+                title: data['title'],
+                description: data['description'],
+                isVeg: data['is_veg'] == "0" ? true : false,
+                rating: data['avg_rating'],
+                oldPrice: data['old_price'],
+                inStock: data['quantity'] == '0' ? false : true,
+                discount: data['discount_name'],
+                newPrice: data['price'],
+                quantity: data['quantity_info']);
+            topProducts.add(f);
+          }
+          //SALE PRODUCTS
+          final sales = jsonData['saleProducts'];
+          final allProducts = <AllProducts>[];
+          for (var data in sales) {
+            final f = AllProducts(
+                id: data['id'],
+                imagePath: data['image'],
+                title: data['title'],
+                description: data['description'],
+                isVeg: data['is_veg'] == "0" ? true : false,
+                rating: data['avg_rating'],
+                oldPrice: data['old_price'],
+                inStock: data['quantity'] == '0' ? false : true,
+                discount: data['discount_name'],
+                newPrice: data['price'],
+                quantity: data['quantity_info']);
+            allProducts.add(f);
+          }
+          //CATEGORIES
+          final cats = jsonData['shopByCategory'];
+          final categories = <CategoriesModel>[];
+          for (var data in cats) {
+            final c = CategoriesModel(
+                id: data['id'], name: data['name'], image: data['image']);
+            categories.add(c);
+          }
+          //BANNER IMAGES
+          final ban = jsonData['banner'];
+          final banner = <BannerDashBoard>[];
+          for (var data in ban) {
+            final b =
+                BannerDashBoard(imagePath: data['image'], text: data['title']);
+            banner.add(b);
+          }
+          //SLIDER IMAGES
+          final slide = jsonData['slider'];
+          final slider = <String>[];
+          for (var data in slide) {
+            slider.add(data['image']);
+          }
+
+          final dashboard = DashboardModel(
+              banner: banner,
+              slider: slider,
+              featuredProducts: featuredProducts,
+              topProducts: topProducts,
+              onSaleProducts: allProducts,
+              categories: categories);
+
+          return APIResponse<DashboardModel>(
+            data: dashboard,
+            error: false,
+          );
+        }
+        return APIResponse<DashboardModel>(
+            error: true, errorMessage: jsonData['responseMessage']);
+      }
+      return APIResponse<DashboardModel>(
+          error: true,
+          errorMessage: json.decode(value.body)['responseMessage']);
+    }).catchError((error) {
+      return APIResponse<DashboardModel>(
+          error: true, errorMessage: 'An error occured');
+    });
+  }
+
+  Future<APIResponse<List<FeaturedProducts>>> getFeaturedProducts() async {
+    final header = await Strings.getHeaders();
+    return http
+        .get(Uri.parse(API + '/getFeaturedProducts'), headers: header)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -54,9 +167,10 @@ class ProductService {
     });
   }
 
-  Future<APIResponse<List<TopProducts>>> getTopProducts() {
+  Future<APIResponse<List<TopProducts>>> getTopProducts() async {
+    final header = await Strings.getHeaders();
     return http
-        .get(Uri.parse(API + '/getTopProducts'), headers: Strings.HEADERS)
+        .get(Uri.parse(API + '/getTopProducts'), headers: header)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -95,9 +209,10 @@ class ProductService {
     });
   }
 
-  Future<APIResponse<List<AllProducts>>> getAllProducts() {
+  Future<APIResponse<List<AllProducts>>> getAllProducts() async {
+    final header = await Strings.getHeaders();
     return http
-        .get(Uri.parse(API + '/getSaleProducts'), headers: Strings.HEADERS)
+        .get(Uri.parse(API + '/getSaleProducts'), headers: header)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -136,12 +251,11 @@ class ProductService {
     });
   }
 
-  Future<APIResponse<ProductModel>> getProductByID(String id) {
+  Future<APIResponse<ProductModel>> getProductByID(String id) async {
     final body = {"product_id": id};
-
+    final header = await Strings.getHeaders();
     return http
-        .post(Uri.parse(API + '/getProductbyId'),
-            headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/getProductbyId'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -189,11 +303,11 @@ class ProductService {
     });
   }
 
-  Future<APIResponse<List<CategoriesModel>>> getCategories({bool fromHome = false}) {
+  Future<APIResponse<List<CategoriesModel>>> getCategories() async {
+    final header = await Strings.getHeaders();
     return http
-        .get(Uri.parse(API + '/getCategory'), headers: Strings.HEADERS)
+        .get(Uri.parse(API + '/getCategory'), headers: header)
         .then((value) {
-      int index = 1;
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
         if (jsonData['responseCode'] == 1) {
@@ -203,25 +317,40 @@ class ProductService {
           for (var data in responseData) {
             final subCategories = <SubCategoriesModel>[];
 
-            for (var sub in data['subcategory']) {
-              final subSubCat = <SubSubCategoriesModel>[];
-              for (var subsub in sub['subsubcategory']) {
-                final ss = SubSubCategoriesModel(
-                  id: subsub['id'],
-                  name: subsub['name'],
-                  image: subsub['image'],
-                );
-                subSubCat.add(ss);
-              }
+            if (data['subsubcategory'] != null)
+              for (var sub in data['subsubcategory']) {
+                final subSubCat = <SubSubCategoriesModel>[];
 
-              final s = SubCategoriesModel(
-                id: sub['id'],
-                name: sub['name'],
-                image: sub['image'],
-                subSubCategoriesModel: subSubCat ?? [],
-              );
-              subCategories.add(s);
-            }
+                if (sub['subsubcategory'] != null)
+                  for (var subsub in sub['subsubcategory']) {
+                    final subSubSubCat = <SubSubSubCategoriesModel>[];
+
+                    if (subsub['subsubcategory'] != null)
+                      for (var subsubsub in subsub['subsubcategory']) {
+                        final sss = SubSubSubCategoriesModel(
+                          id: subsubsub['id'],
+                          name: subsubsub['name'],
+                          image: subsubsub['image'],
+                        );
+                        subSubSubCat.add(sss);
+                      }
+
+                    final ss = SubSubCategoriesModel(
+                        id: subsub['id'],
+                        name: subsub['name'],
+                        image: subsub['image'],
+                        subSubSubCategoriesModel: subSubSubCat);
+                    subSubCat.add(ss);
+                  }
+
+                final s = SubCategoriesModel(
+                  id: sub['id'],
+                  name: sub['name'],
+                  image: sub['image'],
+                  subSubCategoriesModel: subSubCat ?? [],
+                );
+                subCategories.add(s);
+              }
 
             final f = CategoriesModel(
               id: data['id'],
@@ -230,9 +359,6 @@ class ProductService {
               subCategories: subCategories ?? [],
             );
             categories.add(f);
-
-            if (fromHome && index >= 6) break;
-            index += 1;
           }
 
           return APIResponse<List<CategoriesModel>>(
@@ -254,12 +380,12 @@ class ProductService {
   }
 
   Future<APIResponse<List<CategoriesProduct>>> getCategoryProducts(
-      {String category, String subCategory}) {
-    final body = {'category': category ?? '', 'subcategory': subCategory ?? ''};
+      {String category}) async {
+    final body = {'category': category ?? ''};
+    final header = await Strings.getHeaders();
 
     return http
-        .post(Uri.parse(API + '/getProducts'),
-            headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/getProducts'), headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -299,9 +425,10 @@ class ProductService {
     });
   }
 
-  Future<APIResponse<List<StoreListModel>>> getStoreList() {
+  Future<APIResponse<List<StoreListModel>>> getStoreList() async {
+    final header = await Strings.getHeaders();
     return http
-        .get(Uri.parse(API + '/storeList'), headers: Strings.HEADERS)
+        .get(Uri.parse(API + '/storeList'), headers: header)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);

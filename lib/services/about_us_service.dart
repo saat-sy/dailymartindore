@@ -6,15 +6,15 @@ import 'package:http/http.dart' as http;
 class AboutUsService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  Future<APIResponse<String>> aboutUs() {
-    return http
-        .get(Uri.parse(API + '/aboutUs'), headers: Strings.HEADERS)
-        .then((value) {
+  Future<APIResponse<String>> aboutUs() async {
+    final header = await Strings.getHeaders();
+    return http.get(Uri.parse(API + '/aboutUs'), headers: header).then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
         if (jsonData['responseCode'] == 1) {
+          print(jsonData);
           return APIResponse<String>(
-            data: jsonData['responsedata']['data'],
+            data: jsonData['responsedata']['description'],
             error: false,
           );
         }
@@ -29,15 +29,14 @@ class AboutUsService {
     });
   }
 
-  Future<APIResponse<String>> faq() {
-    return http
-        .get(Uri.parse(API + '/faq'), headers: Strings.HEADERS)
-        .then((value) {
+  Future<APIResponse<String>> faq() async {
+    final header = await Strings.getHeaders();
+    return http.get(Uri.parse(API + '/faq'), headers: header).then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
         if (jsonData['responseCode'] == 1) {
           return APIResponse<String>(
-            data: jsonData['responsedata']['data'],
+            data: jsonData['responsedata']['description'],
             error: false,
           );
         }
@@ -52,15 +51,16 @@ class AboutUsService {
     });
   }
 
-  Future<APIResponse<String>> terms() {
+  Future<APIResponse<String>> terms() async {
+    final header = await Strings.getHeaders();
     return http
-        .get(Uri.parse(API + '/termsAndConditions'), headers: Strings.HEADERS)
+        .get(Uri.parse(API + '/termsAndConditions'), headers: header)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
         if (jsonData['responseCode'] == 1) {
           return APIResponse<String>(
-            data: jsonData['responsedata']['data'],
+            data: jsonData['responsedata']['description'],
             error: false,
           );
         }
@@ -75,9 +75,10 @@ class AboutUsService {
     });
   }
 
-  Future<APIResponse<String>> privacyPolicy() {
+  Future<APIResponse<String>> privacyPolicy() async {
+    final header = await Strings.getHeaders();
     return http
-        .get(Uri.parse(API + '/privacyPolicy'), headers: Strings.HEADERS)
+        .get(Uri.parse(API + '/privacyPolicy'), headers: header)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/constants.dart';
 import 'package:frontend/models/api_response.dart';
 import 'package:frontend/models/products/categories_model.dart';
-import 'package:frontend/screens/products/categories.dart';
+import 'package:frontend/screens/bottomnav/bottomnav.dart';
+import 'package:frontend/screens/bottomnav/bottomnav_anonymous.dart';
 import 'package:frontend/services/products_service.dart';
 import 'package:frontend/strings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainCategory {
   String category;
@@ -46,8 +49,21 @@ class _AllCategoriesState extends State<AllCategories> {
     }
   }
 
+  bool isLoggedIn = true;
+
+  checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    String name = prefs.getString(PrefConstants.name).toString() ?? "";
+    if (name == "") {
+      setState(() {
+        isLoggedIn = false;
+      });
+    }
+  }
+
   @override
   initState() {
+    checkLoginStatus();
     getCategories();
     super.initState();
   }
@@ -81,7 +97,8 @@ class _AllCategoriesState extends State<AllCategories> {
             )
           : ListView.builder(
               itemBuilder: (BuildContext context, int index) =>
-                  CategoryExpandableWidget(categories[index], context),
+                  CategoryExpandableWidget(
+                      categories[index], context, isLoggedIn),
               itemCount: categories.length,
             ),
     );
@@ -91,22 +108,33 @@ class _AllCategoriesState extends State<AllCategories> {
 class CategoryExpandableWidget extends StatelessWidget {
   final CategoriesModel category;
   final BuildContext context;
+  final bool isLoggedIn;
 
-  CategoryExpandableWidget(this.category, this.context);
+  CategoryExpandableWidget(this.category, this.context, this.isLoggedIn);
 
   @override
   Widget build(BuildContext context) {
     return category.subCategories.length == 0
         ? InkWell(
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Categories(
-                      category: category.id,
-                      categoryName: category.name,
-                    ),
-                  ));
+              if(isLoggedIn)
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomNav(
+                        searchTerm: category.id + '@' + category.name,
+                        index: 1,
+                      ),
+                    ));
+              else
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomNavAnonymous(
+                        searchTerm: category.id + '@' + category.name,
+                        index: 1,
+                      ),
+                    ));
             },
             child: ListTile(
               title: new Text(
@@ -120,25 +148,35 @@ class CategoryExpandableWidget extends StatelessWidget {
             title: Text(category.name,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
             children: category.subCategories
-                .map<Widget>((sub) => showSub(sub))
+                .map<Widget>((sub) => showSub(sub, isLoggedIn))
                 .toList(),
           );
   }
 
-  showSub(SubCategoriesModel subCategory) {
+  showSub(SubCategoriesModel subCategory, bool isLoggedIn) {
     return Padding(
         padding: const EdgeInsets.only(left: 15.0),
         child: subCategory.subSubCategoriesModel.length == 0
             ? InkWell(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Categories(
-                          subcategory: subCategory.id,
-                          subcategoryName: subCategory.name,
-                        ),
-                      ));
+                  if(isLoggedIn)
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomNav(
+                        searchTerm: subCategory.id + '@' + subCategory.name,
+                        index: 1,
+                      ),
+                    ));
+              else
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomNavAnonymous(
+                        searchTerm: subCategory.id + '@' + category.name,
+                        index: 1,
+                      ),
+                    ));
                 },
                 child: ListTile(
                   title: Text(
@@ -152,29 +190,82 @@ class CategoryExpandableWidget extends StatelessWidget {
                 title: Text(subCategory.name, style: TextStyle(fontSize: 17)),
                 children: subCategory.subSubCategoriesModel
                     .map<Widget>((subsub) =>
-                        showSubSub(subsub, subCategory.name, subCategory.id))
+                        showSubSub(subsub, subCategory.name, subCategory.id, isLoggedIn))
                     .toList(),
               ));
   }
 
-  showSubSub(SubSubCategoriesModel subsubCategory, String name, String id) {
+  showSubSub(SubSubCategoriesModel subsubCategory, String name, String id, bool isLoggedIn) {
+    return Padding(
+      padding: EdgeInsets.only(left: 15),
+      child: InkWell(
+          onTap: () {
+            if(isLoggedIn)
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomNav(
+                        searchTerm: subsubCategory.id + '@' + subsubCategory.name,
+                        index: 1,
+                      ),
+                    ));
+              else
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomNavAnonymous(
+                        searchTerm: subsubCategory.id + '@' + subsubCategory.name,
+                        index: 1,
+                      ),
+                    ));
+          },
+          child: subsubCategory.subSubSubCategoriesModel.length == 0
+              ? ListTile(
+                  title: Text(
+                    subsubCategory.name,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                )
+              : ExpansionTile(
+                  key: PageStorageKey<SubSubCategoriesModel>(subsubCategory),
+                  title:
+                      Text(subsubCategory.name, style: TextStyle(fontSize: 17)),
+                  children: subsubCategory.subSubSubCategoriesModel
+                      .map<Widget>((subsub) => showSubSubSub(
+                          subsub, subsubCategory.name, subsubCategory.id, isLoggedIn))
+                      .toList(),
+                )),
+    );
+  }
+
+  showSubSubSub(SubSubSubCategoriesModel subsubsub, String name, String id, bool isLoggedIn) {
     return Padding(
       padding: EdgeInsets.only(left: 15),
       child: InkWell(
         onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Categories(
-                  subcategory: id,
-                  subcategoryName: name,
-                ),
-              ));
+          if(isLoggedIn)
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomNav(
+                        searchTerm: subsubsub.id + '@' + subsubsub.name,
+                        index: 1,
+                      ),
+                    ));
+              else
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomNavAnonymous(
+                        searchTerm: subsubsub.id + '@' + subsubsub.name,
+                        index: 1,
+                      ),
+                    ));
         },
         child: ListTile(
           title: Text(
-            subsubCategory.name,
-            style: TextStyle(fontSize: 16),
+            subsubsub.name,
+            style: TextStyle(fontSize: 17),
           ),
         ),
       ),

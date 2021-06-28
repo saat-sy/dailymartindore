@@ -7,7 +7,8 @@ import 'package:http/http.dart' as http;
 class ReviewService {
   static const API = 'http://4percentmedical.com/dks/grocery/Api/Restapi';
 
-  Future<APIResponse<bool>> addReview(ReviewsModel reviewsModel) {
+  Future<APIResponse<bool>> addReview(ReviewsModel reviewsModel) async {
+    final header = await Strings.getHeaders();
     final body = {
       'user_id': reviewsModel.userID,
       'product_id': reviewsModel.productID,
@@ -18,7 +19,7 @@ class ReviewService {
 
     return http
         .post(Uri.parse(API + '/addReviewRating'),
-            headers: Strings.HEADERS, body: body)
+            headers: header, body: body)
         .then((value) {
       if (value.statusCode == 200) {
         final jsonData = json.decode(value.body);
@@ -44,10 +45,11 @@ class ReviewService {
     });
   }
 
-  Future<APIResponse<List<ReviewsModel>>> getReviews(String productId) {
+  Future<APIResponse<List<ReviewsModel>>> getReviews(String productId) async {
+    final header = await Strings.getHeaders();
     final body = {'product_id': productId,};
     return http
-        .post(Uri.parse(API + '/getProductReview'), headers: Strings.HEADERS, body: body)
+        .post(Uri.parse(API + '/getProductReview'), headers: header, body: body)
         .then((value) {
           print(value.statusCode);
       if (value.statusCode == 200) {

@@ -78,17 +78,19 @@ class _TopScreenState extends State<TopScreen> {
           onRefresh: refresh,
           child: isLoading
               ? Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      error != ""
-                          ? Text(
-                              error,
-                              style: TextStyle(color: Colors.red),
-                            )
-                          : Container()
-                    ],
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        error == "" ? CircularProgressIndicator() : Container(),
+                        error != ""
+                            ? Text(
+                                error,
+                                style: TextStyle(color: Colors.red),
+                              )
+                            : Container()
+                      ],
+                    ),
                   ),
                 )
               : ProductCard(
